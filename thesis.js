@@ -1,5 +1,7 @@
 const fileList = document.getElementById('thesis-file-list');
 
+const GITHUB_PAGES_BASE_URL = 'https://sumnor.github.io/thesis/'; 
+
 const THESIS_API_URL = 'https://api.github.com/repos/Sumnor/sumnor.github.io/contents/thesis';
 
 function renderThesisList(files) {
@@ -13,7 +15,8 @@ function renderThesisList(files) {
 
     files.forEach(file => {
         let fileName = file.name;
-        let linkUrl = file.download_url;
+        
+        let linkUrl = GITHUB_PAGES_BASE_URL + fileName;
 
         let nameWithoutExt = fileName.replace(/\.[^/.]+$/, "");
         
