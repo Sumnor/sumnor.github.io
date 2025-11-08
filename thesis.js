@@ -3,7 +3,7 @@ const fileList = document.getElementById('thesis-file-list');
 const THESIS_API_URL = 'https://api.github.com/repos/Sumnor/sumnor.github.io/contents/thesis';
 
 // The base URL for the viewer page
-const VIEWER_BASE_URL = 'https://sumnor.github.io/viewer.html'; 
+const VIEWER_BASE_URL = 'https://sumnor.github.io/theses_reader/index.html'; 
 
 function renderThesisList(files) {
     if (!fileList) return;
