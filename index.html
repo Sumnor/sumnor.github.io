@@ -321,8 +321,12 @@ body.dark .update-link {
           const viewMatch = entry.match(/<view\s*=\s*([^>\|\n\s]+)>?/i);
           let imageURL = viewMatch ? viewMatch[1].trim() : '';
           if (imageURL.includes('github.com') && imageURL.includes('/blob/')) {
-            imageURL = imageURL.replace('github.com', 'raw.githubusercontent.com').replace('/blob', '');
+            imageURL = imageURL
+              .replace('github.com', 'raw.githubusercontent.com')
+              .replace('/blob', '')
+              .replace(/#.*$/, '');
           }
+
           // --- match everything after the first "|" up to \uURL or end ---
           const textMatch = entry.match(/\|\s*([\s\S]*?)(?=\\uURL:|$)/);
           const description = textMatch ? textMatch[1].trim() : '';
