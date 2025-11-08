@@ -319,8 +319,10 @@ body.dark .update-link {
         const formattedBlocks = entries.map(entry => {
           // --- match the <view=...> URL before the first > or pipe ---
           const viewMatch = entry.match(/<view\s*=\s*([^>\|\n\s]+)>?/i);
-          const imageURL = viewMatch ? viewMatch[1].trim() : '';
-  
+          let imageURL = viewMatch ? viewMatch[1].trim() : '';
+          if (imageURL.includes('github.com') && imageURL.includes('/blob/')) {
+            imageURL = imageURL.replace('github.com', 'raw.githubusercontent.com').replace('/blob', '');
+          }
           // --- match everything after the first "|" up to \uURL or end ---
           const textMatch = entry.match(/\|\s*([\s\S]*?)(?=\\uURL:|$)/);
           const description = textMatch ? textMatch[1].trim() : '';
