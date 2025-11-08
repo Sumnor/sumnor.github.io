@@ -15,7 +15,7 @@
 
   async function loadAndFormatPDF() {
     const container = document.getElementById('resume-text');
-    const pdfPath = './text/resume.pdf';
+    const pdfPath = '../text/resume.pdf';
 
     try {
       container.textContent = 'Loading PDF...';
