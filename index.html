@@ -94,12 +94,55 @@ body {
   margin-bottom: 20px;
 }
 
-.updates-text {
-  font-size: 1.05em;
-  color: #333;
-  line-height: 1.8;
+/* --- Updates Card Layout --- */
+.update-block {
+  display: flex;
+  align-items: center;
+  gap: 30px;
+  background-color: #f8f9fa;
+  border-radius: 25px;
+  padding: 25px 30px;
+  margin: 30px 0;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
+.update-block:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+}
+
+.update-image {
+  flex-shrink: 0;
+  width: 180px;
+  height: auto;
+  border-radius: 15px;
+  object-fit: contain;
+}
+
+.update-content {
+  flex: 1;
+  text-align: left;
+}
+
+.update-description {
+  white-space: pre-wrap;
+  font-family: inherit;
+  font-size: 1.05em;
+  line-height: 1.6;
+  margin-bottom: 0.6em;
+}
+
+.update-link {
+  font-size: 0.9em;
+  color: #0d6efd;
+}
+
+.update-link:hover {
+  text-decoration: underline;
+}
+
+/* --- Dark Mode Styling --- */
 body.dark {
   background-color: #1e1e1e;
   color: #e6e6e6;
@@ -147,8 +190,16 @@ body.dark .updates-header {
   color: #66b2ff;
 }
 
-body.dark .updates-text {
+body.dark .update-block {
+  background-color: #343a40;
+}
+
+body.dark .update-description {
   color: #e6e6e6;
+}
+
+body.dark .update-link {
+  color: #66b2ff;
 }
 
 #mode-icon {
@@ -157,16 +208,13 @@ body.dark .updates-text {
   cursor: pointer;
 }
 
+/* --- Responsive --- */
 @media (max-width: 768px) {
   .headers-section {
     flex-wrap: wrap;
     gap: 20px;
     padding: 10px 20px;
     border-radius: 25px;
-  }
-
-  .headers-text {
-    font-size: 0.9rem;
   }
 
   .profile-section {
@@ -177,49 +225,34 @@ body.dark .updates-text {
     margin: 30px 15px;
   }
 
-  .profile-pic {
-    width: 200px;
-    height: 240px;
-  }
-
-  .profile-text {
-    font-size: 1em;
-    padding: 15px 20px;
-    text-align: center;
-  }
-
   .updates-section {
     margin: 30px 15px;
     padding: 25px 20px;
   }
 
-  .updates-header {
+  .update-block {
+    flex-direction: column;
     text-align: center;
-    font-size: 1.6em;
   }
 
-  .updates-text {
-    font-size: 0.95em;
+  .update-image {
+    width: 70%;
+    margin-bottom: 10px;
+  }
+
+  .update-content {
+    text-align: center;
   }
 }
 
 @media (max-width: 480px) {
-  .headers-section {
-    flex-direction: column;
-    gap: 10px;
-  }
-
   .profile-pic {
     width: 160px;
     height: 190px;
   }
 
-  .profile-text {
+  .update-description {
     font-size: 0.95em;
-  }
-
-  .updates-header {
-    font-size: 1.4em;
   }
 }
   </style>
@@ -271,11 +304,8 @@ body.dark .updates-text {
 
   <script>
   (function() {
-    const currentScript = document.currentScript;
-    const fileName = 'updates.txt';
-    const filePath = `../text/${fileName}`;
+    const filePath = '../text/updates.txt';
     const element = document.getElementById('new-addition');
-
     if (!element) return;
 
     fetch(filePath)
@@ -297,17 +327,15 @@ body.dark .updates-text {
           const linkURL = urlMatch ? urlMatch[1].trim() : '#';
 
           return `
-            <div style="text-align:center; margin: 2em auto;">
-              <a href="${linkURL}" target="_blank" style="text-decoration:none; color:inherit;">
-                ${imageURL ? `<img src="${imageURL}" alt="" style="max-width:60%; height:auto; display:block; margin:0 auto 1em;">` : ''}
-                <div style="white-space:pre-wrap; font-family:inherit; font-size:1rem; line-height:1.5;">
-                  ${description}
+            <a href="${linkURL}" target="_blank" style="text-decoration:none; color:inherit;">
+              <div class="update-block">
+                ${imageURL ? `<img src="${imageURL}" alt="Update image" class="update-image">` : ''}
+                <div class="update-content">
+                  <div class="update-description">${description}</div>
+                  <div><span class="update-link">${linkURL}</span></div>
                 </div>
-              </a>
-              <div style="margin-top:0.5em; font-size:0.9rem; color:#666;">
-                <a href="${linkURL}" target="_blank">${linkURL}</a>
               </div>
-            </div>
+            </a>
           `;
         }).join('\n');
 
