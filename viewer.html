@@ -5,65 +5,34 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Document Viewer</title>
   <style>
-    body {
+    html, body {
       margin: 0;
-      font-family: Georgia, "Times New Roman", serif;
+      height: 100%;
       background-color: #f5f5f5;
-      color: #333;
-      display: flex;
-      flex-direction: column;
-      height: 100vh;
+      font-family: Georgia, "Times New Roman", serif;
     }
 
     #pdf-frame {
       width: 100%;
-      height: 100vh;
+      height: 100%;
       border: none;
-    }
-
-    h1 {
-      text-align: center;
-      padding: 30px;
-      color: #0d6efd;
-    }
-
-    @media (max-width: 768px) {
-      #pdf-frame {
-        height: 92vh;
-      }
-
-      h1 {
-        font-size: 1.2rem;
-        padding: 20px;
-      }
-    }
-
-    @media (max-width: 480px) {
-      #pdf-frame {
-        height: 90vh;
-      }
-
-      h1 {
-        font-size: 1rem;
-        padding: 15px;
-      }
     }
   </style>
 </head>
 <body>
-  <iframe id="pdf-frame" frameborder="0" allowfullscreen></iframe>
+  <iframe id="pdf-frame"></iframe>
 
   <script>
     const urlParams = new URLSearchParams(window.location.search);
-    const pdfFileName = urlParams.get('doc');
-    
+    const pdfFileName = urlParams.get("doc");
+
     if (pdfFileName) {
       const fullPdfUrl = `https://sumnor.github.io/thesis/${pdfFileName}`;
-      const pdfViewer = `https://mozilla.github.io/pdf.js/web/viewer.html?file=${encodeURIComponent(fullPdfUrl)}`;
-      document.getElementById('pdf-frame').src = pdfViewer;
-      document.title = pdfFileName.replace(/\.[^/.]+$/, '').replace(/[-_]/g, ' ');
+      const googleViewer = `https://docs.google.com/gview?embedded=true&url=${encodeURIComponent(fullPdfUrl)}`;
+      document.getElementById("pdf-frame").src = googleViewer;
+      document.title = pdfFileName.replace(/\.[^/.]+$/, "").replace(/[-_]/g, " ");
     } else {
-      document.body.innerHTML = '<h1>Error: No Document Specified</h1>';
+      document.body.innerHTML = "<h1 style='text-align:center;color:#0d6efd;'>Error: No Document Specified</h1>";
     }
   </script>
 </body>
