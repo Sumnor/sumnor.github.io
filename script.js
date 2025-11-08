@@ -2,7 +2,7 @@
   const currentScript = document.currentScript;
   const fileName = currentScript.getAttribute('data-file');
   const targetId = currentScript.getAttribute('data-target'); 
-  const filePath = `text/${fileName}`;
+  const filePath = `../text/${fileName}`;
   const element = document.getElementById(targetId);
 
   if (!element) return;
