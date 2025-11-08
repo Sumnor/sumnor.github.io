@@ -1,5 +1,5 @@
 "Machine learning force fields": https://scholar.google.com/citations?view_op=view_citation&hl=en&user=tX82CDwAAAAJ&citation_for_view=tX82CDwAAAAJ:IWHjjKOFINEC
-- "Description": O.T. Unke, S. Chmiela, H.E. Sauceda, M. Gastegger, I. Poltavsky, K.T. Schutt, A. Tkatchenko, K.-. Muller\nChemical Reviews 121 (16), 10142-10186
+- "Description": O.T. Unke, S. Chmiela, H.E. Sauceda, M. Gastegger, **I. Poltavsky**, K.T. Schutt, A. Tkatchenko, K.-. Muller\nChemical Reviews 121 (16), 10142-10186
 
 "Machine learning of accurate energy-conserving molecular force fields": https://scholar.google.com/citations?view_op=view_citation&hl=en&user=tX82CDwAAAAJ&citation_for_view=tX82CDwAAAAJ:Se3iqnhoufwC 
 - "Description": S. Chmiela, A. Tkatchenko, H.E. Sauceda, I. Poltavsky, K.T. Schütt, K.-R. Müller\nScience advances 3 (5), e1603015
@@ -9,3 +9,9 @@
 
 "sGDML: Constructing accurate and data efficient molecular force fields using machine learning": https://scholar.google.com/citations?view_op=view_citation&hl=en&user=tX82CDwAAAAJ&citation_for_view=tX82CDwAAAAJ:Zph67rFs4hoC
 - "Description": S. Chmiela, H.E. Sauceda, I. Poltavsky, K.-R. Müller, A. Tkatchenko\nComputer Physics Communications 240, 38-45
+
+"Molecular force fields with gradient-domain machine learning: Construction and application to dynamics of small molecules with coupled cluster forces": https://scholar.google.com/citations?view_op=view_citation&hl=en&user=tX82CDwAAAAJ&citation_for_view=tX82CDwAAAAJ:M3ejUd6NZC8C
+- "Description": H.E. Sauceda, S. Chmiela, I. Poltavsky, K.-R. Müller, A. Tkatchenko\nThe Journal of chemical physics 150 (11)
+
+"Machine learning force fields: Recent advances and remaining challenges": https://scholar.google.com/citations?view_op=view_citation&hl=en&user=tX82CDwAAAAJ&citation_for_view=tX82CDwAAAAJ:TQgYirikUcIC
+- "Description": I. Poltavsky, A. Tkatchenko\nThe journal of physical chemistry letters 12 (28), 6551-6564
