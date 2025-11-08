@@ -1,1 +1,2 @@
-.img - text . URL: link
+<view=https://github.com/tohenkes/aims-PAX/blob/main/readme_figs/preliminary_logo_w.png#gh-dark-mode-only> | aims-PAX, short for ab initio molecular simulation-Parallel Active eXploration, is a flexible, fully automated, open-source software package for performing active learning for machine learning force fields using a parallelized algorithm that enables efficient resource management.
+\uURL: https://github.com/tohenkes/aims-PAX?tab=readme-ov-file
