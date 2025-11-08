@@ -2,7 +2,10 @@
 - "Description": O.T. Unke, S. Chmiela, H.E. Sauceda, M. Gastegger, I. Poltavsky, K.T. Schutt, A. Tkatchenko, K.-. Muller\nChemical Reviews 121 (16), 10142-10186
 
 "Machine learning of accurate energy-conserving molecular force fields": https://scholar.google.com/citations?view_op=view_citation&hl=en&user=tX82CDwAAAAJ&citation_for_view=tX82CDwAAAAJ:Se3iqnhoufwC 
-- "Desciption": S. Chmiela, A. Tkatchenko, H.E. Sauceda, I. Poltavsky, K.T. Schütt, K.-R. Müller\nScience advances 3 (5), e1603015
+- "Description": S. Chmiela, A. Tkatchenko, H.E. Sauceda, I. Poltavsky, K.T. Schütt, K.-R. Müller\nScience advances 3 (5), e1603015
 
 "i-PI 2.0: A universal force engine for advanced molecular simulations": https://scholar.google.com/citations?view_op=view_citation&hl=en&user=tX82CDwAAAAJ&citation_for_view=tX82CDwAAAAJ:MXK_kJrjxJIC 
 - "Description": V. Kapil, M. Rossi, O. Marsalek, R. Petraglia, Y. Litman, T. Spura, B. Cheng, A. Cuzzocrea, R.H. Meißner, D.M. Wilkins, B.A. Helfrecht, P. Juda, S.P. Bienvenue, W. Fang, J. Kessler, I. Poltavsky, S. Vandenbrande, J. Wieme, C. Corminboeuf, T.D. Kühne, D.E. Manolopoulos, T.E. Markland, J.O. Richardson, A. Tkatchenko, G.A. Tribello, V. Van Speybroeck, M. Ceriotti\nComputer Physics Communications 236, 214-223
+
+"sGDML: Constructing accurate and data efficient molecular force fields using machine learning": https://scholar.google.com/citations?view_op=view_citation&hl=en&user=tX82CDwAAAAJ&citation_for_view=tX82CDwAAAAJ:Zph67rFs4hoC
+- "Description": S. Chmiela, H.E. Sauceda, I. Poltavsky, K.-R. Müller, A. Tkatchenko\nComputer Physics Communications 240, 38-45
