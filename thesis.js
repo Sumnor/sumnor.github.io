@@ -2,7 +2,8 @@ const fileList = document.getElementById('thesis-file-list');
 
 const THESIS_API_URL = 'https://api.github.com/repos/Sumnor/sumnor.github.io/contents/thesis';
 
-const GITHUB_PAGES_BASE_URL = 'https://sumnor.github.io/thesis/'; 
+// The base URL for the viewer page
+const VIEWER_BASE_URL = 'https://sumnor.github.io/viewer.html'; 
 
 function renderThesisList(files) {
     if (!fileList) return;
@@ -16,8 +17,10 @@ function renderThesisList(files) {
     files.forEach(file => {
         let fileName = file.name;
         
-        let linkUrl = GITHUB_PAGES_BASE_URL + fileName; 
-
+        // Construct the link to the viewer page with the file name as a query parameter
+        // Final link will be: https://sumnor.github.io/viewer.html?doc=DocumentName.pdf
+        let linkUrl = `${VIEWER_BASE_URL}?doc=${fileName}`; 
+        
         let nameWithoutExt = fileName.replace(/\.[^/.]+$/, "");
         
         nameWithoutExt = nameWithoutExt.replace(/\/\//g, '/').replace(/^\/|\/$/g, '');
