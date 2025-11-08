@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Thesisis Documents</title>
+<style>
+
+body {
+  margin: 0;
+  font-family: Georgia, "Times New Roman", serif;
+  background-color: #222020;
+}
+
+.headers-section {
+  display: flex;
+  justify-content: center;
+  gap: 40px;
+  background-color: #141313;
+  border-radius: 50px;
+  padding: 15px 50px;
+  margin: 20px auto;
+}
+
+.headers-text {
+  font-size: 6mm;
+  color: #a70303;
+  text-decoration: none;
+}
+
+.active {
+  text-decoration: underline;
+  font-weight: bold;
+  color: #a70303;
+}
+
+.thesis-list-wrapper {
+  max-width: 1000px;
+  margin: 60px auto; 
+  background-color: #141313; 
+  border-radius: 50px;
+  padding: 50px;
+  color: #a70303;
+}
+
+.thesis-list-wrapper h2 {
+    color: #a70303;
+    font-size: 2.5em;
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.thesis-list-wrapper ul {
+  list-style-type: none; 
+  padding: 0;
+}
+
+.thesis-list-wrapper li {
+  margin-bottom: 8px;
+  padding: 15px 20px;
+  transition: background-color 0.2s;
+  border-radius: 25px;
+  border: 1px solid #2a2828; 
+}
+
+.thesis-list-wrapper li:hover {
+  background-color: #2a2828; 
+  border-color: #a70303;
+}
+
+.thesis-link {
+  text-decoration: none;
+  color: #a70303;
+  font-size: 1.2em;
+  display: block;
+  font-weight: normal;
+}
+
+.thesis-link:hover {
+  text-decoration: underline;
+  color: #ff4d4d; 
+}
+
+body.dark {
+  background-color: #fed28a;
+}
+body.dark .headers-section {
+  background-color: #fbc061;
+}
+body.dark .headers-text {
+  color: rgb(255, 132, 0);
+}
+body.dark .thesis-list-wrapper {
+  background-color: #fbc061;
+  color: rgb(255, 132, 0);
+}
+body.dark .thesis-list-wrapper h2 {
+    color: rgb(255, 132, 0);
+}
+body.dark .thesis-list-wrapper li {
+  border: 1px solid #ffaa4c;
+}
+body.dark .thesis-list-wrapper li:hover {
+  background-color: #ffaa4c;
+}
+body.dark .thesis-link {
+  color: rgb(255, 132, 0);
+}
+body.dark .thesis-link:hover {
+  color: rgb(200, 100, 0);
+}
+
+#mode-icon {
+    margin-right: 5px;
+}
+</style>
+</head>
+<body>
+
+<div class="headers-section">
+    <a href="home.html" class="headers-text">Overview</a>
+    <a href="resume.html" class="headers-text">Resume</a>
+    <a href="thesis.html" class="headers-text active">Thesises</a>
+    <a href="#" class="headers-text" id="dark-toggle">
+      <span id="mode-icon"></span> 
+    </a>
+  </div>
+  
+  <script>
+  const toggle = document.getElementById('dark-toggle');
+  const iconSpan = document.getElementById('mode-icon');
+  
+  function updateIcon() {
+      const isDarkMode = document.body.classList.contains('dark');
+      if (isDarkMode) {
+          iconSpan.textContent = '☀️';
+      } else {
+          iconSpan.textContent = '🌙';
+      }
+  }
+  if (localStorage.getItem('darkMode') === 'true') {
+    document.body.classList.add('dark');
+  }
+  updateIcon();
+  toggle.addEventListener('click', e => {
+    e.preventDefault();
+    document.body.classList.toggle('dark');
+    localStorage.setItem('darkMode', document.body.classList.contains('dark'));
+    updateIcon();
+  });
+  </script>
+
+<div class="thesis-list-wrapper">
+    <h2>Available Thesis Documents</h2>
+    <ul id="thesis-file-list">
+        <li>Loading documents...</li> 
+    </ul>
+</div>
+
+<script src="thesis.js"></script>
+
+</body>
+</html>
