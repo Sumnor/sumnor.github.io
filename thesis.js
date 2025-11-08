@@ -1,8 +1,8 @@
 const fileList = document.getElementById('thesis-file-list');
 
-const GITHUB_PAGES_BASE_URL = 'https://sumnor.github.io/thesis/'; 
-
 const THESIS_API_URL = 'https://api.github.com/repos/Sumnor/sumnor.github.io/contents/thesis';
+
+const GITHUB_PAGES_BASE_URL = 'https://sumnor.github.io/thesis/'; 
 
 function renderThesisList(files) {
     if (!fileList) return;
@@ -16,7 +16,7 @@ function renderThesisList(files) {
     files.forEach(file => {
         let fileName = file.name;
         
-        let linkUrl = GITHUB_PAGES_BASE_URL + fileName;
+        let linkUrl = GITHUB_PAGES_BASE_URL + fileName; 
 
         let nameWithoutExt = fileName.replace(/\.[^/.]+$/, "");
         
@@ -29,8 +29,9 @@ function renderThesisList(files) {
         const listItem = document.createElement('li');
         const link = document.createElement('a');
 
-        link.href = linkUrl;
+        link.href = linkUrl; 
         link.classList.add('thesis-link');
+        link.target = "_blank"; 
         
         link.textContent = nameWithoutExt; 
         
