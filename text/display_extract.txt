@@ -1,0 +1,112 @@
+# **Igor Poltavskyi** *(Fictional / Example CV)*
+
+**Contact**
+- **Email:** igor.poltavskyi@example.com  
+- **Website:** https://example.org/igor-poltavskyi  
+- **Phone:** +1 (555) 123-4567  
+- **Location:** Berlin, Germany
+
+---
+
+## **Professional Summary**
+Energetic and detail-oriented computational chemist and machine-learning researcher with 7+ years of experience developing data-driven interatomic potentials, molecular dynamics workflows, and scalable active-learning pipelines. Proven track record of turning complex physical chemistry problems into robust, reproducible software and peer-reviewed publications. Strong background in quantum chemistry, statistical mechanics, Python/C++ development, and high-performance computing.
+
+---
+
+## **Education**
+**Ph.D. in Theoretical Chemistry** — *Technical University of Munich (TUM)*  
+*2016 – 2020*  
+- Thesis: *“Data-driven force fields for accelerated molecular simulation”*  
+- Advisor: Prof. Example Name
+
+**M.Sc. in Computational Physics** — *University of Warsaw*  
+*2014 – 2016*  
+- Thesis: *“Machine learning potentials for small molecular systems”*
+
+**B.Sc. in Physics** — *Lviv National University*  
+*2010 – 2014*
+
+---
+
+## **Research & Professional Experience**
+
+**Senior Research Scientist — Computational Materials**  
+*AlphaSim Research Lab, Berlin*  
+*2022 – Present*  
+- Lead development of a production active-learning pipeline (aims-PAX style) for generating machine-learned force fields for complex materials.  
+- Designed parallel sampling strategies to reduce training dataset size by 60% while maintaining model fidelity.  
+- Coordinated a cross-disciplinary team of 4 researchers and 2 software engineers; set testing and CI standards for scientific codebase.
+
+**Postdoctoral Researcher — Machine Learning for Molecular Simulation**  
+*Institute for Molecular Modeling, Zurich*  
+*2020 – 2022*  
+- Implemented energy-conserving neural network potentials and integrated them with existing DFT workflows.  
+- Published methods for uncertainty estimation in ML-potentials and demonstrated transferability across chemical spaces.  
+- Optimized MD acceleration using GPU-native inference, achieving 15× speedups in production runs.
+
+**Graduate Researcher**  
+*Computational Chemistry Group, TUM*  
+*2016 – 2020*  
+- Developed descriptors and featurization methods for ML force fields; benchmarked against classical potentials.  
+- Contributed to open-source code, authored reproducible Jupyter workflows and modular Python packages.
+
+---
+
+## **Selected Publications (representative, fictional)**
+- **Poltavskyi, I.**, Chmiela, S., *et al.* (2021). *Active learning of accurate energy-conserving molecular force fields.* *J. Chem. Comput.* **12**, 45–67.  
+- **Poltavskyi, I.**, Müller, K.R. (2020). *Uncertainty quantification for ML interatomic potentials.* *Comp. Phys. Comm.* **250**, 107124.  
+- Sauceda, H.E., **Poltavskyi, I.**, *et al.* (2019). *Efficient GPU inference for neural network potentials.* *Mol. Simul.* **45**, 221–236.
+
+---
+
+## **Technical Skills**
+
+**Programming & Tools**
+- Python (NumPy, SciPy, pandas), C++, Fortran (legacy interfacing), Bash  
+- ML frameworks: PyTorch, TensorFlow, JAX  
+- MD / electronic structure: VASP, Quantum ESPRESSO, FHI-aims, LAMMPS  
+- Data & infra: Git, GitHub Actions, Docker, Slurm, MPI, CUDA
+
+**Methods**
+- Machine-learning interatomic potentials (NN, GAP, SOAP descriptors)  
+- Active learning & uncertainty estimation, Bayesian optimization  
+- Molecular dynamics, enhanced sampling, ab initio calculations
+
+**Other**
+- Unit testing, CI for scientific software, documentation (Sphinx), reproducible research
+
+---
+
+## **Awards & Grants**
+- *Early Career Fellowship* (Fictional Foundation), 2023 — Project: “Scalable ML potentials for heterogeneous catalysis”  
+- *Young Investigator Travel Award*, International ML for Molecules Workshop, 2021
+
+---
+
+## **Teaching & Mentoring**
+- Supervised 3 MSc students (projects on ML potentials and MD workflows)  
+- Guest lecturer: *Machine Learning in Molecular Simulation* (graduate seminar)  
+- Organized reproducible research workshops for early-career researchers
+
+---
+
+## **Service & Open Source**
+- Maintainer/contributor: *aims-PAX* style active-learning repository (open source)  
+- Reviewer for *Journal of Computational Chemistry* and *Machine Learning: Science & Technology*  
+- Committee member: Local scientific Python meetup
+
+---
+
+## **Languages**
+- English (fluent)  
+- Ukrainian (native)  
+- German (conversational)
+
+---
+
+## **References**
+Available upon request.
+
+---
+
+**Note:** This is a **fictional example CV** formatted for demonstration. Replace entries (dates, publications, affiliations, contact info) with your real information before use.

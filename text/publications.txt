@@ -1,0 +1,4 @@
+"Machine learning of accurate energy-conserving molecular force fields": https://scholar.google.com/citations?view_op=view_citation&hl=en&user=tX82CDwAAAAJ&citation_for_view=tX82CDwAAAAJ:Se3iqnhoufwC 
+- "Desciption": - S. Chmiela, A. Tkatchenko, H.E. Sauceda, I. Poltavsky, K.T. Schütt, K.-R. Müller\n- Sci. Adv. 3 (5) (2017)
+
+"Machine learning force fields": https://scholar.google.com/citations?view_op=view_citation&hl=en&user=tX82CDwAAAAJ&citation_for_view=tX82CDwAAAAJ:IWHjjKOFINEC

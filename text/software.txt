@@ -1,0 +1,5 @@
+<view=https://github.com/tohenkes/aims-PAX/blob/main/readme_figs/preliminary_logo_w.png#gh-dark-mode-only> | aims-PAX, short for ab initio molecular simulation-Parallel Active eXploration, is a flexible, fully automated, open-source software package for performing active learning for machine learning force fields using a parallelized algorithm that enables efficient resource management.
+\uURL: https://github.com/tohenkes/aims-PAX?tab=readme-ov-file
+
+<view=https://pubs.acs.org/cms/10.1021/acs.jctc.3c00985/asset/images/medium/ct3c00985_0012.gif> | As the sophistication of machine learning force fields (MLFF) increases to match the complexity of extended molecules and materials, so does the need for tools to properly analyze and assess the practical performance of MLFFs. To go beyond average error metrics and into a complete picture of a model’s applicability and limitations, we developed FFAST (force field analysis software and tools): a cross-platform software package designed to gain detailed insights into a model’s performance and limitations, complete with an easy-to-use graphical user interface.
+\uURL: https://github.com/fonsecag/FFAST
