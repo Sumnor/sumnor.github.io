@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Document Viewer</title>
   <style>
     body {
@@ -29,7 +29,7 @@
 
     @media (max-width: 768px) {
       #pdf-frame {
-        height: 90vh;
+        height: 92vh;
       }
 
       h1 {
@@ -40,17 +40,18 @@
 
     @media (max-width: 480px) {
       #pdf-frame {
-        height: 85vh;
+        height: 90vh;
       }
 
       h1 {
         font-size: 1rem;
+        padding: 15px;
       }
     }
   </style>
 </head>
 <body>
-  <iframe id="pdf-frame" frameborder="0"></iframe>
+  <iframe id="pdf-frame" frameborder="0" allowfullscreen></iframe>
 
   <script>
     const urlParams = new URLSearchParams(window.location.search);
@@ -58,7 +59,8 @@
     
     if (pdfFileName) {
       const fullPdfUrl = `https://sumnor.github.io/thesis/${pdfFileName}`;
-      document.getElementById('pdf-frame').src = fullPdfUrl;
+      const pdfViewer = `https://mozilla.github.io/pdf.js/web/viewer.html?file=${encodeURIComponent(fullPdfUrl)}`;
+      document.getElementById('pdf-frame').src = pdfViewer;
       document.title = pdfFileName.replace(/\.[^/.]+$/, '').replace(/[-_]/g, ' ');
     } else {
       document.body.innerHTML = '<h1>Error: No Document Specified</h1>';
