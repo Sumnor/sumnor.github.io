@@ -43,9 +43,13 @@
 
     async function fetchAlliances() {
       try {
-        const res = await fetch(apiUrl, { method: "POST" }); // POST supported by backend
+        const res = await fetch(apiUrl, { method: "POST" }); // backend supports POST and GET
         const data = await res.json();
-        alliances = data.alliances;
+        if (!data.alliances || data.alliances.length === 0) {
+          console.warn("No alliances data returned");
+          return;
+        }
+        alliances = data.alliances; // no slice needed
         renderTable(alliances);
       } catch (err) {
         console.error("Failed to fetch alliances:", err);
