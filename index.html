@@ -43,9 +43,9 @@
 
     async function fetchAlliances() {
       try {
-        const res = await fetch(apiUrl, { method: "POST" });
+        const res = await fetch(apiUrl); // GET request
         const data = await res.json();
-        alliances = data.alliances.slice(1); // skip metadata line
+        alliances = data.alliances;
         renderTable(alliances);
       } catch (err) {
         console.error("Failed to fetch alliances:", err);
