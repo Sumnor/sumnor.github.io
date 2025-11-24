@@ -43,7 +43,7 @@
 
     async function fetchAlliances() {
       try {
-        const res = await fetch(apiUrl); // GET request
+        const res = await fetch(apiUrl, { method: "POST" }); // POST supported by backend
         const data = await res.json();
         alliances = data.alliances;
         renderTable(alliances);
