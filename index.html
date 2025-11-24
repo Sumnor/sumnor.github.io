@@ -43,13 +43,14 @@
 
     async function fetchAlliances() {
       try {
-        const res = await fetch(apiUrl, { method: "POST" }); // backend supports POST and GET
+        const res = await fetch(apiUrl, { method: "POST" }); // backend supports POST
         const data = await res.json();
         if (!data.alliances || data.alliances.length === 0) {
-          console.warn("No alliances data returned");
+          console.warn("No alliances returned");
           return;
         }
-        alliances = data.alliances; // no slice needed
+        alliances = data.alliances;
+        console.log("Fetched alliances:", alliances);
         renderTable(alliances);
       } catch (err) {
         console.error("Failed to fetch alliances:", err);
@@ -77,9 +78,9 @@
       });
     }
 
-    document.getElementById("search").addEventListener("input", (e) => {
+    document.getElementById("search").addEventListener("input", e => {
       const query = e.target.value.toLowerCase();
-      const filtered = alliances.filter(a => 
+      const filtered = alliances.filter(a =>
         (a.name && a.name.toLowerCase().includes(query)) ||
         (a.acronym && a.acronym.toLowerCase().includes(query))
       );
