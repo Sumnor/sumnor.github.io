@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Alliances Viewer</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    input { padding: 8px; margin-bottom: 10px; width: 300px; }
+    table { border-collapse: collapse; width: 100%; }
+    th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
+    th { background-color: #f4f4f4; }
+    tr:nth-child(even) { background-color: #fafafa; }
+    img.flag { width: 50px; height: auto; }
+  </style>
+</head>
+<body>
+  <h1>Alliances Viewer</h1>
+  <input type="text" id="search" placeholder="Search by name or acronym...">
+
+  <table id="alliancesTable">
+    <thead>
+      <tr>
+        <th>Flag</th>
+        <th>ID</th>
+        <th>Name</th>
+        <th>Acronym</th>
+        <th>Rank</th>
+        <th>Score</th>
+        <th>Date</th>
+        <th>Accept Members</th>
+        <th>Discord</th>
+        <th>Wiki</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <script>
+    const apiUrl = "https://checked-notre-enforcement-careful.trycloudflare.com/data/alliance";
+
+    let alliances = [];
+
+    async function fetchAlliances() {
+      try {
+        const res = await fetch(apiUrl, { method: "POST" });
+        const data = await res.json();
+        alliances = data.alliances.slice(1); // skip metadata line
+        renderTable(alliances);
+      } catch (err) {
+        console.error("Failed to fetch alliances:", err);
+      }
+    }
+
+    function renderTable(list) {
+      const tbody = document.querySelector("#alliancesTable tbody");
+      tbody.innerHTML = "";
+      list.forEach(a => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${a.flag ? `<img class="flag" src="${a.flag}">` : ""}</td>
+          <td>${a.id || ""}</td>
+          <td>${a.name || ""}</td>
+          <td>${a.acronym || ""}</td>
+          <td>${a.rank || ""}</td>
+          <td>${a.score || ""}</td>
+          <td>${a.date || ""}</td>
+          <td>${a.accept_members ? "Yes" : "No"}</td>
+          <td>${a.discord_link ? `<a href="${a.discord_link}" target="_blank">Link</a>` : ""}</td>
+          <td>${a.wiki_link ? `<a href="${a.wiki_link}" target="_blank">Link</a>` : ""}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    document.getElementById("search").addEventListener("input", (e) => {
+      const query = e.target.value.toLowerCase();
+      const filtered = alliances.filter(a => 
+        (a.name && a.name.toLowerCase().includes(query)) ||
+        (a.acronym && a.acronym.toLowerCase().includes(query))
+      );
+      renderTable(filtered);
+    });
+
+    fetchAlliances();
+  </script>
+</body>
+</html>
