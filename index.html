@@ -1,22 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Nations Viewer</title>
-    <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8" />
+    <title>PNW Nations Viewer</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 </head>
+
 <body>
-    <h1>Nations Data</h1>
-
-    <label for="sortSelect">Sort by:</label>
-    <select id="sortSelect">
-        <option value="nation_name">Nation Name</option>
-        <option value="score">Score</option>
-        <option value="population">Population</option>
-        <option value="id">Nation ID</option>
-    </select>
-
-    <div id="output"></div>
+    <h1>PNW Nations Viewer</h1>
+    <div id="status">Loading...</div>
+    <pre id="output"></pre>
 
     <script src="main.js"></script>
 </body>
