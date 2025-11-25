@@ -1,153 +1,107 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Alliances & Nations Viewer</title>
+    <title>Nations</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #151515;
+            color: #ffffff;
+            margin: 0;
+            padding: 20px;
+        }
 
-  <style>
-    body { font-family: Arial; margin: 20px; }
-    input { padding: 8px; margin-bottom: 10px; width: 300px; }
-    table { border-collapse: collapse; width: 100%; margin-bottom: 40px; }
-    th, td { border: 1px solid #ccc; padding: 8px; }
-    th { background-color: #eee; }
-    img.flag { width: 50px; }
-  </style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background: #1e1e1e;
+        }
+
+        th, td {
+            padding: 10px;
+            border-bottom: 1px solid #333;
+            text-align: left;
+        }
+
+        th {
+            background: #222;
+        }
+
+        tr:hover {
+            background: #262626;
+        }
+
+        .clickable {
+            color: #4ea7ff;
+            cursor: pointer;
+            text-decoration: underline;
+        }
+    </style>
 </head>
 <body>
 
-  <!-- ALLIANCES -->
-  <h1>Alliances Viewer</h1>
-  <input type="text" id="alliancesSearch" placeholder="Search alliances...">
+<h1>Nations</h1>
+<p>Click a nation to open its details page.</p>
 
-  <table id="alliancesTable">
+<table id="nationsTable">
     <thead>
-      <tr>
-        <th>Flag</th>
-        <th>ID</th>
-        <th>Name</th>
-        <th>Acronym</th>
-        <th>Rank</th>
-        <th>Score</th>
-        <th>Date</th>
-        <th>Accept Members</th>
-        <th>Discord</th>
-        <th>Wiki</th>
-      </tr>
+        <tr>
+            <th>Name</th>
+            <th>ID</th>
+            <th>Leader</th>
+            <th>Continent</th>
+            <th>Score</th>
+            <th>Cities</th>
+            <th>Color</th>
+            <th>Last Active</th>
+            <th>Alliance ID</th>
+            <th>Positions</th>
+        </tr>
     </thead>
     <tbody></tbody>
-  </table>
+</table>
 
-  <!-- NATIONS -->
-  <h1>Nations Viewer</h1>
-  <input type="text" id="nationsSearch" placeholder="Search nations...">
+<script>
+async function loadNations() {
+    try {
+        const res = await fetch("/nations");
+        const data = await res.json();
 
-  <table id="nationsTable">
-    <thead>
-      <tr>
-        <th>Name</th>
-        <th>ID</th>
-        <th>Leader</th>
-        <th>Continent</th>
-        <th>Score</th>
-        <th>Cities</th>
-        <th>Color Bloc</th>
-        <th>Last Active</th>
-        <th>Alliance ID</th>
-        <th>Alliance Position</th>
-      </tr>
-    </thead>
-    <tbody></tbody>
-  </table>
+        const tbody = document.querySelector("#nationsTable tbody");
+        tbody.innerHTML = "";
 
-  <script>
-    const API = "https://checked-notre-enforcement-careful.trycloudflare.com";
+        data.forEach(a => {
+            const tr = document.createElement("tr");
 
-    let alliances = [];
-    let nations = [];
+            tr.innerHTML = `
+                <td class="clickable" data-id="${a.id}">${a.nation_name || ""}</td>
+                <td>${a.id || ""}</td>
+                <td>${a.leader_name || ""}</td>
+                <td>${a.continent || ""}</td>
+                <td>${a.score || ""}</td>
+                <td>${a.num_cities || ""}</td>
+                <td>${a.color || ""}</td>
+                <td>${a.last_active || ""}</td>
+                <td>${a.alliance_id || ""}</td>
+                <td>${a.alliance_positions || ""}</td>
+            `;
 
-    // ------- Fetch Alliances -------
-    async function fetchAlliances() {
-      const res = await fetch(`${API}/alliance`, { method: "POST" });
-      const data = await res.json();
-      alliances = data.alliances || [];
-      renderAlliances(alliances);
+            // click handler
+            tr.querySelector(".clickable").addEventListener("click", () => {
+                window.open(`/nation.html?id=${a.id}`, "_blank");
+            });
+
+            tbody.appendChild(tr);
+        });
+
+    } catch (e) {
+        console.error("Failed to load nations:", e);
     }
+}
 
-    function renderAlliances(list) {
-      const tbody = document.querySelector("#alliancesTable tbody");
-      tbody.innerHTML = "";
-
-      list.forEach(a => {
-        const tr = document.createElement("tr");
-        tr.innerHTML = `
-          <td>${a.flag ? `<img class="flag" src="${a.flag}">` : ""}</td>
-          <td>${a.id || ""}</td>
-          <td>${a.name || ""}</td>
-          <td>${a.acronym || ""}</td>
-          <td>${a.rank || ""}</td>
-          <td>${a.score || ""}</td>
-          <td>${a.date || ""}</td>
-          <td>${a.accept_members ? "Yes" : "No"}</td>
-          <td>${a.discord_link ? `<a href="${a.discord_link}">Link</a>` : ""}</td>
-          <td>${a.wiki_link ? `<a href="${a.wiki_link}">Link</a>` : ""}</td>
-        `;
-        tbody.appendChild(tr);
-      });
-    }
-
-    document.querySelector("#alliancesSearch").addEventListener("input", e => {
-      const q = e.target.value.toLowerCase();
-      const filtered = alliances.filter(a =>
-        (a.name?.toLowerCase().includes(q)) ||
-        (a.acronym?.toLowerCase().includes(q))
-      );
-      renderAlliances(filtered);
-    });
-
-    // ------- Fetch Nations -------
-    async function fetchNations() {
-      const res = await fetch(`${API}/nations`, { method: "POST" });
-      const data = await res.json();
-      nations = data.nations || [];
-      renderNations(nations);
-    }
-
-    function renderNations(list) {
-      const tbody = document.querySelector("#nationsTable tbody");
-      tbody.innerHTML = "";
-
-      list.forEach(n => {
-        const tr = document.createElement("tr");
-        tr.innerHTML = `
-          <td>${n.nation_name || ""}</td>
-          <td>${n.id || ""}</td>
-          <td>${n.leader_name || ""}</td>
-          <td>${n.continent || ""}</td>
-          <td>${n.score || ""}</td>
-          <td>${n.num_cities || ""}</td>
-          <td>${n.color || ""}</td>
-          <td>${n.last_active || ""}</td>
-          <td>${n.alliance_id || ""}</td>
-          <td>${n.alliance_position || ""}</td>
-        `;
-        tbody.appendChild(tr);
-      });
-    }
-
-    document.querySelector("#nationsSearch").addEventListener("input", e => {
-      const q = e.target.value.toLowerCase();
-      const filtered = nations.filter(n =>
-        (n.nation_name?.toLowerCase().includes(q)) ||
-        (n.leader_name?.toLowerCase().includes(q))
-      );
-      renderNations(filtered);
-    });
-
-    // Start
-    fetchAlliances();
-    fetchNations();
-  </script>
+loadNations();
+</script>
 
 </body>
 </html>
