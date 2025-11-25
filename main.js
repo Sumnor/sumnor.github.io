@@ -1,57 +1,103 @@
-async function loadJSONL(url) {
-    const res = await fetch(url);
-    const text = await res.text();
+// ================================
+// IndexedDB Helpers
+// ================================
+function openDB() {
+    return new Promise((resolve, reject) => {
+        const request = indexedDB.open("PNWDatabase", 1);
 
-    return text
-        .trim()
-        .split("\n")
-        .map(line => JSON.parse(line));
-}
+        request.onupgradeneeded = (event) => {
+            const db = event.target.result;
+            if (!db.objectStoreNames.contains("nations")) {
+                db.createObjectStore("nations", { keyPath: "id" });
+            }
+        };
 
-function render(data) {
-    const out = document.getElementById("output");
-    out.innerHTML = "";
-
-    data.forEach(n => {
-        const div = document.createElement("div");
-        div.className = "nation";
-
-        div.innerHTML = `
-            <strong>${n.nation_name}</strong><br>
-            ID: ${n.id}<br>
-            Score: ${n.score ?? "N/A"}<br>
-            Population: ${n.population ?? "N/A"}
-        `;
-
-        out.appendChild(div);
+        request.onsuccess = () => resolve(request.result);
+        request.onerror = () => reject(request.error);
     });
 }
 
-function sortData(data, key) {
-    return data.sort((a, b) => {
-        const A = a[key] ?? 0;
-        const B = b[key] ?? 0;
+async function saveNationsToIndexedDB(nations) {
+    const db = await openDB();
+    const tx = db.transaction("nations", "readwrite");
+    const store = tx.objectStore("nations");
 
-        if (typeof A === "string") return A.localeCompare(B);
-        return A - B;
-    });
-}
-
-async function main() {
-    // Update this path to your GitHub raw link
-    const url = "https://raw.githubusercontent.com/USERNAME/REPO/main/nations.jsonl";
-
-    let nations = await loadJSONL(url);
-
-    const select = document.getElementById("sortSelect");
-
-    function update() {
-        const sorted = sortData([...nations], select.value);
-        render(sorted);
+    for (const nation of nations) {
+        store.put(nation);
     }
 
-    select.addEventListener("change", update);
-    update();
+    return tx.complete;
+}
+
+async function loadNationsFromIndexedDB() {
+    const db = await openDB();
+    const tx = db.transaction("nations", "readonly");
+    const store = tx.objectStore("nations");
+
+    return new Promise((resolve) => {
+        const result = [];
+        const cursor = store.openCursor();
+
+        cursor.onsuccess = (event) => {
+            const cur = event.target.result;
+            if (cur) {
+                result.push(cur.value);
+                cur.continue();
+            } else {
+                resolve(result);
+            }
+        };
+    });
+}
+
+
+// ================================
+// Fetch + Cache Logic
+// ================================
+
+const UPDATE_INTERVAL_MS = 15 * 60 * 1000; // 15 minutes
+const API_URL = "https://your-api-url-here.com/nations"; 
+// Replace with your API endpoint
+
+
+async function fetchAndCacheNations() {
+    const lastUpdate = Number(localStorage.getItem("lastUpdate")) || 0;
+    const now = Date.now();
+
+    // Use cached if fresh
+    if (now - lastUpdate < UPDATE_INTERVAL_MS) {
+        console.log("Using cached data.");
+        return loadNationsFromIndexedDB();
+    }
+
+    // Fetch new data
+    console.log("Fetching new data from API:", API_URL);
+    document.getElementById("status").innerText = "Fetching latest data...";
+
+    const response = await fetch(API_URL);
+    const nations = await response.json();
+
+    // Save new data
+    await saveNationsToIndexedDB(nations);
+    localStorage.setItem("lastUpdate", now);
+
+    return nations;
+}
+
+
+// ================================
+// App Logic
+// ================================
+
+async function main() {
+    const nations = await fetchAndCacheNations();
+    
+    document.getElementById("status").innerText = 
+        `Loaded ${nations.length} nations`;
+
+    document.getElementById("output").innerText = 
+        JSON.stringify(nations.slice(0, 10), null, 2) + 
+        "\n\n(Showing first 10 for preview)";
 }
 
 main();
