@@ -4,12 +4,40 @@
     <meta charset="UTF-8" />
     <title>PNW Nations Viewer</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- Tailwind (CDN) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <style>
+        body {
+            background: #0f1115;
+            color: #e8e8e8;
+        }
+        .card {
+            background: #1a1d23;
+            border: 1px solid #2a2f38;
+        }
+    </style>
 </head>
 
-<body>
-    <h1>PNW Nations Viewer</h1>
-    <div id="status">Loading...</div>
-    <pre id="output"></pre>
+<body class="font-sans">
+
+    <div class="max-w-6xl mx-auto py-10 px-6">
+
+        <h1 class="text-4xl font-bold mb-4 text-center text-blue-400">
+            Politics & War Nations Viewer
+        </h1>
+
+        <div id="status" class="text-center text-gray-300 mb-4">
+            Loading...
+        </div>
+
+        <div id="last-updated" class="text-center text-sm text-gray-500 mb-8"></div>
+
+        <div id="nation-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Cards inserted here -->
+        </div>
+    </div>
 
     <script src="main.js"></script>
 </body>
