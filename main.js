@@ -1,14 +1,19 @@
-// ================================
-// IndexedDB Helpers
-// ================================
+// ----------------------
+// IndexedDB Setup
+// ----------------------
 function openDB() {
     return new Promise((resolve, reject) => {
-        const request = indexedDB.open("PNWDatabase", 1);
+        const request = indexedDB.open("PNWStore", 2);
 
         request.onupgradeneeded = (event) => {
             const db = event.target.result;
+
             if (!db.objectStoreNames.contains("nations")) {
                 db.createObjectStore("nations", { keyPath: "id" });
+            }
+
+            if (!db.objectStoreNames.contains("alliances")) {
+                db.createObjectStore("alliances", { keyPath: "id" });
             }
         };
 
@@ -17,32 +22,34 @@ function openDB() {
     });
 }
 
-async function saveNationsToIndexedDB(nations) {
-    const db = await openDB();
-    const tx = db.transaction("nations", "readwrite");
-    const store = tx.objectStore("nations");
 
-    for (const nation of nations) {
-        store.put(nation);
+// ----------------------
+// Saving + Loading
+// ----------------------
+async function saveToDB(storeName, items) {
+    const db = await openDB();
+    const tx = db.transaction(storeName, "readwrite");
+    const store = tx.objectStore(storeName);
+
+    for (const item of items) {
+        store.put(item);
     }
 
     return tx.complete;
 }
 
-async function loadNationsFromIndexedDB() {
+async function loadFromDB(storeName) {
     const db = await openDB();
-    const tx = db.transaction("nations", "readonly");
-    const store = tx.objectStore("nations");
+    const tx = db.transaction(storeName, "readonly");
+    const store = tx.objectStore(storeName);
 
     return new Promise((resolve) => {
         const result = [];
-        const cursor = store.openCursor();
-
-        cursor.onsuccess = (event) => {
-            const cur = event.target.result;
-            if (cur) {
-                result.push(cur.value);
-                cur.continue();
+        store.openCursor().onsuccess = (e) => {
+            const cursor = e.target.result;
+            if (cursor) {
+                result.push(cursor.value);
+                cursor.continue();
             } else {
                 resolve(result);
             }
@@ -51,53 +58,91 @@ async function loadNationsFromIndexedDB() {
 }
 
 
-// ================================
-// Fetch + Cache Logic
-// ================================
-
-const UPDATE_INTERVAL_MS = 15 * 60 * 1000; // 15 minutes
-const API_URL = "https://your-api-url-here.com/nations"; 
-// Replace with your API endpoint
-
-
-async function fetchAndCacheNations() {
-    const lastUpdate = Number(localStorage.getItem("lastUpdate")) || 0;
+// ----------------------
+// API Fetch + Cache Logic
+// ----------------------
+async function fetchWithCache(apiUrl, storeName) {
+    const lastUpdateKey = "lastUpdate_" + storeName;
+    const lastUpdate = Number(localStorage.getItem(lastUpdateKey) || 0);
     const now = Date.now();
 
-    // Use cached if fresh
-    if (now - lastUpdate < UPDATE_INTERVAL_MS) {
-        console.log("Using cached data.");
-        return loadNationsFromIndexedDB();
+    if (now - lastUpdate < 15 * 60 * 1000) {
+        return loadFromDB(storeName);
     }
 
-    // Fetch new data
-    console.log("Fetching new data from API:", API_URL);
-    document.getElementById("status").innerText = "Fetching latest data...";
+    const res = await fetch(apiUrl);
+    const data = await res.json();
 
-    const response = await fetch(API_URL);
-    const nations = await response.json();
+    await saveToDB(storeName, data);
+    localStorage.setItem(lastUpdateKey, now);
 
-    // Save new data
-    await saveNationsToIndexedDB(nations);
-    localStorage.setItem("lastUpdate", now);
-
-    return nations;
+    return data;
 }
 
 
-// ================================
-// App Logic
-// ================================
+// ----------------------
+// Render UI
+// ----------------------
+function renderNations(nations) {
+    const container = document.getElementById("nations-list");
+    container.innerHTML = "";
 
-async function main() {
-    const nations = await fetchAndCacheNations();
-    
-    document.getElementById("status").innerText = 
-        `Loaded ${nations.length} nations`;
-
-    document.getElementById("output").innerText = 
-        JSON.stringify(nations.slice(0, 10), null, 2) + 
-        "\n\n(Showing first 10 for preview)";
+    nations.forEach(n => {
+        const card = document.createElement("div");
+        card.className = "card";
+        card.innerHTML = `
+            <h3>${n.name}</h3>
+            <p>Leader: ${n.leader}</p>
+            <p>Score: ${n.score}</p>
+        `;
+        container.appendChild(card);
+    });
 }
 
-main();
+function renderAlliances(alliances) {
+    const container = document.getElementById("alliances-list");
+    container.innerHTML = "";
+
+    alliances.forEach(a => {
+        const card = document.createElement("div");
+        card.className = "card";
+        card.innerHTML = `
+            <h3>${a.name}</h3>
+            <p>Members: ${a.members}</p>
+            <p>Rank: ${a.rank}</p>
+        `;
+        container.appendChild(card);
+    });
+}
+
+
+// ----------------------
+// Tab Switcher
+// ----------------------
+document.getElementById("tab-nations").addEventListener("click", () => {
+    document.getElementById("nations-section").classList.add("active");
+    document.getElementById("alliances-section").classList.remove("active");
+
+    document.getElementById("tab-nations").classList.add("active");
+    document.getElementById("tab-alliances").classList.remove("active");
+});
+
+document.getElementById("tab-alliances").addEventListener("click", () => {
+    document.getElementById("alliances-section").classList.add("active");
+    document.getElementById("nations-section").classList.remove("active");
+
+    document.getElementById("tab-alliances").classList.add("active");
+    document.getElementById("tab-nations").classList.remove("active");
+});
+
+
+// ----------------------
+// Initialization
+// ----------------------
+(async () => {
+    const nations = await fetchWithCache("/api/nations", "nations");
+    renderNations(nations);
+
+    const alliances = await fetchWithCache("/api/alliances", "alliances");
+    renderAlliances(alliances);
+})();
