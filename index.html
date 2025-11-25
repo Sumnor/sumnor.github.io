@@ -3,75 +3,450 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Alliances & Nations Viewer</title>
+  <title>Politics & War - Data Viewer</title>
 
   <style>
-    body { font-family: Arial; margin: 20px; }
-    input { padding: 8px; margin-bottom: 10px; width: 300px; }
-    table { border-collapse: collapse; width: 100%; margin-bottom: 40px; }
-    th, td { border: 1px solid #ccc; padding: 8px; }
-    th { background-color: #eee; }
-    img.flag { width: 50px; }
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    header {
+      text-align: center;
+      color: white;
+      margin-bottom: 30px;
+    }
+
+    h1 {
+      font-size: 2.5em;
+      margin-bottom: 10px;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    }
+
+    .status-bar {
+      background: rgba(255,255,255,0.1);
+      padding: 15px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: white;
+      backdrop-filter: blur(10px);
+    }
+
+    .status-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .status-indicator {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #4caf50;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    .tabs {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 0;
+    }
+
+    .tab {
+      padding: 15px 30px;
+      background: rgba(255,255,255,0.2);
+      border: none;
+      border-radius: 10px 10px 0 0;
+      color: white;
+      font-size: 1em;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      backdrop-filter: blur(10px);
+    }
+
+    .tab:hover {
+      background: rgba(255,255,255,0.3);
+    }
+
+    .tab.active {
+      background: white;
+      color: #1e3c72;
+    }
+
+    .content {
+      background: white;
+      border-radius: 0 10px 10px 10px;
+      padding: 30px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    }
+
+    .section {
+      display: none;
+    }
+
+    .section.active {
+      display: block;
+    }
+
+    .search-box {
+      width: 100%;
+      padding: 12px 20px;
+      font-size: 1em;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      transition: border-color 0.3s;
+    }
+
+    .search-box:focus {
+      outline: none;
+      border-color: #2a5298;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+
+    .stat-card {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 20px;
+      border-radius: 10px;
+      text-align: center;
+    }
+
+    .stat-value {
+      font-size: 2em;
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+
+    .stat-label {
+      font-size: 0.9em;
+      opacity: 0.9;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+
+    thead {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+    }
+
+    th {
+      padding: 15px 10px;
+      text-align: left;
+      font-weight: 600;
+      position: sticky;
+      top: 0;
+    }
+
+    td {
+      padding: 12px 10px;
+      border-bottom: 1px solid #f0f0f0;
+    }
+
+    tbody tr {
+      transition: background-color 0.2s;
+    }
+
+    tbody tr:hover {
+      background-color: #f5f5f5;
+    }
+
+    img.flag {
+      width: 40px;
+      height: auto;
+      border-radius: 4px;
+    }
+
+    a {
+      color: #2a5298;
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+
+    .loading {
+      text-align: center;
+      padding: 40px;
+      color: #666;
+    }
+
+    .spinner {
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid #2a5298;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 20px;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .refresh-btn {
+      background: #4caf50;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.9em;
+      transition: background 0.3s;
+    }
+
+    .refresh-btn:hover {
+      background: #45a049;
+    }
+
+    .refresh-btn:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+    }
   </style>
 </head>
 <body>
+  <div class="container">
+    <header>
+      <h1>⚔️ Politics & War Data Viewer</h1>
+      <p>Real-time alliance and nation statistics</p>
+    </header>
 
-  <!-- ALLIANCES -->
-  <h1>Alliances Viewer</h1>
-  <input type="text" id="alliancesSearch" placeholder="Search alliances...">
+    <div class="status-bar">
+      <div class="status-item">
+        <div class="status-indicator"></div>
+        <span id="status-text">Connected</span>
+      </div>
+      <div class="status-item">
+        <span id="last-update">Last updated: Never</span>
+      </div>
+      <div class="status-item">
+        <button class="refresh-btn" id="refresh-btn" onclick="forceRefresh()">🔄 Refresh Now</button>
+      </div>
+      <div class="status-item">
+        <span id="next-update">Next update in: 15:00</span>
+      </div>
+    </div>
 
-  <table id="alliancesTable">
-    <thead>
-      <tr>
-        <th>Flag</th>
-        <th>ID</th>
-        <th>Name</th>
-        <th>Acronym</th>
-        <th>Rank</th>
-        <th>Score</th>
-        <th>Date</th>
-        <th>Accept Members</th>
-        <th>Discord</th>
-        <th>Wiki</th>
-      </tr>
-    </thead>
-    <tbody></tbody>
-  </table>
+    <div class="tabs">
+      <button class="tab active" onclick="switchTab('alliances')">Alliances</button>
+      <button class="tab" onclick="switchTab('nations')">Nations</button>
+    </div>
 
-  <!-- NATIONS -->
-  <h1>Nations Viewer</h1>
-  <input type="text" id="nationsSearch" placeholder="Search nations...">
+    <div class="content">
+      <!-- ALLIANCES SECTION -->
+      <div id="alliances-section" class="section active">
+        <div class="stats" id="alliance-stats"></div>
+        <input type="text" id="alliancesSearch" class="search-box" placeholder="🔍 Search alliances by name or acronym...">
+        <div id="alliances-loading" class="loading">
+          <div class="spinner"></div>
+          <p>Loading alliances data...</p>
+        </div>
+        <table id="alliancesTable" style="display: none;">
+          <thead>
+            <tr>
+              <th>Flag</th>
+              <th>ID</th>
+              <th>Name</th>
+              <th>Acronym</th>
+              <th>Rank</th>
+              <th>Score</th>
+              <th>Founded</th>
+              <th>Recruiting</th>
+              <th>Discord</th>
+              <th>Wiki</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
 
-  <table id="nationsTable">
-    <thead>
-      <tr>
-        <th>Name</th>
-        <th>ID</th>
-        <th>Leader</th>
-        <th>Continent</th>
-        <th>Score</th>
-        <th>Cities</th>
-        <th>Color Bloc</th>
-        <th>Last Active</th>
-        <th>Alliance ID</th>
-        <th>Alliance Position</th>
-      </tr>
-    </thead>
-    <tbody></tbody>
-  </table>
+      <!-- NATIONS SECTION -->
+      <div id="nations-section" class="section">
+        <div class="stats" id="nation-stats"></div>
+        <input type="text" id="nationsSearch" class="search-box" placeholder="🔍 Search nations by name or leader...">
+        <div id="nations-loading" class="loading">
+          <div class="spinner"></div>
+          <p>Loading nations data...</p>
+        </div>
+        <table id="nationsTable" style="display: none;">
+          <thead>
+            <tr>
+              <th>Nation</th>
+              <th>ID</th>
+              <th>Leader</th>
+              <th>Continent</th>
+              <th>Score</th>
+              <th>Cities</th>
+              <th>Color</th>
+              <th>Last Active</th>
+              <th>Alliance</th>
+              <th>Position</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
 
   <script>
     const API = "https://degree-poster-michigan-tooth.trycloudflare.com";
+    const CACHE_DURATION = 15 * 60 * 1000; // 15 minutes in milliseconds
 
     let alliances = [];
     let nations = [];
+    let lastFetchTime = 0;
+    let refreshInterval;
+    let countdownInterval;
 
-    // ------- Fetch Alliances -------
-    async function fetchAlliances() {
-      const res = await fetch(`${API}/alliance`, { method: "POST" });
-      const data = await res.json();
-      alliances = data.alliances || [];
-      renderAlliances(alliances);
+    // Cache management
+    function isCacheValid() {
+      return (Date.now() - lastFetchTime) < CACHE_DURATION;
+    }
+
+    function updateStatusBar() {
+      const now = Date.now();
+      const elapsed = now - lastFetchTime;
+      const remaining = CACHE_DURATION - elapsed;
+
+      if (lastFetchTime === 0) {
+        document.getElementById('last-update').textContent = 'Last updated: Never';
+        document.getElementById('next-update').textContent = 'Next update in: --:--';
+      } else {
+        const lastUpdate = new Date(lastFetchTime);
+        document.getElementById('last-update').textContent = `Last updated: ${lastUpdate.toLocaleTimeString()}`;
+
+        if (remaining > 0) {
+          const minutes = Math.floor(remaining / 60000);
+          const seconds = Math.floor((remaining % 60000) / 1000);
+          document.getElementById('next-update').textContent = `Next update in: ${minutes}:${seconds.toString().padStart(2, '0')}`;
+        } else {
+          document.getElementById('next-update').textContent = 'Updating...';
+        }
+      }
+    }
+
+    async function forceRefresh() {
+      const btn = document.getElementById('refresh-btn');
+      btn.disabled = true;
+      btn.textContent = '⏳ Refreshing...';
+      
+      lastFetchTime = 0; // Force cache invalidation
+      await fetchData();
+      
+      btn.disabled = false;
+      btn.textContent = '🔄 Refresh Now';
+    }
+
+    // Fetch data with caching
+    async function fetchData() {
+      if (isCacheValid() && alliances.length > 0 && nations.length > 0) {
+        console.log('Using cached data');
+        return;
+      }
+
+      console.log('Fetching fresh data from API...');
+      document.getElementById('status-text').textContent = 'Fetching data...';
+
+      try {
+        // Fetch both endpoints in parallel
+        const [alliancesRes, nationsRes] = await Promise.all([
+          fetch(`${API}/alliance`, { method: "POST" }),
+          fetch(`${API}/nations`, { method: "POST" })
+        ]);
+
+        const alliancesData = await alliancesRes.json();
+        const nationsData = await nationsRes.json();
+
+        alliances = alliancesData.alliances || [];
+        nations = nationsData.nations || [];
+        lastFetchTime = Date.now();
+
+        document.getElementById('status-text').textContent = 'Connected';
+        
+        renderAlliances(alliances);
+        renderNations(nations);
+        updateStats();
+      } catch (error) {
+        console.error('Error fetching data:', error);
+        document.getElementById('status-text').textContent = 'Connection error';
+      }
+    }
+
+    function updateStats() {
+      // Alliance stats
+      const allianceStatsHtml = `
+        <div class="stat-card">
+          <div class="stat-value">${alliances.length}</div>
+          <div class="stat-label">Total Alliances</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value">${alliances.filter(a => a.accept_members).length}</div>
+          <div class="stat-label">Recruiting</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value">${alliances.filter(a => a.discord_link).length}</div>
+          <div class="stat-label">With Discord</div>
+        </div>
+      `;
+      document.getElementById('alliance-stats').innerHTML = allianceStatsHtml;
+
+      // Nation stats
+      const totalCities = nations.reduce((sum, n) => sum + (n.num_cities || 0), 0);
+      const avgScore = nations.length > 0 ? (nations.reduce((sum, n) => sum + (n.score || 0), 0) / nations.length).toFixed(2) : 0;
+      
+      const nationStatsHtml = `
+        <div class="stat-card">
+          <div class="stat-value">${nations.length}</div>
+          <div class="stat-label">Total Nations</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value">${totalCities.toLocaleString()}</div>
+          <div class="stat-label">Total Cities</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value">${avgScore}</div>
+          <div class="stat-label">Avg Score</div>
+        </div>
+      `;
+      document.getElementById('nation-stats').innerHTML = nationStatsHtml;
     }
 
     function renderAlliances(list) {
@@ -81,36 +456,22 @@
       list.forEach(a => {
         const tr = document.createElement("tr");
         tr.innerHTML = `
-          <td>${a.flag ? `<img class="flag" src="${a.flag}">` : ""}</td>
-          <td>${a.id || ""}</td>
-          <td>${a.name || ""}</td>
-          <td>${a.acronym || ""}</td>
-          <td>${a.rank || ""}</td>
-          <td>${a.score || ""}</td>
-          <td>${a.date || ""}</td>
-          <td>${a.accept_members ? "Yes" : "No"}</td>
-          <td>${a.discord_link ? `<a href="${a.discord_link}">Link</a>` : ""}</td>
-          <td>${a.wiki_link ? `<a href="${a.wiki_link}">Link</a>` : ""}</td>
+          <td>${a.flag ? `<img class="flag" src="${a.flag}" alt="Flag">` : "—"}</td>
+          <td>${a.id || "—"}</td>
+          <td><strong>${a.name || "—"}</strong></td>
+          <td>${a.acronym || "—"}</td>
+          <td>${a.rank || "—"}</td>
+          <td>${a.score ? parseFloat(a.score).toLocaleString() : "—"}</td>
+          <td>${a.date ? new Date(a.date).toLocaleDateString() : "—"}</td>
+          <td>${a.accept_members ? "✅ Yes" : "❌ No"}</td>
+          <td>${a.discord_link ? `<a href="${a.discord_link}" target="_blank">Join</a>` : "—"}</td>
+          <td>${a.wiki_link ? `<a href="${a.wiki_link}" target="_blank">View</a>` : "—"}</td>
         `;
         tbody.appendChild(tr);
       });
-    }
 
-    document.querySelector("#alliancesSearch").addEventListener("input", e => {
-      const q = e.target.value.toLowerCase();
-      const filtered = alliances.filter(a =>
-        (a.name?.toLowerCase().includes(q)) ||
-        (a.acronym?.toLowerCase().includes(q))
-      );
-      renderAlliances(filtered);
-    });
-
-    // ------- Fetch Nations -------
-    async function fetchNations() {
-      const res = await fetch(`${API}/nations`, { method: "POST" });
-      const data = await res.json();
-      nations = data.nations || [];
-      renderNations(nations);
+      document.getElementById('alliances-loading').style.display = 'none';
+      document.getElementById('alliancesTable').style.display = 'table';
     }
 
     function renderNations(list) {
@@ -120,20 +481,33 @@
       list.forEach(n => {
         const tr = document.createElement("tr");
         tr.innerHTML = `
-          <td>${n.nation_name || ""}</td>
-          <td>${n.id || ""}</td>
-          <td>${n.leader_name || ""}</td>
-          <td>${n.continent || ""}</td>
-          <td>${n.score || ""}</td>
-          <td>${n.num_cities || ""}</td>
-          <td>${n.color || ""}</td>
-          <td>${n.last_active || ""}</td>
-          <td>${n.alliance_id || ""}</td>
-          <td>${n.alliance_position || ""}</td>
+          <td><strong>${n.nation_name || "—"}</strong></td>
+          <td>${n.id || "—"}</td>
+          <td>${n.leader_name || "—"}</td>
+          <td>${n.continent ? n.continent.toUpperCase() : "—"}</td>
+          <td>${n.score ? parseFloat(n.score).toLocaleString() : "—"}</td>
+          <td>${n.num_cities || "—"}</td>
+          <td style="color: ${n.color || '#000'}">${n.color ? '⬤ ' + n.color : "—"}</td>
+          <td>${n.last_active ? new Date(n.last_active).toLocaleDateString() : "—"}</td>
+          <td>${n.alliance_id || "None"}</td>
+          <td>${n.alliance_position || "—"}</td>
         `;
         tbody.appendChild(tr);
       });
+
+      document.getElementById('nations-loading').style.display = 'none';
+      document.getElementById('nationsTable').style.display = 'table';
     }
+
+    // Search functionality
+    document.querySelector("#alliancesSearch").addEventListener("input", e => {
+      const q = e.target.value.toLowerCase();
+      const filtered = alliances.filter(a =>
+        (a.name?.toLowerCase().includes(q)) ||
+        (a.acronym?.toLowerCase().includes(q))
+      );
+      renderAlliances(filtered);
+    });
 
     document.querySelector("#nationsSearch").addEventListener("input", e => {
       const q = e.target.value.toLowerCase();
@@ -144,10 +518,29 @@
       renderNations(filtered);
     });
 
-    // Start
-    fetchAlliances();
-    fetchNations();
-  </script>
+    // Tab switching
+    function switchTab(tab) {
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+      
+      event.target.classList.add('active');
+      document.getElementById(`${tab}-section`).classList.add('active');
+    }
 
+    // Initialize
+    async function init() {
+      await fetchData();
+      updateStatusBar();
+
+      // Set up periodic refresh every 15 minutes
+      refreshInterval = setInterval(fetchData, CACHE_DURATION);
+      
+      // Update countdown every second
+      countdownInterval = setInterval(updateStatusBar, 1000);
+    }
+
+    // Start the app
+    init();
+  </script>
 </body>
 </html>
