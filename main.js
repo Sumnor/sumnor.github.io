@@ -140,9 +140,9 @@ document.getElementById("tab-alliances").addEventListener("click", () => {
 // Initialization
 // ----------------------
 (async () => {
-    const nations = await fetchWithCache("/api/nations", "nations");
+    const nations = await fetchWithCache("https://degree-poster-michigan-tooth.trycloudflare.com/nations", "nations");
     renderNations(nations);
 
-    const alliances = await fetchWithCache("/api/alliances", "alliances");
+    const alliances = await fetchWithCache("https://degree-poster-michigan-tooth.trycloudflare.com/alliance", "alliances");
     renderAlliances(alliances);
 })();
