@@ -7,25 +7,35 @@
   <style>
     body { font-family: Arial, sans-serif; padding: 20px; background: #f5f5f5; }
     .container { max-width: 900px; margin: 0 auto; background: white; padding: 20px; border-radius: 10px; }
-    h1 { color: #2a5298; display: flex; align-items: center; gap: 15px; }
-    ul { margin-top: 10px; padding-left: 20px; }
-    li { margin-bottom: 5px; }
+    h1 { color: #2a5298; }
+    .detail-group { margin-bottom: 20px; }
+    .detail-group h3 { margin-bottom: 10px; color: #667eea; }
+    .detail-item { display: flex; justify-content: space-between; padding: 5px 0; }
+    .detail-label { font-weight: 600; }
     .back-btn { margin-top: 20px; display: inline-block; padding: 10px 15px; background: #667eea; color: white; border-radius: 6px; text-decoration: none; }
-    img.flag { width: 50px; height: auto; border-radius: 5px; }
   </style>
 </head>
 <body>
   <div class="container">
     <a href="index.html" class="back-btn">← Back to Data Viewer</a>
-    <h1 id="nation-name"></h1>
-    <ul id="cities-list"></ul>
-    
-    <!-- Placeholder for graph -->
-    <canvas id="city-graph" style="margin-top: 30px; max-width:100%;"></canvas>
+    <h1 id="nation-name">Nation Name</h1>
+    <div class="detail-group" id="basic-info">
+      <h3>📊 Basic Info</h3>
+      <!-- Items will be inserted here dynamically -->
+    </div>
+    <div class="detail-group" id="military">
+      <h3>⚔️ Military</h3>
+    </div>
+    <div class="detail-group" id="infrastructure">
+      <h3>🏙️ Infrastructure</h3>
+    </div>
+    <div class="detail-group" id="alliance">
+      <h3>🤝 Alliance</h3>
+    </div>
   </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script>
+    // Get the nation ID from the query string
     const params = new URLSearchParams(window.location.search);
     const nationId = params.get('id');
 
@@ -34,6 +44,7 @@
       throw new Error('No nation ID provided');
     }
 
+    // Fetch nations data from localStorage
     const nationsData = JSON.parse(localStorage.getItem('pnw_nations_data') || '[]');
     const nation = nationsData.find(n => n.id == nationId);
 
@@ -42,51 +53,43 @@
       throw new Error('Nation not found');
     }
 
-    // Show flag and nation name
-    const h1 = document.getElementById('nation-name');
-    if (nation.flag) {
-      const img = document.createElement('img');
-      img.src = nation.flag;
-      img.alt = 'Flag';
-      img.className = 'flag';
-      h1.appendChild(img);
-    }
-    h1.append(` ${nation.nation_name}`);
-
-    // List cities
-    const citiesList = document.getElementById('cities-list');
-    if (nation.cities && nation.cities.length > 0) {
-      nation.cities.forEach(city => {
-        const li = document.createElement('li');
-        li.textContent = city.name;
-        citiesList.appendChild(li);
-      });
-    } else {
-      const li = document.createElement('li');
-      li.textContent = 'No cities available';
-      citiesList.appendChild(li);
+    function addDetail(groupId, label, value) {
+      const container = document.getElementById(groupId);
+      const div = document.createElement('div');
+      div.className = 'detail-item';
+      div.innerHTML = `<span class="detail-label">${label}:</span><span class="detail-value">${value || '—'}</span>`;
+      container.appendChild(div);
     }
 
-    // Placeholder for graph: For now, we can make a simple chart of city populations
-    if (nation.cities && nation.cities.length > 0) {
-      const ctx = document.getElementById('city-graph').getContext('2d');
-      new Chart(ctx, {
-        type: 'bar',
-        data: {
-          labels: nation.cities.map(c => c.name),
-          datasets: [{
-            label: 'Population',
-            data: nation.cities.map(c => c.population || 0),
-            backgroundColor: 'rgba(102, 126, 234, 0.7)'
-          }]
-        },
-        options: {
-          responsive: true,
-          plugins: { legend: { display: false } },
-          scales: { y: { beginAtZero: true } }
-        }
-      });
-    }
+    // Populate fields
+    document.getElementById('nation-name').textContent = nation.nation_name;
+
+    // Basic Info
+    addDetail('basic-info', 'ID', nation.id);
+    addDetail('basic-info', 'Leader', nation.leader_name);
+    addDetail('basic-info', 'Continent', nation.continent?.toUpperCase());
+    addDetail('basic-info', 'Founded', nation.date ? new Date(nation.date).toLocaleDateString() : '—');
+
+    // Military
+    addDetail('military', 'Soldiers', nation.soldiers?.toLocaleString());
+    addDetail('military', 'Tanks', nation.tanks?.toLocaleString());
+    addDetail('military', 'Aircraft', nation.aircraft?.toLocaleString());
+    addDetail('military', 'Ships', nation.ships?.toLocaleString());
+    addDetail('military', 'Missiles', nation.missiles?.toLocaleString());
+    addDetail('military', 'Nukes', nation.nukes?.toLocaleString());
+
+    // Infrastructure
+    addDetail('infrastructure', 'Cities', nation.num_cities);
+    addDetail('infrastructure', 'Projects', nation.projects);
+    addDetail('infrastructure', 'Score', nation.score?.toLocaleString());
+    addDetail('infrastructure', 'Color', nation.color ? `<span style="color:${nation.color}">⬤ ${nation.color}</span>` : '—');
+
+    // Alliance
+    addDetail('alliance', 'Alliance ID', nation.alliance_id || 'None');
+    addDetail('alliance', 'Position', nation.alliance_position || '—');
+    addDetail('alliance', 'Last Active', nation.last_active ? new Date(nation.last_active).toLocaleString() : '—');
+    addDetail('alliance', 'Vacation Mode', nation.vacation_mode_turns ? 'Yes' : 'No');
+    addDetail('alliance', 'Beige Turns', nation.beige_turns || 0);
   </script>
 </body>
 </html>
