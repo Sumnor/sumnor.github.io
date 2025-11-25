@@ -3,841 +3,90 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Politics & War - Data Viewer</title>
-
+  <title>Nation Details</title>
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
-      min-height: 100vh;
-      padding: 20px;
-    }
-
-    .container {
-      max-width: 1400px;
-      margin: 0 auto;
-    }
-
-    header {
-      text-align: center;
-      color: white;
-      margin-bottom: 30px;
-    }
-
-    h1 {
-      font-size: 2.5em;
-      margin-bottom: 10px;
-      text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-    }
-
-    .status-bar {
-      background: rgba(255,255,255,0.1);
-      padding: 15px;
-      border-radius: 10px;
-      margin-bottom: 20px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      color: white;
-      backdrop-filter: blur(10px);
-      flex-wrap: wrap;
-      gap: 15px;
-    }
-
-    .status-item {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .status-indicator {
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-      background: #4caf50;
-      animation: pulse 2s infinite;
-    }
-
-    @keyframes pulse {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.5; }
-    }
-
-    .tabs {
-      display: flex;
-      gap: 10px;
-      margin-bottom: 0;
-    }
-
-    .tab {
-      padding: 15px 30px;
-      background: rgba(255,255,255,0.2);
-      border: none;
-      border-radius: 10px 10px 0 0;
-      color: white;
-      font-size: 1em;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      backdrop-filter: blur(10px);
-    }
-
-    .tab:hover {
-      background: rgba(255,255,255,0.3);
-    }
-
-    .tab.active {
-      background: white;
-      color: #1e3c72;
-    }
-
-    .content {
-      background: white;
-      border-radius: 0 10px 10px 10px;
-      padding: 30px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-    }
-
-    .section {
-      display: none;
-    }
-
-    .section.active {
-      display: block;
-    }
-
-    .search-box {
-      width: 100%;
-      padding: 12px 20px;
-      font-size: 1em;
-      border: 2px solid #e0e0e0;
-      border-radius: 8px;
-      margin-bottom: 20px;
-      transition: border-color 0.3s;
-    }
-
-    .search-box:focus {
-      outline: none;
-      border-color: #2a5298;
-    }
-
-    .stats {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 15px;
-      margin-bottom: 20px;
-    }
-
-    .stat-card {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-      padding: 20px;
-      border-radius: 10px;
-      text-align: center;
-    }
-
-    .stat-value {
-      font-size: 2em;
-      font-weight: bold;
-      margin-bottom: 5px;
-    }
-
-    .stat-label {
-      font-size: 0.9em;
-      opacity: 0.9;
-    }
-
-    .pagination {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      gap: 10px;
-      margin: 20px 0;
-      flex-wrap: wrap;
-    }
-
-    .pagination button {
-      padding: 8px 16px;
-      background: #667eea;
-      color: white;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      font-size: 0.9em;
-      transition: background 0.3s;
-    }
-
-    .pagination button:hover:not(:disabled) {
-      background: #5568d3;
-    }
-
-    .pagination button:disabled {
-      background: #ccc;
-      cursor: not-allowed;
-    }
-
-    .pagination .page-info {
-      padding: 8px 16px;
-      background: rgba(102, 126, 234, 0.1);
-      border-radius: 6px;
-      font-weight: 600;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 20px;
-    }
-
-    thead {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-    }
-
-    th {
-      padding: 15px 10px;
-      text-align: left;
-      font-weight: 600;
-      position: sticky;
-      top: 0;
-    }
-
-    td {
-      padding: 12px 10px;
-      border-bottom: 1px solid #f0f0f0;
-    }
-
-    tbody tr {
-      transition: background-color 0.2s;
-      cursor: pointer;
-    }
-
-    tbody tr:hover {
-      background-color: #f5f5f5;
-    }
-
-    tbody tr.expanded {
-      background-color: #e8f4f8;
-    }
-
-    .details-row {
-      display: none;
-    }
-
-    .details-row.show {
-      display: table-row;
-    }
-
-    .details-cell {
-      padding: 20px !important;
-      background: #f8f9fa;
-      border-left: 4px solid #667eea;
-    }
-
-    .details-content {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: 15px;
-    }
-
-    .detail-group {
-      background: white;
-      padding: 15px;
-      border-radius: 8px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    }
-
-    .detail-group h4 {
-      margin-bottom: 10px;
-      color: #667eea;
-      border-bottom: 2px solid #667eea;
-      padding-bottom: 5px;
-    }
-
-    .detail-item {
-      display: flex;
-      justify-content: space-between;
-      padding: 5px 0;
-      font-size: 0.9em;
-    }
-
-    .detail-label {
-      font-weight: 600;
-      color: #666;
-    }
-
-    .detail-value {
-      color: #333;
-    }
-
-    img.flag {
-      width: 40px;
-      height: auto;
-      border-radius: 4px;
-    }
-
-    a {
-      color: #2a5298;
-      text-decoration: none;
-      font-weight: 500;
-    }
-
-    a:hover {
-      text-decoration: underline;
-    }
-
-    .loading {
-      text-align: center;
-      padding: 40px;
-      color: #666;
-    }
-
-    .spinner {
-      border: 4px solid #f3f3f3;
-      border-top: 4px solid #2a5298;
-      border-radius: 50%;
-      width: 40px;
-      height: 40px;
-      animation: spin 1s linear infinite;
-      margin: 0 auto 20px;
-    }
-
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-
-    .refresh-btn {
-      background: #4caf50;
-      color: white;
-      border: none;
-      padding: 8px 16px;
-      border-radius: 6px;
-      cursor: pointer;
-      font-size: 0.9em;
-      transition: background 0.3s;
-    }
-
-    .refresh-btn:hover {
-      background: #45a049;
-    }
-
-    .refresh-btn:disabled {
-      background: #ccc;
-      cursor: not-allowed;
-    }
-
-    .expand-icon {
-      display: inline-block;
-      transition: transform 0.3s;
-      margin-right: 5px;
-    }
-
-    .expand-icon.rotated {
-      transform: rotate(90deg);
-    }
+    body { font-family: Arial, sans-serif; padding: 20px; background: #f5f5f5; }
+    .container { max-width: 900px; margin: 0 auto; background: white; padding: 20px; border-radius: 10px; }
+    h1 { color: #2a5298; display: flex; align-items: center; gap: 15px; }
+    ul { margin-top: 10px; padding-left: 20px; }
+    li { margin-bottom: 5px; }
+    .back-btn { margin-top: 20px; display: inline-block; padding: 10px 15px; background: #667eea; color: white; border-radius: 6px; text-decoration: none; }
+    img.flag { width: 50px; height: auto; border-radius: 5px; }
   </style>
 </head>
 <body>
   <div class="container">
-    <header>
-      <h1>⚔️ Politics & War Data Viewer</h1>
-      <p>Real-time alliance and nation statistics</p>
-    </header>
-
-    <div class="status-bar">
-      <div class="status-item">
-        <div class="status-indicator"></div>
-        <span id="status-text">Connected</span>
-      </div>
-      <div class="status-item">
-        <span id="last-update">Last updated: Never</span>
-      </div>
-      <div class="status-item">
-        <button class="refresh-btn" id="refresh-btn" onclick="forceRefresh()">🔄 Refresh Now</button>
-      </div>
-      <div class="status-item">
-        <span id="next-update">Next update in: 15:00</span>
-      </div>
-    </div>
-
-    <div class="tabs">
-      <button class="tab active" onclick="switchTab('alliances')">Alliances</button>
-      <button class="tab" onclick="switchTab('nations')">Nations</button>
-    </div>
-
-    <div class="content">
-      <!-- ALLIANCES SECTION -->
-      <div id="alliances-section" class="section active">
-        <div class="stats" id="alliance-stats"></div>
-        <input type="text" id="alliancesSearch" class="search-box" placeholder="🔍 Search alliances by name or acronym...">
-        
-        <div class="pagination" id="alliances-pagination">
-          <button onclick="changeAlliancePage(-1)">← Previous</button>
-          <span class="page-info" id="alliances-page-info">Page 1</span>
-          <button onclick="changeAlliancePage(1)">Next →</button>
-        </div>
-
-        <div id="alliances-loading" class="loading">
-          <div class="spinner"></div>
-          <p>Loading alliances data...</p>
-        </div>
-        <table id="alliancesTable" style="display: none;">
-          <thead>
-            <tr>
-              <th>Flag</th>
-              <th>ID</th>
-              <th>Name</th>
-              <th>Acronym</th>
-              <th>Rank</th>
-              <th>Score</th>
-              <th>Founded</th>
-              <th>Recruiting</th>
-              <th>Discord</th>
-              <th>Wiki</th>
-            </tr>
-          </thead>
-          <tbody></tbody>
-        </table>
-      </div>
-
-      <!-- NATIONS SECTION -->
-      <div id="nations-section" class="section">
-        <div class="stats" id="nation-stats"></div>
-        <input type="text" id="nationsSearch" class="search-box" placeholder="🔍 Search nations by name or leader...">
-        
-        <div class="pagination" id="nations-pagination">
-          <button onclick="changeNationPage(-1)">← Previous</button>
-          <span class="page-info" id="nations-page-info">Page 1</span>
-          <button onclick="changeNationPage(1)">Next →</button>
-        </div>
-
-        <div id="nations-loading" class="loading">
-          <div class="spinner"></div>
-          <p>Loading nations data...</p>
-        </div>
-        <table id="nationsTable" style="display: none;">
-          <thead>
-            <tr>
-              <th></th>
-              <th>Flag</th>
-              <th>Nation</th>
-              <th>Leader</th>
-              <th>Continent</th>
-              <th>Score</th>
-              <th>Cities</th>
-              <th>Color</th>
-              <th>Alliance</th>
-              <th>Position</th>
-            </tr>
-          </thead>
-          <tbody></tbody>
-        </table>
-      </div>
-    </div>
+    <a href="index.html" class="back-btn">← Back to Data Viewer</a>
+    <h1 id="nation-name"></h1>
+    <ul id="cities-list"></ul>
+    
+    <!-- Placeholder for graph -->
+    <canvas id="city-graph" style="margin-top: 30px; max-width:100%;"></canvas>
   </div>
 
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script>
-    const API = "https://degree-poster-michigan-tooth.trycloudflare.com";
-    const CACHE_DURATION = 15 * 60 * 1000;
-    const ITEMS_PER_PAGE = 100;
-    const STORAGE_KEY_ALLIANCES = 'pnw_alliances_data';
-    const STORAGE_KEY_NATIONS = 'pnw_nations_data';
-    const STORAGE_KEY_TIMESTAMP = 'pnw_last_fetch_time';
+    const params = new URLSearchParams(window.location.search);
+    const nationId = params.get('id');
 
-    let alliances = [];
-    let nations = [];
-    let filteredAlliances = [];
-    let filteredNations = [];
-    let currentAlliancePage = 1;
-    let currentNationPage = 1;
-    let lastFetchTime = 0;
-    let refreshInterval;
-    let countdownInterval;
-    let expandedRows = new Set();
-
-    function isCacheValid() {
-      return (Date.now() - lastFetchTime) < CACHE_DURATION;
+    if (!nationId) {
+      document.body.innerHTML = '<p>No nation selected.</p>';
+      throw new Error('No nation ID provided');
     }
 
-    function saveToLocalStorage() {
-      try {
-        localStorage.setItem(STORAGE_KEY_ALLIANCES, JSON.stringify(alliances));
-        localStorage.setItem(STORAGE_KEY_NATIONS, JSON.stringify(nations));
-        localStorage.setItem(STORAGE_KEY_TIMESTAMP, lastFetchTime.toString());
-        console.log('✓ Data saved to localStorage');
-      } catch (e) {
-        console.warn('Failed to save to localStorage:', e);
-      }
+    const nationsData = JSON.parse(localStorage.getItem('pnw_nations_data') || '[]');
+    const nation = nationsData.find(n => n.id == nationId);
+
+    if (!nation) {
+      document.body.innerHTML = '<p>Nation not found.</p>';
+      throw new Error('Nation not found');
     }
 
-    function loadFromLocalStorage() {
-      try {
-        const savedAlliances = localStorage.getItem(STORAGE_KEY_ALLIANCES);
-        const savedNations = localStorage.getItem(STORAGE_KEY_NATIONS);
-        const savedTimestamp = localStorage.getItem(STORAGE_KEY_TIMESTAMP);
-
-        if (savedAlliances && savedNations && savedTimestamp) {
-          alliances = JSON.parse(savedAlliances);
-          nations = JSON.parse(savedNations);
-          lastFetchTime = parseInt(savedTimestamp);
-          filteredAlliances = [...alliances];
-          filteredNations = [...nations];
-          
-          console.log(`✓ Loaded ${alliances.length} alliances and ${nations.length} nations from localStorage`);
-          return true;
-        }
-      } catch (e) {
-        console.warn('Failed to load from localStorage:', e);
-      }
-      return false;
+    // Show flag and nation name
+    const h1 = document.getElementById('nation-name');
+    if (nation.flag) {
+      const img = document.createElement('img');
+      img.src = nation.flag;
+      img.alt = 'Flag';
+      img.className = 'flag';
+      h1.appendChild(img);
     }
+    h1.append(` ${nation.nation_name}`);
 
-    function updateStatusBar() {
-      const now = Date.now();
-      const elapsed = now - lastFetchTime;
-      const remaining = CACHE_DURATION - elapsed;
-
-      if (lastFetchTime === 0) {
-        document.getElementById('last-update').textContent = 'Last updated: Never';
-        document.getElementById('next-update').textContent = 'Next update in: --:--';
-      } else {
-        const lastUpdate = new Date(lastFetchTime);
-        document.getElementById('last-update').textContent = `Last updated: ${lastUpdate.toLocaleTimeString()}`;
-
-        if (remaining > 0) {
-          const minutes = Math.floor(remaining / 60000);
-          const seconds = Math.floor((remaining % 60000) / 1000);
-          document.getElementById('next-update').textContent = `Next update in: ${minutes}:${seconds.toString().padStart(2, '0')}`;
-        } else {
-          document.getElementById('next-update').textContent = 'Updating...';
-        }
-      }
-    }
-
-    async function forceRefresh() {
-      const btn = document.getElementById('refresh-btn');
-      btn.disabled = true;
-      btn.textContent = '⏳ Refreshing...';
-      
-      lastFetchTime = 0;
-      await fetchData();
-      
-      btn.disabled = false;
-      btn.textContent = '🔄 Refresh Now';
-    }
-
-    async function fetchData() {
-      if (isCacheValid() && alliances.length > 0 && nations.length > 0) {
-        console.log('Using cached data');
-        return;
-      }
-
-      console.log('Fetching fresh data from API...');
-      document.getElementById('status-text').textContent = 'Fetching data...';
-
-      try {
-        const [alliancesRes, nationsRes] = await Promise.all([
-          fetch(`${API}/alliance`, { method: "POST" }),
-          fetch(`${API}/nations`, { method: "POST" })
-        ]);
-
-        const alliancesData = await alliancesRes.json();
-        const nationsData = await nationsRes.json();
-
-        alliances = alliancesData.alliances || [];
-        nations = nationsData.nations || [];
-        filteredAlliances = [...alliances];
-        filteredNations = [...nations];
-        lastFetchTime = Date.now();
-
-        // Save to localStorage
-        saveToLocalStorage();
-
-        document.getElementById('status-text').textContent = 'Connected';
-        
-        currentAlliancePage = 1;
-        currentNationPage = 1;
-        expandedRows.clear();
-        
-        renderAlliances();
-        renderNations();
-        updateStats();
-      } catch (error) {
-        console.error('Error fetching data:', error);
-        document.getElementById('status-text').textContent = 'Connection error';
-      }
-    }
-
-    function updateStats() {
-      const allianceStatsHtml = `
-        <div class="stat-card">
-          <div class="stat-value">${alliances.length}</div>
-          <div class="stat-label">Total Alliances</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-value">${alliances.filter(a => a.accept_members).length}</div>
-          <div class="stat-label">Recruiting</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-value">${alliances.filter(a => a.discord_link).length}</div>
-          <div class="stat-label">With Discord</div>
-        </div>
-      `;
-      document.getElementById('alliance-stats').innerHTML = allianceStatsHtml;
-
-      const totalCities = nations.reduce((sum, n) => sum + (n.num_cities || 0), 0);
-      const avgScore = nations.length > 0 ? (nations.reduce((sum, n) => sum + (n.score || 0), 0) / nations.length).toFixed(2) : 0;
-      
-      const nationStatsHtml = `
-        <div class="stat-card">
-          <div class="stat-value">${nations.length}</div>
-          <div class="stat-label">Total Nations</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-value">${totalCities.toLocaleString()}</div>
-          <div class="stat-label">Total Cities</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-value">${avgScore}</div>
-          <div class="stat-label">Avg Score</div>
-        </div>
-      `;
-      document.getElementById('nation-stats').innerHTML = nationStatsHtml;
-    }
-
-    function changeAlliancePage(delta) {
-      const totalPages = Math.ceil(filteredAlliances.length / ITEMS_PER_PAGE);
-      const newPage = currentAlliancePage + delta;
-      
-      if (newPage >= 1 && newPage <= totalPages) {
-        currentAlliancePage = newPage;
-        renderAlliances();
-      }
-    }
-
-    function changeNationPage(delta) {
-      const totalPages = Math.ceil(filteredNations.length / ITEMS_PER_PAGE);
-      const newPage = currentNationPage + delta;
-      
-      if (newPage >= 1 && newPage <= totalPages) {
-        currentNationPage = newPage;
-        expandedRows.clear();
-        renderNations();
-      }
-    }
-
-    function renderAlliances() {
-      const tbody = document.querySelector("#alliancesTable tbody");
-      tbody.innerHTML = "";
-
-      const totalPages = Math.ceil(filteredAlliances.length / ITEMS_PER_PAGE);
-      const start = (currentAlliancePage - 1) * ITEMS_PER_PAGE;
-      const end = start + ITEMS_PER_PAGE;
-      const pageData = filteredAlliances.slice(start, end);
-
-      pageData.forEach(a => {
-        const tr = document.createElement("tr");
-        tr.innerHTML = `
-          <td>${a.flag ? `<img class="flag" src="${a.flag}" alt="Flag">` : "—"}</td>
-          <td>${a.id || "—"}</td>
-          <td><strong>${a.name || "—"}</strong></td>
-          <td>${a.acronym || "—"}</td>
-          <td>${a.rank || "—"}</td>
-          <td>${a.score ? parseFloat(a.score).toLocaleString() : "—"}</td>
-          <td>${a.date ? new Date(a.date).toLocaleDateString() : "—"}</td>
-          <td>${a.accept_members ? "✅ Yes" : "❌ No"}</td>
-          <td>${a.discord_link ? `<a href="${a.discord_link}" target="_blank">Join</a>` : "—"}</td>
-          <td>${a.wiki_link ? `<a href="${a.wiki_link}" target="_blank">View</a>` : "—"}</td>
-        `;
-        tbody.appendChild(tr);
+    // List cities
+    const citiesList = document.getElementById('cities-list');
+    if (nation.cities && nation.cities.length > 0) {
+      nation.cities.forEach(city => {
+        const li = document.createElement('li');
+        li.textContent = city.name;
+        citiesList.appendChild(li);
       });
-
-      document.getElementById('alliances-page-info').textContent = `Page ${currentAlliancePage} of ${totalPages} (${filteredAlliances.length} total)`;
-      document.getElementById('alliances-loading').style.display = 'none';
-      document.getElementById('alliancesTable').style.display = 'table';
-      
-      const paginationBtns = document.querySelectorAll('#alliances-pagination button');
-      paginationBtns[0].disabled = currentAlliancePage === 1;
-      paginationBtns[1].disabled = currentAlliancePage === totalPages || totalPages === 0;
+    } else {
+      const li = document.createElement('li');
+      li.textContent = 'No cities available';
+      citiesList.appendChild(li);
     }
 
-    function toggleNationDetails(nationId) {
-      const nation = nations.find(n => n.id === nationId);
-      if (!nation) return;
-
-      const detailsRowId = `details-${nationId}`;
-      const existingRow = document.getElementById(detailsRowId);
-      const mainRow = document.querySelector(`tr[data-nation-id="${nationId}"]`);
-
-      if (existingRow) {
-        existingRow.remove();
-        expandedRows.delete(nationId);
-        mainRow.classList.remove('expanded');
-      } else {
-        const detailsRow = document.createElement('tr');
-        detailsRow.id = detailsRowId;
-        detailsRow.className = 'details-row show';
-        
-        const detailsCell = document.createElement('td');
-        detailsCell.colSpan = 10;
-        detailsCell.className = 'details-cell';
-        
-        detailsCell.innerHTML = `
-          <div class="details-content">
-            <div class="detail-group">
-              <h4>📊 Basic Info</h4>
-              <div class="detail-item"><span class="detail-label">ID:</span><span class="detail-value">${nation.id}</span></div>
-              <div class="detail-item"><span class="detail-label">Nation:</span><span class="detail-value">${nation.nation_name}</span></div>
-              <div class="detail-item"><span class="detail-label">Leader:</span><span class="detail-value">${nation.leader_name}</span></div>
-              <div class="detail-item"><span class="detail-label">Continent:</span><span class="detail-value">${nation.continent?.toUpperCase() || '—'}</span></div>
-              <div class="detail-item"><span class="detail-label">Founded:</span><span class="detail-value">${nation.date ? new Date(nation.date).toLocaleDateString() : '—'}</span></div>
-            </div>
-            
-            <div class="detail-group">
-              <h4>⚔️ Military</h4>
-              <div class="detail-item"><span class="detail-label">Soldiers:</span><span class="detail-value">${(nation.soldiers || 0).toLocaleString()}</span></div>
-              <div class="detail-item"><span class="detail-label">Tanks:</span><span class="detail-value">${(nation.tanks || 0).toLocaleString()}</span></div>
-              <div class="detail-item"><span class="detail-label">Aircraft:</span><span class="detail-value">${(nation.aircraft || 0).toLocaleString()}</span></div>
-              <div class="detail-item"><span class="detail-label">Ships:</span><span class="detail-value">${(nation.ships || 0).toLocaleString()}</span></div>
-              <div class="detail-item"><span class="detail-label">Missiles:</span><span class="detail-value">${(nation.missiles || 0).toLocaleString()}</span></div>
-              <div class="detail-item"><span class="detail-label">Nukes:</span><span class="detail-value">${(nation.nukes || 0).toLocaleString()}</span></div>
-            </div>
-            
-            <div class="detail-group">
-              <h4>🏙️ Infrastructure</h4>
-              <div class="detail-item"><span class="detail-label">Cities:</span><span class="detail-value">${nation.num_cities || 0}</span></div>
-              <div class="detail-item"><span class="detail-label">Projects:</span><span class="detail-value">${nation.projects || 0}</span></div>
-              <div class="detail-item"><span class="detail-label">Score:</span><span class="detail-value">${nation.score ? parseFloat(nation.score).toLocaleString() : '—'}</span></div>
-              <div class="detail-item"><span class="detail-label">Color Bloc:</span><span class="detail-value" style="color: ${nation.color}">${nation.color || '—'}</span></div>
-            </div>
-            
-            <div class="detail-group">
-              <h4>🤝 Alliance</h4>
-              <div class="detail-item"><span class="detail-label">Alliance ID:</span><span class="detail-value">${nation.alliance_id || 'None'}</span></div>
-              <div class="detail-item"><span class="detail-label">Position:</span><span class="detail-value">${nation.alliance_position || '—'}</span></div>
-              <div class="detail-item"><span class="detail-label">Last Active:</span><span class="detail-value">${nation.last_active ? new Date(nation.last_active).toLocaleString() : '—'}</span></div>
-              <div class="detail-item"><span class="detail-label">Vacation:</span><span class="detail-value">${nation.vacation_mode_turns ? 'Yes' : 'No'}</span></div>
-              <div class="detail-item"><span class="detail-label">Beige Turns:</span><span class="detail-value">${nation.beige_turns || 0}</span></div>
-            </div>
-          </div>
-        `;
-        
-        detailsRow.appendChild(detailsCell);
-        mainRow.after(detailsRow);
-        expandedRows.add(nationId);
-        mainRow.classList.add('expanded');
-      }
-    }
-
-    function renderNations() {
-      const tbody = document.querySelector("#nationsTable tbody");
-      tbody.innerHTML = "";
-
-      const totalPages = Math.ceil(filteredNations.length / ITEMS_PER_PAGE);
-      const start = (currentNationPage - 1) * ITEMS_PER_PAGE;
-      const end = start + ITEMS_PER_PAGE;
-      const pageData = filteredNations.slice(start, end);
-
-      pageData.forEach(n => {
-        const tr = document.createElement("tr");
-        tr.setAttribute('data-nation-id', n.id);
-        const isExpanded = expandedRows.has(n.id);
-        
-        tr.innerHTML = `
-          <td><span class="expand-icon ${isExpanded ? 'rotated' : ''}">▶</span></td>
-          <td>${n.flag ? `<img class="flag" src="${n.flag}" alt="Flag">` : "—"}</td>
-          <td><strong>${n.nation_name || "—"}</strong></td>
-          <td>${n.leader_name || "—"}</td>
-          <td>${n.continent ? n.continent.toUpperCase() : "—"}</td>
-          <td>${n.score ? parseFloat(n.score).toLocaleString() : "—"}</td>
-          <td>${n.num_cities || "—"}</td>
-          <td style="color: ${n.color || '#000'}">${n.color ? '⬤ ' + n.color : "—"}</td>
-          <td>${n.alliance_id || "None"}</td>
-          <td>${n.alliance_position || "—"}</td>
-        `;
-        
-        tr.onclick = () => toggleNationDetails(n.id);
-        tbody.appendChild(tr);
-        
-        if (isExpanded) {
-          toggleNationDetails(n.id);
+    // Placeholder for graph: For now, we can make a simple chart of city populations
+    if (nation.cities && nation.cities.length > 0) {
+      const ctx = document.getElementById('city-graph').getContext('2d');
+      new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: nation.cities.map(c => c.name),
+          datasets: [{
+            label: 'Population',
+            data: nation.cities.map(c => c.population || 0),
+            backgroundColor: 'rgba(102, 126, 234, 0.7)'
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: { legend: { display: false } },
+          scales: { y: { beginAtZero: true } }
         }
       });
-
-      document.getElementById('nations-page-info').textContent = `Page ${currentNationPage} of ${totalPages} (${filteredNations.length} total)`;
-      document.getElementById('nations-loading').style.display = 'none';
-      document.getElementById('nationsTable').style.display = 'table';
-      
-      const paginationBtns = document.querySelectorAll('#nations-pagination button');
-      paginationBtns[0].disabled = currentNationPage === 1;
-      paginationBtns[1].disabled = currentNationPage === totalPages || totalPages === 0;
     }
-
-    document.querySelector("#alliancesSearch").addEventListener("input", e => {
-      const q = e.target.value.toLowerCase();
-      filteredAlliances = alliances.filter(a =>
-        (a.name?.toLowerCase().includes(q)) ||
-        (a.acronym?.toLowerCase().includes(q))
-      );
-      currentAlliancePage = 1;
-      renderAlliances();
-    });
-
-    document.querySelector("#nationsSearch").addEventListener("input", e => {
-      const q = e.target.value.toLowerCase();
-      filteredNations = nations.filter(n =>
-        (n.nation_name?.toLowerCase().includes(q)) ||
-        (n.leader_name?.toLowerCase().includes(q))
-      );
-      currentNationPage = 1;
-      expandedRows.clear();
-      renderNations();
-    });
-
-    function switchTab(tab) {
-      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-      document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-      
-      event.target.classList.add('active');
-      document.getElementById(`${tab}-section`).classList.add('active');
-    }
-
-    async function init() {
-      // Try loading from localStorage first
-      const hasLocalData = loadFromLocalStorage();
-      
-      if (hasLocalData) {
-        // Show cached data immediately
-        renderAlliances();
-        renderNations();
-        updateStats();
-        updateStatusBar();
-        
-        document.getElementById('status-text').textContent = 'Loaded from cache';
-        
-        // Check if cache is still valid
-        if (!isCacheValid()) {
-          console.log('Cache expired, fetching fresh data...');
-          await fetchData();
-        }
-      } else {
-        // No cached data, fetch from API
-        await fetchData();
-      }
-      
-      updateStatusBar();
-      refreshInterval = setInterval(fetchData, CACHE_DURATION);
-      countdownInterval = setInterval(updateStatusBar, 1000);
-    }
-
-    init();
   </script>
 </body>
 </html>
