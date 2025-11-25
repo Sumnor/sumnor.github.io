@@ -370,6 +370,7 @@
     <div class="tabs">
       <button class="tab active" onclick="switchTab('alliances')">Alliances</button>
       <button class="tab" onclick="switchTab('nations')">Nations</button>
+      <button class="tab" onclick="switchTab('cities')">Cities</button>
     </div>
 
     <div class="content">
@@ -440,6 +441,38 @@
           <tbody></tbody>
         </table>
       </div>
+
+      <!-- CITIES SECTION -->
+      <div id="cities-section" class="section">
+        <div class="stats" id="city-stats"></div>
+        <input type="text" id="citiesSearch" class="search-box" placeholder="🔍 Search cities by name or nation...">
+        
+        <div class="pagination" id="cities-pagination">
+          <button onclick="changeCityPage(-1)">← Previous</button>
+          <span class="page-info" id="cities-page-info">Page 1</span>
+          <button onclick="changeCityPage(1)">Next →</button>
+        </div>
+
+        <div id="cities-loading" class="loading">
+          <div class="spinner"></div>
+          <p>Loading cities data...</p>
+        </div>
+        <table id="citiesTable" style="display: none;">
+          <thead>
+            <tr>
+              <th></th>
+              <th>City Name</th>
+              <th>Nation</th>
+              <th>Infrastructure</th>
+              <th>Land</th>
+              <th>Powered</th>
+              <th>Population</th>
+              <th>Age</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
     </div>
   </div>
 
@@ -447,20 +480,81 @@
     const API = "https://degree-poster-michigan-tooth.trycloudflare.com";
     const CACHE_DURATION = 15 * 60 * 1000;
     const ITEMS_PER_PAGE = 100;
+    const STORAGE_KEY_ALLIANCES = 'pnw_alliances_data';
+    const STORAGE_KEY_NATIONS = 'pnw_nations_data';
+    const STORAGE_KEY_TIMESTAMP = 'pnw_last_fetch_time';
 
     let alliances = [];
     let nations = [];
+    let cities = [];
     let filteredAlliances = [];
     let filteredNations = [];
+    let filteredCities = [];
     let currentAlliancePage = 1;
     let currentNationPage = 1;
+    let currentCityPage = 1;
     let lastFetchTime = 0;
     let refreshInterval;
     let countdownInterval;
     let expandedRows = new Set();
+    let expandedCities = new Set();
 
     function isCacheValid() {
       return (Date.now() - lastFetchTime) < CACHE_DURATION;
+    }
+
+    function saveToLocalStorage() {
+      try {
+        localStorage.setItem(STORAGE_KEY_ALLIANCES, JSON.stringify(alliances));
+        localStorage.setItem(STORAGE_KEY_NATIONS, JSON.stringify(nations));
+        localStorage.setItem(STORAGE_KEY_TIMESTAMP, lastFetchTime.toString());
+        console.log('✓ Data saved to localStorage');
+      } catch (e) {
+        console.warn('Failed to save to localStorage:', e);
+      }
+    }
+
+    function loadFromLocalStorage() {
+      try {
+        const savedAlliances = localStorage.getItem(STORAGE_KEY_ALLIANCES);
+        const savedNations = localStorage.getItem(STORAGE_KEY_NATIONS);
+        const savedTimestamp = localStorage.getItem(STORAGE_KEY_TIMESTAMP);
+
+        if (savedAlliances && savedNations && savedTimestamp) {
+          alliances = JSON.parse(savedAlliances);
+          nations = JSON.parse(savedNations);
+          lastFetchTime = parseInt(savedTimestamp);
+          filteredAlliances = [...alliances];
+          filteredNations = [...nations];
+          
+          // Extract cities from nations
+          extractCities();
+          
+          console.log(`✓ Loaded ${alliances.length} alliances and ${nations.length} nations from localStorage`);
+          return true;
+        }
+      } catch (e) {
+        console.warn('Failed to load from localStorage:', e);
+      }
+      return false;
+    }
+
+    function extractCities() {
+      cities = [];
+      nations.forEach(nation => {
+        if (nation.cities && Array.isArray(nation.cities)) {
+          nation.cities.forEach(city => {
+            cities.push({
+              ...city,
+              nation_name: nation.nation_name,
+              nation_id: nation.id,
+              nation_leader: nation.leader_name
+            });
+          });
+        }
+      });
+      filteredCities = [...cities];
+      console.log(`✓ Extracted ${cities.length} cities from nations data`);
     }
 
     function updateStatusBar() {
@@ -521,14 +615,23 @@
         filteredNations = [...nations];
         lastFetchTime = Date.now();
 
+        // Extract cities from nations
+        extractCities();
+
+        // Save to localStorage
+        saveToLocalStorage();
+
         document.getElementById('status-text').textContent = 'Connected';
         
         currentAlliancePage = 1;
         currentNationPage = 1;
+        currentCityPage = 1;
         expandedRows.clear();
+        expandedCities.clear();
         
         renderAlliances();
         renderNations();
+        renderCities();
         updateStats();
       } catch (error) {
         console.error('Error fetching data:', error);
@@ -571,6 +674,30 @@
         </div>
       `;
       document.getElementById('nation-stats').innerHTML = nationStatsHtml;
+
+      const totalInfra = cities.reduce((sum, c) => sum + (c.infrastructure || 0), 0);
+      const totalLand = cities.reduce((sum, c) => sum + (c.land || 0), 0);
+      const poweredCities = cities.filter(c => c.powered).length;
+
+      const cityStatsHtml = `
+        <div class="stat-card">
+          <div class="stat-value">${cities.length.toLocaleString()}</div>
+          <div class="stat-label">Total Cities</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value">${totalInfra.toLocaleString(undefined, {maximumFractionDigits: 0})}</div>
+          <div class="stat-label">Total Infrastructure</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value">${poweredCities.toLocaleString()}</div>
+          <div class="stat-label">Powered Cities</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value">${totalLand.toLocaleString()}</div>
+          <div class="stat-label">Total Land</div>
+        </div>
+      `;
+      document.getElementById('city-stats').innerHTML = cityStatsHtml;
     }
 
     function changeAlliancePage(delta) {
@@ -591,6 +718,17 @@
         currentNationPage = newPage;
         expandedRows.clear();
         renderNations();
+      }
+    }
+
+    function changeCityPage(delta) {
+      const totalPages = Math.ceil(filteredCities.length / ITEMS_PER_PAGE);
+      const newPage = currentCityPage + delta;
+      
+      if (newPage >= 1 && newPage <= totalPages) {
+        currentCityPage = newPage;
+        expandedCities.clear();
+        renderCities();
       }
     }
 
@@ -762,7 +900,160 @@
       renderNations();
     });
 
+    document.querySelector("#citiesSearch").addEventListener("input", e => {
+      const q = e.target.value.toLowerCase();
+      filteredCities = cities.filter(c =>
+        (c.name?.toLowerCase().includes(q)) ||
+        (c.nation_name?.toLowerCase().includes(q))
+      );
+      currentCityPage = 1;
+      expandedCities.clear();
+      renderCities();
+    });
+
+    function toggleCityDetails(cityId) {
+      const city = cities.find(c => c.id === cityId);
+      if (!city) return;
+
+      const detailsRowId = `city-details-${cityId}`;
+      const existingRow = document.getElementById(detailsRowId);
+      const mainRow = document.querySelector(`tr[data-city-id="${cityId}"]`);
+
+      if (existingRow) {
+        existingRow.remove();
+        expandedCities.delete(cityId);
+        mainRow.classList.remove('expanded');
+      } else {
+        const detailsRow = document.createElement('tr');
+        detailsRow.id = detailsRowId;
+        detailsRow.className = 'details-row show';
+        
+        const detailsCell = document.createElement('td');
+        detailsCell.colSpan = 8;
+        detailsCell.className = 'details-cell';
+        
+        detailsCell.innerHTML = `
+          <div class="details-content">
+            <div class="detail-group">
+              <h4>🏙️ City Info</h4>
+              <div class="detail-item"><span class="detail-label">City ID:</span><span class="detail-value">${city.id}</span></div>
+              <div class="detail-item"><span class="detail-label">Name:</span><span class="detail-value">${city.name || 'Unnamed'}</span></div>
+              <div class="detail-item"><span class="detail-label">Nation:</span><span class="detail-value">${city.nation_name}</span></div>
+              <div class="detail-item"><span class="detail-label">Age:</span><span class="detail-value">${city.date ? Math.floor((Date.now() - new Date(city.date)) / (1000 * 60 * 60 * 24)) + ' days' : '—'}</span></div>
+            </div>
+
+            <div class="detail-group">
+              <h4>⚡ Power & Resources</h4>
+              <div class="detail-item"><span class="detail-label">Powered:</span><span class="detail-value">${city.powered ? '✅ Yes' : '❌ No'}</span></div>
+              <div class="detail-item"><span class="detail-label">Coal Power:</span><span class="detail-value">${city.coal_power || 0}</span></div>
+              <div class="detail-item"><span class="detail-label">Oil Power:</span><span class="detail-value">${city.oil_power || 0}</span></div>
+              <div class="detail-item"><span class="detail-label">Nuclear Power:</span><span class="detail-value">${city.nuclear_power || 0}</span></div>
+              <div class="detail-item"><span class="detail-label">Wind Power:</span><span class="detail-value">${city.wind_power || 0}</span></div>
+            </div>
+
+            <div class="detail-group">
+              <h4>⛏️ Mining</h4>
+              <div class="detail-item"><span class="detail-label">Coal Mines:</span><span class="detail-value">${city.coal_mine || 0}</span></div>
+              <div class="detail-item"><span class="detail-label">Oil Wells:</span><span class="detail-value">${city.oil_well || 0}</span></div>
+              <div class="detail-item"><span class="detail-label">Uranium Mines:</span><span class="detail-value">${city.uranium_mine || 0}</span></div>
+              <div class="detail-item"><span class="detail-label">Lead Mines:</span><span class="detail-value">${city.lead_mine || 0}</span></div>
+              <div class="detail-item"><span class="detail-label">Iron Mines:</span><span class="detail-value">${city.iron_mine || 0}</span></div>
+              <div class="detail-item"><span class="detail-label">Bauxite Mines:</span><span class="detail-value">${city.bauxite_mine || 0}</span></div>
+            </div>
+
+            <div class="detail-group">
+              <h4>🏭 Manufacturing</h4>
+              <div class="detail-item"><span class="detail-label">Oil Refineries:</span><span class="detail-value">${city.oil_refinery || 0}</span></div>
+              <div class="detail-item"><span class="detail-label">Aluminum Refineries:</span><span class="detail-value">${city.aluminum_refinery || 0}</span></div>
+              <div class="detail-item"><span class="detail-label">Steel Mills:</span><span class="detail-value">${city.steel_mill || 0}</span></div>
+              <div class="detail-item"><span class="detail-label">Munitions Factories:</span><span class="detail-value">${city.munitions_factory || 0}</span></div>
+              <div class="detail-item"><span class="detail-label">Factories:</span><span class="detail-value">${city.factory || 0}</span></div>
+            </div>
+
+            <div class="detail-group">
+              <h4>🏢 Infrastructure</h4>
+              <div class="detail-item"><span class="detail-label">Hospitals:</span><span class="detail-value">${city.hospital || 0}</span></div>
+              <div class="detail-item"><span class="detail-label">Police Stations:</span><span class="detail-value">${city.police_station || 0}</span></div>
+              <div class="detail-item"><span class="detail-label">Banks:</span><span class="detail-value">${city.bank || 0}</span></div>
+              <div class="detail-item"><span class="detail-label">Shopping Malls:</span><span class="detail-value">${city.shopping_mall || 0}</span></div>
+              <div class="detail-item"><span class="detail-label">Stadiums:</span><span class="detail-value">${city.stadium || 0}</span></div>
+              <div class="detail-item"><span class="detail-label">Supermarkets:</span><span class="detail-value">${city.supermarket || 0}</span></div>
+              <div class="detail-item"><span class="detail-label">Subways:</span><span class="detail-value">${city.subway || 0}</span></div>
+              <div class="detail-item"><span class="detail-label">Recycling Centers:</span><span class="detail-value">${city.recycling_center || 0}</span></div>
+            </div>
+
+            <div class="detail-group">
+              <h4>⚔️ Military</h4>
+              <div class="detail-item"><span class="detail-label">Barracks:</span><span class="detail-value">${city.barracks || 0}</span></div>
+              <div class="detail-item"><span class="detail-label">Hangars:</span><span class="detail-value">${city.hangar || 0}</span></div>
+              <div class="detail-item"><span class="detail-label">Drydocks:</span><span class="detail-value">${city.drydock || 0}</span></div>
+            </div>
+
+            <div class="detail-group">
+              <h4>🌾 Agriculture</h4>
+              <div class="detail-item"><span class="detail-label">Farms:</span><span class="detail-value">${city.farm || 0}</span></div>
+            </div>
+          </div>
+        `;
+        
+        detailsRow.appendChild(detailsCell);
+        mainRow.after(detailsRow);
+        expandedCities.add(cityId);
+        mainRow.classList.add('expanded');
+      }
+    }
+
+    function renderCities() {
+      const tbody = document.querySelector("#citiesTable tbody");
+      tbody.innerHTML = "";
+
+      const totalPages = Math.ceil(filteredCities.length / ITEMS_PER_PAGE);
+      const start = (currentCityPage - 1) * ITEMS_PER_PAGE;
+      const end = start + ITEMS_PER_PAGE;
+      const pageData = filteredCities.slice(start, end);
+
+      pageData.forEach(c => {
+        const tr = document.createElement("tr");
+        tr.setAttribute('data-city-id', c.id);
+        const isExpanded = expandedCities.has(c.id);
+        
+        const cityAge = c.date ? Math.floor((Date.now() - new Date(c.date)) / (1000 * 60 * 60 * 24)) : 0;
+        const population = Math.floor((c.infrastructure || 0) * 100);
+        
+        tr.innerHTML = `
+          <td><span class="expand-icon ${isExpanded ? 'rotated' : ''}">▶</span></td>
+          <td><strong>${c.name || 'Unnamed City'}</strong></td>
+          <td>${c.nation_name || '—'}</td>
+          <td>${c.infrastructure ? parseFloat(c.infrastructure).toLocaleString(undefined, {maximumFractionDigits: 2}) : '—'}</td>
+          <td>${c.land ? parseFloat(c.land).toLocaleString() : '—'}</td>
+          <td>${c.powered ? '✅' : '❌'}</td>
+          <td>${population.toLocaleString()}</td>
+          <td>${cityAge} days</td>
+        `;
+        
+        tr.onclick = () => toggleCityDetails(c.id);
+        tbody.appendChild(tr);
+        
+        if (isExpanded) {
+          toggleCityDetails(c.id);
+        }
+      });
+
+      document.getElementById('cities-page-info').textContent = `Page ${currentCityPage} of ${totalPages} (${filteredCities.length} total)`;
+      document.getElementById('cities-loading').style.display = 'none';
+      document.getElementById('citiesTable').style.display = 'table';
+      
+      const paginationBtns = document.querySelectorAll('#cities-pagination button');
+      paginationBtns[0].disabled = currentCityPage === 1;
+      paginationBtns[1].disabled = currentCityPage === totalPages || totalPages === 0;
+    }
+
     function switchTab(tab) {
+      // Update URL with query parameter
+      const url = new URL(window.location);
+      url.searchParams.set('view', tab);
+      window.history.pushState({}, '', url);
+
       document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
       document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
       
@@ -770,8 +1061,50 @@
       document.getElementById(`${tab}-section`).classList.add('active');
     }
 
+    function loadTabFromURL() {
+      const url = new URL(window.location);
+      const view = url.searchParams.get('view') || 'alliances';
+      
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+      
+      const tabBtn = document.querySelector(`.tab[onclick="switchTab('${view}')"]`);
+      if (tabBtn) {
+        tabBtn.classList.add('active');
+        document.getElementById(`${view}-section`).classList.add('active');
+      } else {
+        document.querySelector('.tab').classList.add('active');
+        document.getElementById('alliances-section').classList.add('active');
+      }
+    }
+
     async function init() {
-      await fetchData();
+      // Load tab from URL
+      loadTabFromURL();
+
+      // Try loading from localStorage first
+      const hasLocalData = loadFromLocalStorage();
+      
+      if (hasLocalData) {
+        // Show cached data immediately
+        renderAlliances();
+        renderNations();
+        renderCities();
+        updateStats();
+        updateStatusBar();
+        
+        document.getElementById('status-text').textContent = 'Loaded from cache';
+        
+        // Check if cache is still valid
+        if (!isCacheValid()) {
+          console.log('Cache expired, fetching fresh data...');
+          await fetchData();
+        }
+      } else {
+        // No cached data, fetch from API
+        await fetchData();
+      }
+      
       updateStatusBar();
       refreshInterval = setInterval(fetchData, CACHE_DURATION);
       countdownInterval = setInterval(updateStatusBar, 1000);
