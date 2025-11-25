@@ -3,20 +3,21 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Alliances Viewer</title>
+  <title>Alliances & Nations Viewer</title>
   <style>
     body { font-family: Arial, sans-serif; margin: 20px; }
     input { padding: 8px; margin-bottom: 10px; width: 300px; }
-    table { border-collapse: collapse; width: 100%; }
+    table { border-collapse: collapse; width: 100%; margin-bottom: 40px; }
     th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
     th { background-color: #f4f4f4; }
     tr:nth-child(even) { background-color: #fafafa; }
+    tr:hover { background:#e6f1ff; cursor:pointer; }
     img.flag { width: 50px; height: auto; }
   </style>
 </head>
 <body>
   <h1>Alliances Viewer</h1>
-  <input type="text" id="search" placeholder="Search by name or acronym...">
+  <input type="text" id="allianceSearch" placeholder="Search by name or acronym...">
 
   <table id="alliancesTable">
     <thead>
@@ -37,27 +38,22 @@
   </table>
 
   <script>
-    const apiUrl = "https://checked-notre-enforcement-careful.trycloudflare.com/data/alliance";
-
+    const allianceAPI = "https://checked-notre-enforcement-careful.trycloudflare.com/alliance";
     let alliances = [];
 
     async function fetchAlliances() {
       try {
-        const res = await fetch(apiUrl, { method: "POST" }); // backend supports POST
+        const res = await fetch(allianceAPI, { method: "POST" });
         const data = await res.json();
-        if (!data.alliances || data.alliances.length === 0) {
-          console.warn("No alliances returned");
-          return;
-        }
-        alliances = data.alliances;
-        console.log("Fetched alliances:", alliances);
-        renderTable(alliances);
+
+        alliances = data.alliances || [];
+        renderAllianceTable(alliances);
       } catch (err) {
         console.error("Failed to fetch alliances:", err);
       }
     }
 
-    function renderTable(list) {
+    function renderAllianceTable(list) {
       const tbody = document.querySelector("#alliancesTable tbody");
       tbody.innerHTML = "";
       list.forEach(a => {
@@ -78,16 +74,95 @@
       });
     }
 
-    document.getElementById("search").addEventListener("input", e => {
-      const query = e.target.value.toLowerCase();
+    document.getElementById("allianceSearch").addEventListener("input", e => {
+      const q = e.target.value.toLowerCase();
       const filtered = alliances.filter(a =>
-        (a.name && a.name.toLowerCase().includes(query)) ||
-        (a.acronym && a.acronym.toLowerCase().includes(query))
+        (a.name && a.name.toLowerCase().includes(q)) ||
+        (a.acronym && a.acronym.toLowerCase().includes(q))
       );
-      renderTable(filtered);
+      renderAllianceTable(filtered);
     });
 
     fetchAlliances();
   </script>
+
+  <!-- NATIONS -->
+  <h1>Nations Viewer</h1>
+  <input type="text" id="nationSearch" placeholder="Search by name or leader...">
+
+  <table id="nationTable">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>ID</th>
+        <th>Leader</th>
+        <th>Continent</th>
+        <th>Score</th>
+        <th>Cities</th>
+        <th>Colour Bloc</th>
+        <th>Last Active</th>
+        <th>AllianceID</th>
+        <th>Alliance Position</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <script>
+    const nationAPI = "https://checked-notre-enforcement-careful.trycloudflare.com/nations";
+
+    let nations = [];
+
+    async function fetchNations() {
+      try {
+        const res = await fetch(nationAPI, { method: "POST" });
+        const data = await res.json();
+
+        nations = data.alliances || [];
+        renderNationTable(nations);
+      } catch (err) {
+        console.error("Failed to fetch nations:", err);
+      }
+    }
+
+    function openNation(id) {
+      window.open(`nation.html?id=${id}`, "_blank");
+    }
+
+    function renderNationTable(list) {
+      const tbody = document.querySelector("#nationTable tbody");
+      tbody.innerHTML = "";
+      list.forEach(a => {
+        const tr = document.createElement("tr");
+        tr.onclick = () => openNation(a.id);
+
+        tr.innerHTML = `
+          <td>${a.nation_name || ""}</td>
+          <td>${a.id || ""}</td>
+          <td>${a.leader_name || ""}</td>
+          <td>${a.continent || ""}</td>
+          <td>${a.score || ""}</td>
+          <td>${a.num_cities || ""}</td>
+          <td>${a.color || ""}</td>
+          <td>${a.last_active || ""}</td>
+          <td>${a.alliance_id || ""}</td>
+          <td>${a.alliance_position || ""}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    document.getElementById("nationSearch").addEventListener("input", e => {
+      const q = e.target.value.toLowerCase();
+      const filtered = nations.filter(a =>
+        (a.nation_name && a.nation_name.toLowerCase().includes(q)) ||
+        (a.leader_name && a.leader_name.toLowerCase().includes(q))
+      );
+      renderNationTable(filtered);
+    });
+
+    fetchNations();
+  </script>
+
 </body>
 </html>
