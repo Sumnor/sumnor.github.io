@@ -537,7 +537,7 @@
   </div>
 
   <script>
-    const API = "https://degree-poster-michigan-tooth.trycloudflare.com";
+    const API = "https://philip-cap-judges-groove.trycloudflare.com";
     const CACHE_DURATION = 15 * 60 * 1000;
     const ITEMS_PER_PAGE = 100;
     const STORAGE_KEY_ALLIANCES = 'pnw_alliances_data';
@@ -725,10 +725,9 @@
       document.getElementById('status-text').textContent = 'Fetching data...';
 
       try {
-        // Fetch alliances (all) and first 5 pages of nations (summary only)
         const [alliancesRes, nationsRes] = await Promise.all([
           fetch(`${API}/alliance`, { method: "POST" }),
-          fetch(`${API}/nations/summary?page=1&limit=500`, { method: "POST" })
+          fetch(`${API}/nations/summary?page=1&limit=20000`, { method: "POST" })
         ]);
 
         const alliancesData = await alliancesRes.json();
