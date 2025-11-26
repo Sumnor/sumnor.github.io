@@ -537,7 +537,7 @@
   </div>
 
   <script>
-    const API = "https://degree-poster-michigan-tooth.trycloudflare.com";
+    const API = "https://philip-cap-judges-groove.trycloudflare.com";
     const CACHE_DURATION = 15 * 60 * 1000;
     const ITEMS_PER_PAGE = 100;
     const STORAGE_KEY_ALLIANCES = 'pnw_alliances_data';
@@ -568,12 +568,20 @@
         const dataToSave = {
           alliances: alliances,
           nations: nations,
-          timestamp: lastFetchTime
+          timestamp: lastFetchTime,
+          version: '1.0'
         };
-        localStorage.setItem('pnw_viewer_data', JSON.stringify(dataToSave));
-        console.log('✓ Data saved to localStorage');
+        const jsonString = JSON.stringify(dataToSave);
+        const sizeInMB = (new Blob([jsonString]).size / 1024 / 1024).toFixed(2);
+        
+        localStorage.setItem('pnw_viewer_data', jsonString);
+        console.log(`✓ Data saved to localStorage (${sizeInMB} MB)`);
+        console.log(`✓ ${alliances.length} alliances, ${nations.length} nations, ${cities.length} cities`);
       } catch (e) {
-        console.warn('Failed to save to localStorage:', e);
+        console.error('❌ Failed to save to localStorage:', e);
+        if (e.name === 'QuotaExceededError') {
+          alert('Storage quota exceeded! Data is too large to cache locally.');
+        }
       }
     }
 
@@ -582,7 +590,16 @@
         const savedData = localStorage.getItem('pnw_viewer_data');
         
         if (savedData) {
+          console.log('📦 Found cached data in localStorage');
           const parsed = JSON.parse(savedData);
+          
+          // Validate data structure
+          if (!parsed.alliances || !parsed.nations || !parsed.timestamp) {
+            console.warn('⚠️ Invalid cached data structure, clearing cache');
+            localStorage.removeItem('pnw_viewer_data');
+            return false;
+          }
+          
           alliances = parsed.alliances || [];
           nations = parsed.nations || [];
           lastFetchTime = parsed.timestamp || 0;
@@ -592,11 +609,16 @@
           // Extract cities from nations
           extractCities();
           
-          console.log(`✓ Loaded ${alliances.length} alliances and ${nations.length} nations from localStorage`);
+          const cacheAge = Math.floor((Date.now() - lastFetchTime) / 1000 / 60);
+          console.log(`✓ Loaded from localStorage (cached ${cacheAge} minutes ago)`);
+          console.log(`✓ ${alliances.length} alliances, ${nations.length} nations, ${cities.length} cities`);
           return true;
+        } else {
+          console.log('ℹ️ No cached data found, will fetch from API');
         }
       } catch (e) {
-        console.warn('Failed to load from localStorage:', e);
+        console.error('❌ Failed to load from localStorage:', e);
+        localStorage.removeItem('pnw_viewer_data');
       }
       return false;
     }
@@ -1200,6 +1222,8 @@
     }
 
     async function init() {
+      console.log('🚀 Initializing PnW Data Viewer...');
+      
       // Load tab from URL
       loadTabFromURL();
 
@@ -1207,6 +1231,7 @@
       const hasLocalData = loadFromLocalStorage();
       
       if (hasLocalData) {
+        console.log('⚡ Using cached data for instant load');
         // Show cached data immediately
         renderAlliances();
         renderNations();
@@ -1218,17 +1243,37 @@
         
         // Check if cache is still valid
         if (!isCacheValid()) {
-          console.log('Cache expired, fetching fresh data...');
+          console.log('🔄 Cache expired, fetching fresh data in background...');
           await fetchData();
+        } else {
+          const minutesRemaining = Math.floor((CACHE_DURATION - (Date.now() - lastFetchTime)) / 1000 / 60);
+          console.log(`✓ Cache valid for ${minutesRemaining} more minutes`);
         }
       } else {
+        console.log('📡 No cache found, fetching from API...');
         // No cached data, fetch from API
         await fetchData();
       }
       
       updateStatusBar();
-      refreshInterval = setInterval(fetchData, CACHE_DURATION);
+      
+      // Set up automatic refresh
+      refreshInterval = setInterval(() => {
+        console.log('⏰ 15 minutes elapsed, refreshing data...');
+        fetchData();
+      }, CACHE_DURATION);
+      
       countdownInterval = setInterval(updateStatusBar, 1000);
+      
+      console.log('✓ Initialization complete!');
+    }
+
+    // Clear old storage keys if they exist (migration)
+    if (localStorage.getItem('pnw_alliances_data')) {
+      localStorage.removeItem('pnw_alliances_data');
+      localStorage.removeItem('pnw_nations_data');
+      localStorage.removeItem('pnw_last_fetch_time');
+      console.log('🧹 Cleaned up old storage keys');
     }
 
     init();
