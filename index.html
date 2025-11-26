@@ -537,7 +537,7 @@
   </div>
 
   <script>
-    const API = "https://philip-cap-judges-groove.trycloudflare.com";
+    const API = "https://degree-poster-michigan-tooth.trycloudflare.com";
     const CACHE_DURATION = 15 * 60 * 1000;
     const ITEMS_PER_PAGE = 100;
     const STORAGE_KEY_ALLIANCES = 'pnw_alliances_data';
@@ -563,46 +563,83 @@
       return (Date.now() - lastFetchTime) < CACHE_DURATION;
     }
 
-    function saveToLocalStorage() {
+    // IndexedDB setup for large data storage
+    const DB_NAME = 'pnw_viewer_db';
+    const DB_VERSION = 1;
+    const STORE_NAME = 'game_data';
+    let db = null;
+
+    function openDatabase() {
+      return new Promise((resolve, reject) => {
+        const request = indexedDB.open(DB_NAME, DB_VERSION);
+        
+        request.onerror = () => reject(request.error);
+        request.onsuccess = () => resolve(request.result);
+        
+        request.onupgradeneeded = (event) => {
+          const db = event.target.result;
+          if (!db.objectStoreNames.contains(STORE_NAME)) {
+            db.createObjectStore(STORE_NAME);
+          }
+        };
+      });
+    }
+
+    async function saveToIndexedDB() {
       try {
+        if (!db) db = await openDatabase();
+        
         const dataToSave = {
           alliances: alliances,
           nations: nations,
           timestamp: lastFetchTime,
           version: '1.0'
         };
+        
         const jsonString = JSON.stringify(dataToSave);
         const sizeInMB = (new Blob([jsonString]).size / 1024 / 1024).toFixed(2);
         
-        localStorage.setItem('pnw_viewer_data', jsonString);
-        console.log(`✓ Data saved to localStorage (${sizeInMB} MB)`);
+        const transaction = db.transaction([STORE_NAME], 'readwrite');
+        const store = transaction.objectStore(STORE_NAME);
+        store.put(dataToSave, 'cached_data');
+        
+        await new Promise((resolve, reject) => {
+          transaction.oncomplete = resolve;
+          transaction.onerror = () => reject(transaction.error);
+        });
+        
+        console.log(`✓ Data saved to IndexedDB (${sizeInMB} MB)`);
         console.log(`✓ ${alliances.length} alliances, ${nations.length} nations, ${cities.length} cities`);
       } catch (e) {
-        console.error('❌ Failed to save to localStorage:', e);
-        if (e.name === 'QuotaExceededError') {
-          alert('Storage quota exceeded! Data is too large to cache locally.');
-        }
+        console.error('❌ Failed to save to IndexedDB:', e);
       }
     }
 
-    function loadFromLocalStorage() {
+    async function loadFromIndexedDB() {
       try {
-        const savedData = localStorage.getItem('pnw_viewer_data');
+        if (!db) db = await openDatabase();
         
-        if (savedData) {
-          console.log('📦 Found cached data in localStorage');
-          const parsed = JSON.parse(savedData);
+        const transaction = db.transaction([STORE_NAME], 'readonly');
+        const store = transaction.objectStore(STORE_NAME);
+        const request = store.get('cached_data');
+        
+        const data = await new Promise((resolve, reject) => {
+          request.onsuccess = () => resolve(request.result);
+          request.onerror = () => reject(request.error);
+        });
+        
+        if (data) {
+          console.log('📦 Found cached data in IndexedDB');
           
           // Validate data structure
-          if (!parsed.alliances || !parsed.nations || !parsed.timestamp) {
+          if (!data.alliances || !data.nations || !data.timestamp) {
             console.warn('⚠️ Invalid cached data structure, clearing cache');
-            localStorage.removeItem('pnw_viewer_data');
             return false;
           }
           
-          alliances = parsed.alliances || [];
-          nations = parsed.nations || [];
-          lastFetchTime = parsed.timestamp || 0;
+          alliances = data.alliances || [];
+          nations = data.nations || [];
+          lastFetchTime = data.timestamp || 0;
           filteredAlliances = [...alliances];
           filteredNations = [...nations];
           
@@ -610,15 +647,14 @@
           extractCities();
           
           const cacheAge = Math.floor((Date.now() - lastFetchTime) / 1000 / 60);
-          console.log(`✓ Loaded from localStorage (cached ${cacheAge} minutes ago)`);
+          console.log(`✓ Loaded from IndexedDB (cached ${cacheAge} minutes ago)`);
           console.log(`✓ ${alliances.length} alliances, ${nations.length} nations, ${cities.length} cities`);
           return true;
         } else {
           console.log('ℹ️ No cached data found, will fetch from API');
         }
       } catch (e) {
-        console.error('❌ Failed to load from localStorage:', e);
-        localStorage.removeItem('pnw_viewer_data');
+        console.error('❌ Failed to load from IndexedDB:', e);
       }
       return false;
     }
@@ -702,8 +738,8 @@
         // Extract cities from nations
         extractCities();
 
-        // Save to localStorage
-        saveToLocalStorage();
+        // Save to IndexedDB
+        await saveToIndexedDB();
 
         document.getElementById('status-text').textContent = 'Connected';
         
@@ -1227,8 +1263,8 @@
       // Load tab from URL
       loadTabFromURL();
 
-      // Try loading from localStorage first
-      const hasLocalData = loadFromLocalStorage();
+      // Try loading from IndexedDB first
+      const hasLocalData = await loadFromIndexedDB();
       
       if (hasLocalData) {
         console.log('⚡ Using cached data for instant load');
@@ -1268,7 +1304,11 @@
       console.log('✓ Initialization complete!');
     }
 
-    // Clear old storage keys if they exist (migration)
+    // Clear old localStorage if it exists (migration to IndexedDB)
+    if (localStorage.getItem('pnw_viewer_data')) {
+      localStorage.removeItem('pnw_viewer_data');
+      console.log('🧹 Migrated from localStorage to IndexedDB');
+    }
     if (localStorage.getItem('pnw_alliances_data')) {
       localStorage.removeItem('pnw_alliances_data');
       localStorage.removeItem('pnw_nations_data');
