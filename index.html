@@ -1,32 +1,172 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>PNW Dashboard</title>
-    <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Politics & War - Data Viewer</title>
+<style>
+body { font-family: Arial, sans-serif; margin:0; padding:20px; background:#f0f2f5; }
+h1 { text-align:center; margin-bottom:20px; }
+.stats { display:flex; gap:15px; margin-bottom:20px; }
+.stat-card { background:#667eea; color:white; padding:15px; border-radius:8px; flex:1; text-align:center; }
+table { width:100%; border-collapse:collapse; margin-bottom:20px; }
+th, td { padding:8px; border-bottom:1px solid #ccc; }
+th { background:#5568d3; color:white; position:sticky; top:0; }
+tr.expandable:hover { background:#e0e4f1; cursor:pointer; }
+.details { display:none; background:#eef1fc; }
+.flag { width:30px; vertical-align:middle; margin-right:5px; }
+</style>
 </head>
 <body>
 
-    <header>
-        <h1>PNW Dashboard</h1>
-        <nav>
-            <button id="tab-nations" class="active">Nations</button>
-            <button id="tab-alliances">Alliances</button>
-        </nav>
-    </header>
+<h1>⚔️ Politics & War Data Viewer</h1>
 
-    <main>
-        <section id="nations-section" class="active">
-            <h2>Nations</h2>
-            <div id="nations-list" class="list"></div>
-        </section>
+<div class="stats" id="stats"></div>
 
-        <section id="alliances-section">
-            <h2>Alliances</h2>
-            <div id="alliances-list" class="list"></div>
-        </section>
-    </main>
+<h2>Alliances</h2>
+<table id="alliancesTable">
+<thead>
+<tr>
+<th>Flag</th><th>ID</th><th>Name</th><th>Acronym</th><th>Score</th>
+</tr>
+</thead>
+<tbody></tbody>
+</table>
 
-    <script src="main.js"></script>
+<h2>Nations</h2>
+<table id="nationsTable">
+<thead>
+<tr>
+<th></th><th>Flag</th><th>Nation</th><th>Leader</th><th>Score</th><th>Cities</th><th>Alliance</th>
+</tr>
+</thead>
+<tbody></tbody>
+</table>
+
+<script>
+const API_URL = "https://degree-poster-michigan-tooth.trycloudflare.com"; // replace with your CF tunnel
+const REFRESH_INTERVAL = 15*60*1000; // 15 minutes
+let alliances = [], nations = [];
+
+function saveLocal() {
+    localStorage.setItem('alliances', JSON.stringify(alliances));
+    localStorage.setItem('nations', JSON.stringify(nations));
+    localStorage.setItem('lastFetch', Date.now());
+}
+
+function loadLocal() {
+    const savedAll = localStorage.getItem('alliances');
+    const savedNat = localStorage.getItem('nations');
+    const savedTime = localStorage.getItem('lastFetch');
+    if(savedAll && savedNat && savedTime){
+        alliances = JSON.parse(savedAll);
+        nations = JSON.parse(savedNat);
+        return true;
+    }
+    return false;
+}
+
+async function fetchData() {
+    try {
+        const [aRes, nRes] = await Promise.all([
+            fetch(`${API_URL}/alliance`, {method:'POST'}).then(r=>r.json()),
+            fetch(`${API_URL}/nations`, {method:'POST'}).then(r=>r.json())
+        ]);
+        alliances = aRes.alliances || [];
+        nations = nRes.nations || [];
+        saveLocal();
+        renderAlliances();
+        renderNations();
+        updateStats();
+    } catch(e) {
+        console.error("Fetch error", e);
+    }
+}
+
+function updateStats(){
+    const totalCities = nations.reduce((sum,n)=>sum+(n.num_cities||0),0);
+    const avgScore = nations.length>0 ? (nations.reduce((sum,n)=>sum+(n.score||0),0)/nations.length).toFixed(2):0;
+    document.getElementById('stats').innerHTML=`
+        <div class="stat-card">Alliances: ${alliances.length}</div>
+        <div class="stat-card">Nations: ${nations.length}</div>
+        <div class="stat-card">Cities: ${totalCities}</div>
+        <div class="stat-card">Avg Score: ${avgScore}</div>
+    `;
+}
+
+function renderAlliances(){
+    const tbody = document.querySelector('#alliancesTable tbody');
+    tbody.innerHTML='';
+    alliances.forEach(a=>{
+        const tr = document.createElement('tr');
+        tr.innerHTML=`
+            <td>${a.flag?'<img class="flag" src="'+a.flag+'">':''}</td>
+            <td>${a.id}</td>
+            <td>${a.name}</td>
+            <td>${a.acronym}</td>
+            <td>${a.score?parseFloat(a.score).toLocaleString():0}</td>
+        `;
+        tbody.appendChild(tr);
+    });
+}
+
+function toggleDetails(nationId, tr){
+    const next = tr.nextElementSibling;
+    if(next && next.classList.contains('details')){
+        next.style.display = next.style.display==='none'?'table-row':'none';
+        return;
+    }
+    const nation = nations.find(n=>n.id===nationId);
+    if(!nation) return;
+    const detailsTr = document.createElement('tr');
+    detailsTr.className='details';
+    const td = document.createElement('td');
+    td.colSpan=7;
+    td.innerHTML=`
+        <b>ID:</b> ${nation.id}<br>
+        <b>Leader:</b> ${nation.leader_name}<br>
+        <b>Cities:</b> ${nation.num_cities}<br>
+        <b>Score:</b> ${nation.score}<br>
+        <b>Alliance:</b> ${nation.alliance_id || 'None'}
+    `;
+    detailsTr.appendChild(td);
+    tr.after(detailsTr);
+}
+
+function renderNations(){
+    const tbody = document.querySelector('#nationsTable tbody');
+    tbody.innerHTML='';
+    nations.forEach(n=>{
+        const tr = document.createElement('tr');
+        tr.className='expandable';
+        tr.innerHTML=`
+            <td>▶</td>
+            <td>${n.flag?'<img class="flag" src="'+n.flag+'">':''}</td>
+            <td>${n.nation_name}</td>
+            <td>${n.leader_name}</td>
+            <td>${n.score?parseFloat(n.score).toLocaleString():0}</td>
+            <td>${n.num_cities||0}</td>
+            <td>${n.alliance_id||'None'}</td>
+        `;
+        tr.onclick = ()=>toggleDetails(n.id,tr);
+        tbody.appendChild(tr);
+    });
+}
+
+async function init(){
+    const hasLocal = loadLocal();
+    if(!hasLocal || (Date.now()-localStorage.getItem('lastFetch'))>REFRESH_INTERVAL){
+        await fetchData();
+    } else {
+        renderAlliances();
+        renderNations();
+        updateStats();
+    }
+    setInterval(fetchData, REFRESH_INTERVAL);
+}
+
+init();
+</script>
+
 </body>
 </html>
