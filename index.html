@@ -1,459 +1,97 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Politics & War - Data Viewer</title>
-
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
-      min-height: 100vh;
-      padding: 20px;
-    }
-
-    .container {
-      max-width: 1400px;
-      margin: 0 auto;
-    }
-
-    header {
-      text-align: center;
-      color: white;
-      margin-bottom: 30px;
-    }
-
-    h1 {
-      font-size: 2.5em;
-      margin-bottom: 10px;
-      text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-    }
-
-    .status-bar {
-      background: rgba(255,255,255,0.1);
-      padding: 15px;
-      border-radius: 10px;
-      margin-bottom: 20px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      color: white;
-      backdrop-filter: blur(10px);
-      flex-wrap: wrap;
-      gap: 15px;
-    }
-
-    .status-item {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .status-indicator {
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-      background: #4caf50;
-      animation: pulse 2s infinite;
-    }
-
-    @keyframes pulse {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.5; }
-    }
-
-    .tabs {
-      display: flex;
-      gap: 10px;
-      margin-bottom: 0;
-    }
-
-    .tab {
-      padding: 15px 30px;
-      background: rgba(255,255,255,0.2);
-      border: none;
-      border-radius: 10px 10px 0 0;
-      color: white;
-      font-size: 1em;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      backdrop-filter: blur(10px);
-    }
-
-    .tab:hover {
-      background: rgba(255,255,255,0.3);
-    }
-
-    .tab.active {
-      background: white;
-      color: #1e3c72;
-    }
-
-    .content {
-      background: white;
-      border-radius: 0 10px 10px 10px;
-      padding: 30px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-    }
-
-    .section {
-      display: none;
-    }
-
-    .section.active {
-      display: block;
-    }
-
-    .search-box {
-      width: 100%;
-      padding: 12px 20px;
-      font-size: 1em;
-      border: 2px solid #e0e0e0;
-      border-radius: 8px;
-      margin-bottom: 20px;
-      transition: border-color 0.3s;
-    }
-
-    .search-box:focus {
-      outline: none;
-      border-color: #2a5298;
-    }
-
-    .stats {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 15px;
-      margin-bottom: 20px;
-    }
-
-    .stat-card {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-      padding: 20px;
-      border-radius: 10px;
-      text-align: center;
-    }
-
-    .stat-value {
-      font-size: 2em;
-      font-weight: bold;
-      margin-bottom: 5px;
-    }
-
-    .stat-label {
-      font-size: 0.9em;
-      opacity: 0.9;
-    }
-
-    .pagination {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      gap: 10px;
-      margin: 20px 0;
-      flex-wrap: wrap;
-    }
-
-    .pagination button {
-      padding: 8px 16px;
-      background: #667eea;
-      color: white;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      font-size: 0.9em;
-      transition: background 0.3s;
-    }
-
-    .pagination button:hover:not(:disabled) {
-      background: #5568d3;
-    }
-
-    .pagination button:disabled {
-      background: #ccc;
-      cursor: not-allowed;
-    }
-
-    .pagination .page-info {
-      padding: 8px 16px;
-      background: rgba(102, 126, 234, 0.1);
-      border-radius: 6px;
-      font-weight: 600;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 20px;
-    }
-
-    thead {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-    }
-
-    th {
-      padding: 15px 10px;
-      text-align: left;
-      font-weight: 600;
-      position: sticky;
-      top: 0;
-    }
-
-    td {
-      padding: 12px 10px;
-      border-bottom: 1px solid #f0f0f0;
-    }
-
-    tbody tr {
-      transition: background-color 0.2s;
-      cursor: pointer;
-    }
-
-    tbody tr:hover {
-      background-color: #f5f5f5;
-    }
-
-    tbody tr.expanded {
-      background-color: #e8f4f8;
-    }
-
-    .details-row {
-      display: none;
-    }
-
-    .details-row.show {
-      display: table-row;
-    }
-
-    .details-cell {
-      padding: 20px !important;
-      background: #f8f9fa;
-      border-left: 4px solid #667eea;
-    }
-
-    .details-content {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: 15px;
-    }
-
-    .detail-group {
-      background: white;
-      padding: 15px;
-      border-radius: 8px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    }
-
-    .detail-group h4 {
-      margin-bottom: 10px;
-      color: #667eea;
-      border-bottom: 2px solid #667eea;
-      padding-bottom: 5px;
-    }
-
-    .detail-item {
-      display: flex;
-      justify-content: space-between;
-      padding: 5px 0;
-      font-size: 0.9em;
-    }
-
-    .detail-label {
-      font-weight: 600;
-      color: #666;
-    }
-
-    .detail-value {
-      color: #333;
-    }
-
-    .nation-header {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-      padding: 30px;
-      border-radius: 10px;
-      margin-bottom: 30px;
-      display: flex;
-      align-items: center;
-      gap: 20px;
-    }
-
-    .nation-header img {
-      width: 80px;
-      height: auto;
-      border-radius: 8px;
-      border: 3px solid white;
-    }
-
-    .nation-header-info h2 {
-      font-size: 2em;
-      margin-bottom: 10px;
-    }
-
-    .nation-header-info p {
-      opacity: 0.9;
-      font-size: 1.1em;
-    }
-
-    .cities-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-      gap: 15px;
-      margin-top: 20px;
-    }
-
-    .city-card {
-      background: white;
-      border: 2px solid #e0e0e0;
-      border-radius: 8px;
-      padding: 15px;
-      transition: all 0.3s;
-      cursor: pointer;
-    }
-
-    .city-card:hover {
-      border-color: #667eea;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-      transform: translateY(-2px);
-    }
-
-    .city-card h4 {
-      color: #667eea;
-      margin-bottom: 10px;
-    }
-
-    img.flag {
-      width: 40px;
-      height: auto;
-      border-radius: 4px;
-    }
-
-    a {
-      color: #2a5298;
-      text-decoration: none;
-      font-weight: 500;
-    }
-
-    a:hover {
-      text-decoration: underline;
-    }
-
-    .loading {
-      text-align: center;
-      padding: 40px;
-      color: #666;
-    }
-
-    .spinner {
-      border: 4px solid #f3f3f3;
-      border-top: 4px solid #2a5298;
-      border-radius: 50%;
-      width: 40px;
-      height: 40px;
-      animation: spin 1s linear infinite;
-      margin: 0 auto 20px;
-    }
-
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-
-    .refresh-btn {
-      background: #4caf50;
-      color: white;
-      border: none;
-      padding: 8px 16px;
-      border-radius: 6px;
-      cursor: pointer;
-      font-size: 0.9em;
-      transition: background 0.3s;
-    }
-
-    .refresh-btn:hover {
-      background: #45a049;
-    }
-
-    .refresh-btn:disabled {
-      background: #ccc;
-      cursor: not-allowed;
-    }
-
-    .expand-icon {
-      display: inline-block;
-      transition: transform 0.3s;
-      margin-right: 5px;
-    }
-
-    .expand-icon.rotated {
-      transform: rotate(90deg);
-    }
+    /* === Your original style preserved & slightly cleaned === */
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-gradient(135deg,#1e3c72 0%,#2a5298 100%);min-height:100vh;padding:20px;color:#fff}
+    .container{max-width:1400px;margin:0 auto}
+    header{text-align:center;color:white;margin-bottom:30px}
+    h1{font-size:2.25rem;margin-bottom:6px;text-shadow:2px 2px 4px rgba(0,0,0,.3)}
+    .status-bar{background:rgba(255,255,255,.08);padding:12px;border-radius:10px;margin-bottom:18px;display:flex;gap:12px;align-items:center;flex-wrap:wrap;backdrop-filter:blur(8px)}
+    .status-item{display:flex;align-items:center;gap:10px;color:#fff}
+    .status-indicator{width:10px;height:10px;border-radius:50%;background:#4caf50;animation:pulse 2s infinite}
+    @keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+    .tabs{display:flex;gap:10px;margin-bottom:0}
+    .tab{padding:12px 20px;background:rgba(255,255,255,.12);border:none;border-radius:10px 10px 0 0;color:white;font-weight:600;cursor:pointer}
+    .tab.active{background:#fff;color:#1e3c72}
+    .content{background:#fff;border-radius:0 10px 10px 10px;padding:24px;color:#111;box-shadow:0 10px 30px rgba(0,0,0,.2)}
+    .section{display:none}
+    .section.active{display:block}
+    .search-box{width:100%;padding:10px 14px;border-radius:8px;border:2px solid #e6e6e6;margin-bottom:12px;font-size:1rem}
+    .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-bottom:14px}
+    .stat-card{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:white;padding:14px;border-radius:10px;text-align:center}
+    .stat-value{font-size:1.6rem;font-weight:700}
+    .stat-label{opacity:.9}
+    .pagination{display:flex;justify-content:center;gap:8px;margin:12px 0;flex-wrap:wrap}
+    .pagination button{padding:8px 12px;border-radius:6px;background:#667eea;border:none;color:#fff;cursor:pointer}
+    .pagination button:disabled{background:#ccc;cursor:not-allowed}
+    table{width:100%;border-collapse:collapse;margin-top:10px}
+    thead{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:#fff;position:sticky;top:0}
+    th,td{padding:10px;border-bottom:1px solid #eee;text-align:left}
+    tbody tr{cursor:pointer;transition:background .15s}
+    tbody tr:hover{background:#f5f5f5}
+    .details-row{display:none}
+    .details-row.show{display:table-row}
+    .details-cell{padding:18px!important;background:#f8f9fa;border-left:4px solid #667eea}
+    .details-content{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+    .detail-group{background:#fff;padding:12px;border-radius:8px;box-shadow:0 2px 6px rgba(0,0,0,.06)}
+    .detail-group h4{margin-bottom:8px;color:#667eea;border-bottom:2px solid #667eea;padding-bottom:6px}
+    .detail-item{display:flex;justify-content:space-between;padding:6px 0;font-size:.95rem}
+    img.flag{width:40px;height:auto;border-radius:4px}
+    .spinner{border:4px solid #f3f3f3;border-top:4px solid #2a5298;border-radius:50%;width:34px;height:34px;animation:spin 1s linear infinite;margin:0 auto}
+    @keyframes spin{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}
+    .refresh-btn{background:#4caf50;color:white;border:none;padding:8px 12px;border-radius:6px;cursor:pointer}
+    .sort-ind{font-size:.8rem;opacity:.7;margin-left:6px}
+    .small-muted{font-size:.85rem;color:#666}
+    /* small screens */
+    @media (max-width:700px){ .details-content{grid-template-columns:1fr} .stat-value{font-size:1.25rem} }
   </style>
 </head>
 <body>
   <div class="container">
     <header>
       <h1>⚔️ Politics & War Data Viewer</h1>
-      <p>Real-time alliance and nation statistics</p>
+      <div class="small-muted">In-page nation detail, IndexedDB cache, full paginated nation summaries.</div>
     </header>
 
-    <div class="status-bar">
-      <div class="status-item">
-        <div class="status-indicator"></div>
-        <span id="status-text">Connected</span>
-      </div>
-      <div class="status-item">
-        <span id="last-update">Last updated: Never</span>
-      </div>
-      <div class="status-item">
-        <button class="refresh-btn" id="refresh-btn" onclick="forceRefresh()">🔄 Refresh Now</button>
-      </div>
-      <div class="status-item">
-        <span id="next-update">Next update in: 15:00</span>
-      </div>
+    <div class="status-bar" aria-live="polite">
+      <div class="status-item"><div class="status-indicator" id="conn-indicator"></div><div id="status-text">Initializing...</div></div>
+      <div class="status-item"><div id="last-update">Last updated: Never</div></div>
+      <div class="status-item"><button class="refresh-btn" id="refresh-btn">🔄 Refresh Now</button></div>
+      <div class="status-item"><div id="next-update">Next update in: --:--</div></div>
     </div>
 
-    <div class="tabs">
-      <button class="tab active" onclick="switchTab('alliances')">Alliances</button>
-      <button class="tab" onclick="switchTab('nations')">Nations</button>
-      <button class="tab" onclick="switchTab('cities')">Cities</button>
+    <div class="tabs" role="tablist">
+      <button class="tab active" data-tab="alliances">Alliances</button>
+      <button class="tab" data-tab="nations">Nations</button>
+      <button class="tab" data-tab="cities">Cities</button>
     </div>
 
     <div class="content">
-      <!-- ALLIANCES SECTION -->
-      <div id="alliances-section" class="section active">
+      <!-- ALLIANCES -->
+      <section id="alliances-section" class="section active" aria-labelledby="alliances-tab">
         <div class="stats" id="alliance-stats"></div>
-        <input type="text" id="alliancesSearch" class="search-box" placeholder="🔍 Search alliances by name or acronym...">
-        
+        <input id="alliancesSearch" class="search-box" placeholder="🔍 Search alliances by name or acronym..." />
         <div class="pagination" id="alliances-pagination">
-          <button onclick="changeAlliancePage(-1)">← Previous</button>
-          <span class="page-info" id="alliances-page-info">Page 1</span>
-          <button onclick="changeAlliancePage(1)">Next →</button>
+          <button id="alliances-prev">← Prev</button>
+          <div class="page-info" id="alliances-page-info">Page 1</div>
+          <button id="alliances-next">Next →</button>
         </div>
-
-        <div id="alliances-loading" class="loading">
-          <div class="spinner"></div>
-          <p>Loading alliances data...</p>
-        </div>
-        <table id="alliancesTable" style="display: none;">
+        <div id="alliances-loading" class="loading"><div class="spinner"></div><div class="small-muted">Loading alliances…</div></div>
+        <table id="alliancesTable" style="display:none">
           <thead>
             <tr>
-              <th>Flag</th>
-              <th>ID</th>
-              <th>Name</th>
-              <th>Acronym</th>
-              <th>Rank</th>
-              <th>Score</th>
-              <th>Founded</th>
+              <th data-key="flag">Flag</th>
+              <th data-key="id" class="sortable">ID <span class="sort-ind" id="sort-alliance-id"></span></th>
+              <th data-key="name" class="sortable">Name <span class="sort-ind" id="sort-alliance-name"></span></th>
+              <th data-key="acronym" class="sortable">Acronym</th>
+              <th data-key="rank" class="sortable">Rank</th>
+              <th data-key="score" class="sortable">Score</th>
+              <th data-key="date">Founded</th>
               <th>Recruiting</th>
               <th>Discord</th>
               <th>Wiki</th>
@@ -461,111 +99,92 @@
           </thead>
           <tbody></tbody>
         </table>
-      </div>
+      </section>
 
-      <!-- NATIONS SECTION -->
-      <div id="nations-section" class="section">
+      <!-- NATIONS -->
+      <section id="nations-section" class="section" aria-labelledby="nations-tab">
         <div class="stats" id="nation-stats"></div>
-        <input type="text" id="nationsSearch" class="search-box" placeholder="🔍 Search nations by name or leader...">
-        
+        <input id="nationsSearch" class="search-box" placeholder="🔍 Search nations by name or leader..." />
         <div class="pagination" id="nations-pagination">
-          <button onclick="changeNationPage(-1)">← Previous</button>
-          <span class="page-info" id="nations-page-info">Page 1</span>
-          <button onclick="changeNationPage(1)">Next →</button>
+          <button id="nations-prev">← Prev</button>
+          <div class="page-info" id="nations-page-info">Page 1</div>
+          <button id="nations-next">Next →</button>
         </div>
-
-        <div id="nations-loading" class="loading">
-          <div class="spinner"></div>
-          <p>Loading nations data...</p>
-        </div>
-        <table id="nationsTable" style="display: none;">
+        <div id="nations-loading" class="loading"><div class="spinner"></div><div class="small-muted">Loading nations…</div></div>
+        <table id="nationsTable" style="display:none">
           <thead>
             <tr>
-              <th>Flag</th>
-              <th>Nation</th>
-              <th>Leader</th>
-              <th>Continent</th>
-              <th>Score</th>
-              <th>Cities</th>
-              <th>Color</th>
-              <th>Alliance</th>
-              <th>Position</th>
+              <th data-key="flag">Flag</th>
+              <th data-key="nation_name" class="sortable">Nation <span class="sort-ind" id="sort-nation-name"></span></th>
+              <th data-key="leader_name" class="sortable">Leader</th>
+              <th data-key="continent" class="sortable">Continent</th>
+              <th data-key="score" class="sortable">Score</th>
+              <th data-key="num_cities" class="sortable">Cities</th>
+              <th data-key="color">Color</th>
+              <th data-key="alliance_name">Alliance</th>
+              <th data-key="alliance_position">Position</th>
             </tr>
           </thead>
           <tbody></tbody>
         </table>
-      </div>
+      </section>
 
-      <!-- NATION DETAIL VIEW -->
-      <div id="nation-detail-section" class="section">
-        <button class="refresh-btn" onclick="goBackToNations()" style="margin-bottom: 20px;">← Back to Nations</button>
-        <div id="nation-detail-content"></div>
-      </div>
+      <!-- NATION DETAIL (in-page) -->
+      <section id="nation-detail-section" class="section" aria-live="polite">
+        <button class="refresh-btn" id="back-to-nations">← Back to Nations</button>
+        <div id="nation-detail-content" style="margin-top:12px"></div>
+      </section>
 
-      <!-- CITIES SECTION -->
-      <div id="cities-section" class="section">
+      <!-- CITIES -->
+      <section id="cities-section" class="section">
         <div class="stats" id="city-stats"></div>
-        <input type="text" id="citiesSearch" class="search-box" placeholder="🔍 Search cities by name or nation...">
-        
+        <input id="citiesSearch" class="search-box" placeholder="🔍 Search cities by name or nation..." />
         <div class="pagination" id="cities-pagination">
-          <button onclick="changeCityPage(-1)">← Previous</button>
-          <span class="page-info" id="cities-page-info">Page 1</span>
-          <button onclick="changeCityPage(1)">Next →</button>
+          <button id="cities-prev">← Prev</button>
+          <div class="page-info" id="cities-page-info">Page 1</div>
+          <button id="cities-next">Next →</button>
         </div>
-
-        <div id="cities-loading" class="loading">
-          <div class="spinner"></div>
-          <p>Loading cities data...</p>
-        </div>
-        <table id="citiesTable" style="display: none;">
+        <div id="cities-loading" class="loading"><div class="spinner"></div><div class="small-muted">Loading cities…</div></div>
+        <table id="citiesTable" style="display:none">
           <thead>
             <tr>
               <th></th>
-              <th>City Name</th>
-              <th>Nation</th>
-              <th>Infrastructure</th>
-              <th>Land</th>
-              <th>Powered</th>
-              <th>Population</th>
-              <th>Age</th>
+              <th data-key="name" class="sortable">City Name</th>
+              <th data-key="nation_name" class="sortable">Nation</th>
+              <th data-key="infrastructure" class="sortable">Infrastructure</th>
+              <th data-key="land" class="sortable">Land</th>
+              <th data-key="powered" class="sortable">Powered</th>
+              <th data-key="population" class="sortable">Population</th>
+              <th data-key="age" class="sortable">Age (days)</th>
             </tr>
           </thead>
           <tbody></tbody>
         </table>
-      </div>
+      </section>
     </div>
   </div>
 
   <script>
-    const API = "https://philip-cap-judges-groove.trycloudflare.com";
-    const CACHE_DURATION = 15 * 60 * 1000;
+    // === CONFIG ===
+    const API = "https://philip-cap-judges-groove.trycloudflare.com"; // replace if needed
+    const CACHE_DURATION = 15 * 60 * 1000; // 15 minutes
     const ITEMS_PER_PAGE = 100;
-    const STORAGE_KEY_ALLIANCES = 'pnw_alliances_data';
-    const STORAGE_KEY_NATIONS = 'pnw_nations_data';
-    const STORAGE_KEY_TIMESTAMP = 'pnw_last_fetch_time';
 
+    // State
     let alliances = [];
-    let nations = [];
-    let nationDetails = {}; // Cache for full nation data
-    let cities = [];
+    let nations = [];          // summaries (all pages)
+    let nationDetails = {};    // id -> full nation object (cached)
+    let cities = [];           // extracted from nationDetails
+    let lastFetchTime = 0;
+
+    // UI paging/filtering/sorting state
     let filteredAlliances = [];
     let filteredNations = [];
     let filteredCities = [];
-    let currentAlliancePage = 1;
-    let currentNationPage = 1;
-    let currentCityPage = 1;
-    let lastFetchTime = 0;
-    let refreshInterval;
-    let countdownInterval;
-    let expandedRows = new Set();
-    let expandedCities = new Set();
-    let loadedPages = new Set(); // Track which pages we've loaded
+    let alliancePage = 1, nationPage = 1, cityPage = 1;
+    let sortState = { section: null, key: null, dir: 1 }; // dir: 1 asc, -1 desc
 
-    function isCacheValid() {
-      return (Date.now() - lastFetchTime) < CACHE_DURATION;
-    }
-
-    // IndexedDB setup for large data storage
+    // IndexedDB
     const DB_NAME = 'pnw_viewer_db';
     const DB_VERSION = 1;
     const STORE_NAME = 'game_data';
@@ -573,788 +192,623 @@
 
     function openDatabase() {
       return new Promise((resolve, reject) => {
-        const request = indexedDB.open(DB_NAME, DB_VERSION);
-        
-        request.onerror = () => reject(request.error);
-        request.onsuccess = () => resolve(request.result);
-        
-        request.onupgradeneeded = (event) => {
-          const db = event.target.result;
-          if (!db.objectStoreNames.contains(STORE_NAME)) {
-            db.createObjectStore(STORE_NAME);
+        const req = indexedDB.open(DB_NAME, DB_VERSION);
+        req.onerror = () => reject(req.error);
+        req.onsuccess = () => resolve(req.result);
+        req.onupgradeneeded = (e) => {
+          const database = e.target.result;
+          if (!database.objectStoreNames.contains(STORE_NAME)) {
+            database.createObjectStore(STORE_NAME);
           }
         };
       });
     }
 
-    async function saveToIndexedDB() {
+    async function saveCache() {
       try {
         if (!db) db = await openDatabase();
-        
-        const dataToSave = {
-          alliances: alliances,
-          nations: nations,
-          nationDetails: nationDetails,
-          timestamp: lastFetchTime,
-          version: '2.0'
+        const tx = db.transaction([STORE_NAME], 'readwrite');
+        const store = tx.objectStore(STORE_NAME);
+        const payload = {
+          alliances, nations, nationDetails, timestamp: lastFetchTime, version: '2.0'
         };
-        
-        const jsonString = JSON.stringify(dataToSave);
-        const sizeInMB = (new Blob([jsonString]).size / 1024 / 1024).toFixed(2);
-        
-        const transaction = db.transaction([STORE_NAME], 'readwrite');
-        const store = transaction.objectStore(STORE_NAME);
-        store.put(dataToSave, 'cached_data');
-        
-        await new Promise((resolve, reject) => {
-          transaction.oncomplete = resolve;
-          transaction.onerror = () => reject(transaction.error);
+        store.put(payload, 'cached_data');
+        await new Promise((res, rej) => {
+          tx.oncomplete = res;
+          tx.onerror = () => rej(tx.error);
         });
-        
-        console.log(`✓ Data saved to IndexedDB (${sizeInMB} MB)`);
-        console.log(`✓ ${alliances.length} alliances, ${nations.length} nation summaries`);
+        console.log('✓ Saved cache to IndexedDB');
       } catch (e) {
-        console.error('❌ Failed to save to IndexedDB:', e);
+        console.error('Failed saving cache:', e);
       }
     }
 
-    async function loadFromIndexedDB() {
+    async function loadCache() {
       try {
         if (!db) db = await openDatabase();
-        
-        const transaction = db.transaction([STORE_NAME], 'readonly');
-        const store = transaction.objectStore(STORE_NAME);
-        const request = store.get('cached_data');
-        
+        const tx = db.transaction([STORE_NAME], 'readonly');
+        const store = tx.objectStore(STORE_NAME);
+        const req = store.get('cached_data');
         const data = await new Promise((resolve, reject) => {
-          request.onsuccess = () => resolve(request.result);
-          request.onerror = () => reject(request.error);
+          req.onsuccess = () => resolve(req.result);
+          req.onerror = () => reject(req.error);
         });
-        
         if (data) {
-          console.log('📦 Found cached data in IndexedDB');
-          
-          // Validate data structure
-          if (!data.alliances || !data.nations || !data.timestamp) {
-            console.warn('⚠️ Invalid cached data structure, clearing cache');
-            return false;
-          }
-          
           alliances = data.alliances || [];
           nations = data.nations || [];
           nationDetails = data.nationDetails || {};
           lastFetchTime = data.timestamp || 0;
           filteredAlliances = [...alliances];
           filteredNations = [...nations];
-          
-          // Extract cities from cached nation details
           extractCitiesFromDetails();
-          
-          const cacheAge = Math.floor((Date.now() - lastFetchTime) / 1000 / 60);
-          console.log(`✓ Loaded from IndexedDB (cached ${cacheAge} minutes ago)`);
-          console.log(`✓ ${alliances.length} alliances, ${nations.length} nation summaries, ${Object.keys(nationDetails).length} full nations`);
+          console.log('✓ Loaded cache from IndexedDB');
           return true;
-        } else {
-          console.log('ℹ️ No cached data found, will fetch from API');
         }
       } catch (e) {
-        console.error('❌ Failed to load from IndexedDB:', e);
+        console.error('Failed loading cache:', e);
       }
       return false;
     }
 
     function extractCitiesFromDetails() {
       cities = [];
-      Object.values(nationDetails).forEach(nation => {
-        if (nation.cities && Array.isArray(nation.cities)) {
-          nation.cities.forEach(city => {
-            cities.push({
+      Object.values(nationDetails).forEach(n => {
+        if (Array.isArray(n.cities)) {
+          n.cities.forEach(city => {
+            const augmented = {
               ...city,
-              nation_name: nation.nation_name,
-              nation_id: nation.id,
-              nation_leader: nation.leader_name
-            });
+              nation_name: n.nation_name,
+              nation_id: n.id,
+              nation_leader: n.leader_name,
+              population: Math.floor((city.infrastructure || 0) * 100),
+              age: city.date ? Math.floor((Date.now() - new Date(city.date)) / (1000*60*60*24)) : 0
+            };
+            cities.push(augmented);
           });
         }
       });
       filteredCities = [...cities];
-      console.log(`✓ Extracted ${cities.length} cities from cached nation details`);
     }
 
-    function updateStatusBar() {
-      const now = Date.now();
-      const elapsed = now - lastFetchTime;
-      const remaining = CACHE_DURATION - elapsed;
+    function isCacheValid() {
+      return lastFetchTime && (Date.now() - lastFetchTime) < CACHE_DURATION;
+    }
 
-      if (lastFetchTime === 0) {
-        document.getElementById('last-update').textContent = 'Last updated: Never';
-        document.getElementById('next-update').textContent = 'Next update in: --:--';
+    // UI helpers
+    function setStatus(text, ok = true) {
+      document.getElementById('status-text').textContent = text;
+      document.getElementById('conn-indicator').style.background = ok ? '#4caf50' : '#ff6b6b';
+    }
+    function updateTimers() {
+      const last = lastFetchTime ? new Date(lastFetchTime) : null;
+      document.getElementById('last-update').textContent = last ? `Last updated: ${last.toLocaleString()}` : 'Last updated: Never';
+      if (!last) { document.getElementById('next-update').textContent = 'Next update in: --:--'; return; }
+      const remaining = Math.max(0, CACHE_DURATION - (Date.now() - lastFetchTime));
+      if (remaining <= 0) { document.getElementById('next-update').textContent = 'Next update in: Updating...'; return; }
+      const m = Math.floor(remaining / 60000);
+      const s = Math.floor((remaining % 60000)/1000);
+      document.getElementById('next-update').textContent = `Next update in: ${m}:${String(s).padStart(2,'0')}`;
+    }
+
+    // Sorting
+    function applySort(list, key) {
+      if (!key) return list;
+      const dir = sortState.dir;
+      return list.slice().sort((a,b)=>{
+        const A = (a[key] === undefined || a[key] === null) ? '' : a[key];
+        const B = (b[key] === undefined || b[key] === null) ? '' : b[key];
+        if (typeof A === 'number' && typeof B === 'number') return (A - B) * dir;
+        return String(A).localeCompare(String(B), undefined, {numeric:true}) * dir;
+      });
+    }
+    function setSort(section, key) {
+      if (sortState.section === section && sortState.key === key) {
+        sortState.dir = -sortState.dir; // toggle
       } else {
-        const lastUpdate = new Date(lastFetchTime);
-        document.getElementById('last-update').textContent = `Last updated: ${lastUpdate.toLocaleTimeString()}`;
+        sortState.section = section;
+        sortState.key = key;
+        sortState.dir = 1;
+      }
+      renderAll();
+    }
 
-        if (remaining > 0) {
-          const minutes = Math.floor(remaining / 60000);
-          const seconds = Math.floor((remaining % 60000) / 1000);
-          document.getElementById('next-update').textContent = `Next update in: ${minutes}:${seconds.toString().padStart(2, '0')}`;
-        } else {
-          document.getElementById('next-update').textContent = 'Updating...';
+    // Attach click-to-sort to table headers
+    document.addEventListener('click', (e) => {
+      const th = e.target.closest('th.sortable');
+      if (!th) return;
+      const key = th.getAttribute('data-key') || th.textContent.trim().toLowerCase();
+      const table = th.closest('table');
+      if (!table) return;
+      const section = table.id.includes('alliances') ? 'alliances' : table.id.includes('nations') ? 'nations' : 'cities';
+      setSort(section, key);
+    });
+
+    // Fetching: alliances + nations summaries (all pages) + on-demand full nation
+    async function fetchAllNationsSummaries() {
+      // fetch paginated summaries until empty or error
+      let page = 1;
+      const perPage = 500; // backend supports limit param per your API
+      const all = [];
+      while (true) {
+        try {
+          const res = await fetch(`${API}/nations/summary?page=${page}&limit=${perPage}`, {method:'POST'});
+          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+          const payload = await res.json();
+          const pageNations = payload.nations || [];
+          if (!pageNations.length) break;
+          // Only keep basics: id, nation_name, leader_name, flag, score, num_cities, continent, color, alliance_name, alliance_position
+          pageNations.forEach(n=>{
+            all.push({
+              id: n.id,
+              nation_name: n.nation_name,
+              leader_name: n.leader_name,
+              flag: n.flag,
+              score: n.score,
+              num_cities: n.num_cities,
+              continent: n.continent,
+              color: n.color,
+              alliance_name: n.alliance_name || (n.alliance && n.alliance.name) || null,
+              alliance_position: n.alliance_position || n.position || null,
+            });
+          });
+          if (pageNations.length < perPage) break;
+          page++;
+        } catch (e) {
+          console.error('Error fetching nations summary page', page, e);
+          break;
         }
       }
+      return all;
     }
 
-    async function forceRefresh() {
-      const btn = document.getElementById('refresh-btn');
-      btn.disabled = true;
-      btn.textContent = '⏳ Refreshing...';
-      
-      lastFetchTime = 0;
-      await fetchData();
-      
-      btn.disabled = false;
-      btn.textContent = '🔄 Refresh Now';
-    }
-
-    async function fetchData() {
-      if (isCacheValid() && alliances.length > 0 && nations.length > 0) {
-        console.log('Using cached data');
+    async function fetchAllData(force=false) {
+      // if cache valid and not forced, use cached
+      if (!force && isCacheValid() && alliances.length && nations.length) {
+        setStatus('Loaded from cache', true);
         return;
       }
-
-      console.log('Fetching fresh data from API...');
-      document.getElementById('status-text').textContent = 'Fetching data...';
+      setStatus('Fetching data…', true);
+      document.getElementById('alliances-loading').style.display = '';
+      document.getElementById('nations-loading').style.display = '';
+      document.getElementById('cities-loading').style.display = '';
 
       try {
-        const [alliancesRes, nationsRes] = await Promise.all([
-          fetch(`${API}/alliance`, { method: "POST" }),
-          fetch(`${API}/nations/summary?page=1&limit=20000`, { method: "POST" })
-        ]);
+        // alliances
+        const alliancesReq = fetch(`${API}/alliance`, {method:'POST'}).then(r=>r.json()).catch(e=>{console.error(e); return {alliances:[]};});
+        // nations (summaries) — multiple pages internally
+        const nationsReq = fetchAllNationsSummaries();
 
-        const alliancesData = await alliancesRes.json();
-        const nationsData = await nationsRes.json();
+        const [alliancesResp, nationsResp] = await Promise.all([alliancesReq, nationsReq]);
 
-        alliances = alliancesData.alliances || [];
-        nations = nationsData.nations || [];
+        alliances = (alliancesResp && alliancesResp.alliances) ? alliancesResp.alliances : alliancesResp || [];
+        nations = nationsResp || [];
+
+        // update filtered copies
         filteredAlliances = [...alliances];
         filteredNations = [...nations];
+
         lastFetchTime = Date.now();
-
-        // Mark first page as loaded
-        loadedPages.add(1);
-
-        // Extract cities from cached full nations only
+        await saveCache();
         extractCitiesFromDetails();
-
-        // Save to IndexedDB
-        await saveToIndexedDB();
-
-        document.getElementById('status-text').textContent = 'Connected';
-        
-        currentAlliancePage = 1;
-        currentNationPage = 1;
-        currentCityPage = 1;
-        expandedRows.clear();
-        expandedCities.clear();
-        
-        renderAlliances();
-        renderNations();
-        renderCities();
         updateStats();
-      } catch (error) {
-        console.error('Error fetching data:', error);
-        document.getElementById('status-text').textContent = 'Connection error';
+        renderAll();
+        setStatus('Connected', true);
+      } catch (e) {
+        console.error('FetchAllData failed', e);
+        setStatus('Connection error', false);
+      } finally {
+        document.getElementById('alliances-loading').style.display = 'none';
+        document.getElementById('nations-loading').style.display = 'none';
+        document.getElementById('cities-loading').style.display = 'none';
+        updateTimers();
       }
     }
 
-    // NEW: Fetch full nation detail on demand
+    // Fetch a single nation's full detail (on demand)
     async function fetchNationDetail(nationId) {
-      // Check if already cached
-      if (nationDetails[nationId]) {
-        console.log(`Using cached nation detail for ${nationId}`);
-        return nationDetails[nationId];
-      }
-
-      console.log(`Fetching full nation data for ${nationId}...`);
+      if (nationDetails[nationId]) return nationDetails[nationId];
       try {
         const res = await fetch(`${API}/nations/${nationId}`);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const data = await res.json();
-        
         if (data.nation) {
           nationDetails[nationId] = data.nation;
-          // Save updated cache
-          await saveToIndexedDB();
-          // Re-extract cities
+          await saveCache();
           extractCitiesFromDetails();
+          updateStats();
+          renderCities(); // update cities table if needed
           return data.nation;
         }
-      } catch (error) {
-        console.error(`Error fetching nation ${nationId}:`, error);
+      } catch (e) {
+        console.error('fetchNationDetail error', e);
       }
       return null;
     }
 
-    function updateStats() {
-      const allianceStatsHtml = `
-        <div class="stat-card">
-          <div class="stat-value">${alliances.length}</div>
-          <div class="stat-label">Total Alliances</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-value">${alliances.filter(a => a.accept_members).length}</div>
-          <div class="stat-label">Recruiting</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-value">${alliances.filter(a => a.discord_link).length}</div>
-          <div class="stat-label">With Discord</div>
-        </div>
-      `;
-      document.getElementById('alliance-stats').innerHTML = allianceStatsHtml;
-
-      const totalCities = nations.reduce((sum, n) => sum + (n.num_cities || 0), 0);
-      const avgScore = nations.length > 0 ? (nations.reduce((sum, n) => sum + (n.score || 0), 0) / nations.length).toFixed(2) : 0;
-      
-      const nationStatsHtml = `
-        <div class="stat-card">
-          <div class="stat-value">${nations.length}+</div>
-          <div class="stat-label">Nations Loaded</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-value">${totalCities.toLocaleString()}</div>
-          <div class="stat-label">Total Cities</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-value">${avgScore}</div>
-          <div class="stat-label">Avg Score</div>
-        </div>
-      `;
-      document.getElementById('nation-stats').innerHTML = nationStatsHtml;
-
-      const totalInfra = cities.reduce((sum, c) => sum + (c.infrastructure || 0), 0);
-      const totalLand = cities.reduce((sum, c) => sum + (c.land || 0), 0);
-      const poweredCities = cities.filter(c => c.powered).length;
-
-      const cityStatsHtml = `
-        <div class="stat-card">
-          <div class="stat-value">${cities.length.toLocaleString()}</div>
-          <div class="stat-label">Cities (from details)</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-value">${totalInfra.toLocaleString(undefined, {maximumFractionDigits: 0})}</div>
-          <div class="stat-label">Total Infrastructure</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-value">${poweredCities.toLocaleString()}</div>
-          <div class="stat-label">Powered Cities</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-value">${totalLand.toLocaleString()}</div>
-          <div class="stat-label">Total Land</div>
-        </div>
-      `;
-      document.getElementById('city-stats').innerHTML = cityStatsHtml;
+    // === RENDERING ===
+    function paginate(list, page) {
+      const total = Math.max(1, Math.ceil(list.length / ITEMS_PER_PAGE));
+      const idx = Math.min(Math.max(1, page), total);
+      const start = (idx - 1) * ITEMS_PER_PAGE;
+      return { page: idx, total, data: list.slice(start, start + ITEMS_PER_PAGE) };
     }
 
-    function changeAlliancePage(delta) {
-      const totalPages = Math.ceil(filteredAlliances.length / ITEMS_PER_PAGE);
-      const newPage = currentAlliancePage + delta;
-      
-      if (newPage >= 1 && newPage <= totalPages) {
-        currentAlliancePage = newPage;
-        renderAlliances();
-      }
-    }
-
-    function changeNationPage(delta) {
-      const totalPages = Math.ceil(filteredNations.length / ITEMS_PER_PAGE);
-      const newPage = currentNationPage + delta;
-      
-      if (newPage >= 1 && newPage <= totalPages) {
-        currentNationPage = newPage;
-        expandedRows.clear();
-        renderNations();
-      }
-    }
-
-    function changeCityPage(delta) {
-      const totalPages = Math.ceil(filteredCities.length / ITEMS_PER_PAGE);
-      const newPage = currentCityPage + delta;
-      
-      if (newPage >= 1 && newPage <= totalPages) {
-        currentCityPage = newPage;
-        expandedCities.clear();
-        renderCities();
-      }
-    }
-
+    // Alliances table render
     function renderAlliances() {
-      const tbody = document.querySelector("#alliancesTable tbody");
-      tbody.innerHTML = "";
-
-      const totalPages = Math.ceil(filteredAlliances.length / ITEMS_PER_PAGE);
-      const start = (currentAlliancePage - 1) * ITEMS_PER_PAGE;
-      const end = start + ITEMS_PER_PAGE;
-      const pageData = filteredAlliances.slice(start, end);
-
-      pageData.forEach(a => {
-        const tr = document.createElement("tr");
+      const table = document.getElementById('alliancesTable');
+      const tbody = table.querySelector('tbody');
+      // apply search filter (already in filteredAlliances) and sort
+      let list = applySort(filteredAlliances, sortState.section === 'alliances' ? sortState.key : null);
+      const p = paginate(list, alliancePage);
+      tbody.innerHTML = '';
+      p.data.forEach(a=>{
+        const tr = document.createElement('tr');
         tr.innerHTML = `
-          <td>${a.flag ? `<img class="flag" src="${a.flag}" alt="Flag">` : "—"}</td>
-          <td>${a.id || "—"}</td>
-          <td><strong>${a.name || "—"}</strong></td>
-          <td>${a.acronym || "—"}</td>
-          <td>${a.rank || "—"}</td>
-          <td>${a.score ? parseFloat(a.score).toLocaleString() : "—"}</td>
-          <td>${a.date ? new Date(a.date).toLocaleDateString() : "—"}</td>
-          <td>${a.accept_members ? "✅ Yes" : "❌ No"}</td>
-          <td>${a.discord_link ? `<a href="${a.discord_link}" target="_blank">Join</a>` : "—"}</td>
-          <td>${a.wiki_link ? `<a href="${a.wiki_link}" target="_blank">View</a>` : "—"}</td>
+          <td>${a.flag ? `<img class="flag" src="${a.flag}" alt="flag">` : '—'}</td>
+          <td>${a.id ?? '—'}</td>
+          <td><strong>${a.name ?? '—'}</strong></td>
+          <td>${a.acronym ?? '—'}</td>
+          <td>${a.rank ?? '—'}</td>
+          <td>${a.score ? Number(a.score).toLocaleString() : '—'}</td>
+          <td>${a.date ? new Date(a.date).toLocaleDateString() : '—'}</td>
+          <td>${a.accept_members ? '✅' : '—'}</td>
+          <td>${a.discord_link ? `<a href="${a.discord_link}" target="_blank" rel="noopener">Join</a>` : '—'}</td>
+          <td>${a.wiki_link ? `<a href="${a.wiki_link}" target="_blank" rel="noopener">View</a>` : '—'}</td>
         `;
         tbody.appendChild(tr);
       });
-
-      document.getElementById('alliances-page-info').textContent = `Page ${currentAlliancePage} of ${totalPages} (${filteredAlliances.length} total)`;
-      document.getElementById('alliances-loading').style.display = 'none';
-      document.getElementById('alliancesTable').style.display = 'table';
-      
-      const paginationBtns = document.querySelectorAll('#alliances-pagination button');
-      paginationBtns[0].disabled = currentAlliancePage === 1;
-      paginationBtns[1].disabled = currentAlliancePage === totalPages || totalPages === 0;
+      table.style.display = p.data.length ? 'table' : 'none';
+      document.getElementById('alliances-page-info').textContent = `Page ${p.page} of ${p.total} (${list.length} total)`;
+      document.getElementById('alliances-prev').disabled = p.page === 1;
+      document.getElementById('alliances-next').disabled = p.page === p.total;
     }
 
+    // Nations table render
     function renderNations() {
-      const tbody = document.querySelector("#nationsTable tbody");
-      tbody.innerHTML = "";
-
-      const totalPages = Math.ceil(filteredNations.length / ITEMS_PER_PAGE);
-      const start = (currentNationPage - 1) * ITEMS_PER_PAGE;
-      const end = start + ITEMS_PER_PAGE;
-      const pageData = filteredNations.slice(start, end);
-
-      pageData.forEach(n => {
-        const tr = document.createElement("tr");
-        
+      const table = document.getElementById('nationsTable');
+      const tbody = table.querySelector('tbody');
+      let list = applySort(filteredNations, sortState.section === 'nations' ? sortState.key : null);
+      const p = paginate(list, nationPage);
+      tbody.innerHTML = '';
+      p.data.forEach(n=>{
+        const tr = document.createElement('tr');
         tr.innerHTML = `
-          <td>${n.flag ? `<img class="flag" src="${n.flag}" alt="Flag">` : "—"}</td>
-          <td><strong>${n.nation_name || "—"}</strong></td>
-          <td>${n.leader_name || "—"}</td>
-          <td>${n.continent ? n.continent.toUpperCase() : "—"}</td>
-          <td>${n.score ? parseFloat(n.score).toLocaleString() : "—"}</td>
-          <td>${n.num_cities || "—"}</td>
-          <td style="color: ${n.color || '#000'}">${n.color ? '⬤ ' + n.color : "—"}</td>
-          <td>${n.alliance_id || "None"}</td>
-          <td>${n.alliance_position || "—"}</td>
+          <td>${n.flag ? `<img class="flag" src="${n.flag}" alt="flag">` : '—'}</td>
+          <td><strong>${n.nation_name ?? '—'}</strong></td>
+          <td>${n.leader_name ?? '—'}</td>
+          <td>${n.continent ?? '—'}</td>
+          <td>${n.score ? Number(n.score).toLocaleString() : '—'}</td>
+          <td>${n.num_cities ?? '—'}</td>
+          <td style="color:${n.color ?? '#000'}">${n.color ? '⬤ ' + n.color : '—'}</td>
+          <td>${n.alliance_name ?? '—'}</td>
+          <td>${n.alliance_position ?? '—'}</td>
         `;
-        
-        tr.onclick = () => viewNationDetail(n.id);
+        tr.addEventListener('click', async () => {
+          await openNationDetail(n.id);
+        });
         tbody.appendChild(tr);
       });
-
-      document.getElementById('nations-page-info').textContent = `Page ${currentNationPage} of ${totalPages} (${filteredNations.length} total)`;
-      document.getElementById('nations-loading').style.display = 'none';
-      document.getElementById('nationsTable').style.display = 'table';
-      
-      const paginationBtns = document.querySelectorAll('#nations-pagination button');
-      paginationBtns[0].disabled = currentNationPage === 1;
-      paginationBtns[1].disabled = currentNationPage === totalPages || totalPages === 0;
+      table.style.display = p.data.length ? 'table' : 'none';
+      document.getElementById('nations-page-info').textContent = `Page ${p.page} of ${p.total} (${list.length} total)`;
+      document.getElementById('nations-prev').disabled = p.page === 1;
+      document.getElementById('nations-next').disabled = p.page === p.total;
     }
 
-    async function viewNationDetail(nationId) {
-      // Fetch full nation data if not already cached
-      const nation = await fetchNationDetail(nationId);
-      if (!nation) {
-        alert('Failed to load nation details');
+    // Cities render
+    function renderCities() {
+      const table = document.getElementById('citiesTable');
+      const tbody = table.querySelector('tbody');
+      // Ensure each city has population & age
+      filteredCities = filteredCities.map(c => ({...c, population: c.population ?? Math.floor((c.infrastructure||0)*100), age: c.age ?? 0}));
+      let list = applySort(filteredCities, sortState.section === 'cities' ? sortState.key : null);
+      const p = paginate(list, cityPage);
+      tbody.innerHTML = '';
+      p.data.forEach(c=>{
+        const tr = document.createElement('tr');
+        tr.setAttribute('data-city-id', c.id);
+        tr.innerHTML = `
+          <td>▶</td>
+          <td><strong>${c.name ?? '—'}</strong></td>
+          <td>${c.nation_name ?? '—'}</td>
+          <td>${c.infrastructure ? Number(c.infrastructure).toLocaleString() : '—'}</td>
+          <td>${c.land ? Number(c.land).toLocaleString() : '—'}</td>
+          <td>${c.powered ? '✅' : '❌'}</td>
+          <td>${c.population ? Number(c.population).toLocaleString() : '—'}</td>
+          <td>${c.age ?? 0} days</td>
+        `;
+        tr.addEventListener('click', () => toggleCityDetails(c.id));
+        tbody.appendChild(tr);
+      });
+      table.style.display = p.data.length ? 'table' : 'none';
+      document.getElementById('cities-page-info').textContent = `Page ${p.page} of ${p.total} (${list.length} total)`;
+      document.getElementById('cities-prev').disabled = p.page === 1;
+      document.getElementById('cities-next').disabled = p.page === p.total;
+    }
+
+    function renderAll() {
+      updateStats();
+      renderAlliances();
+      renderNations();
+      renderCities();
+      updateTimers();
+      // update sort indicators visually (basic)
+      document.querySelectorAll('.sort-ind').forEach(el => el.textContent = '');
+      if (sortState.section && sortState.key) {
+        const id = `sort-${sortState.section}-${sortState.key}`.replace(/\s+/g,'-');
+        // instead of specific ids, find the matching header's sort-ind
+        const header = document.querySelector(`table#${sortState.section === 'alliances' ? 'alliancesTable' : sortState.section === 'nations' ? 'nationsTable' : 'citiesTable'} th[data-key="${sortState.key}"] .sort-ind`);
+        if (header) header.textContent = sortState.dir === 1 ? '▲' : '▼';
+      }
+    }
+
+    function updateStats() {
+      // alliances stats
+      document.getElementById('alliance-stats').innerHTML = `
+        <div class="stat-card"><div class="stat-value">${alliances.length}</div><div class="stat-label">Total Alliances</div></div>
+        <div class="stat-card"><div class="stat-value">${alliances.filter(a=>a.accept_members).length}</div><div class="stat-label">Recruiting</div></div>
+        <div class="stat-card"><div class="stat-value">${alliances.filter(a=>a.discord_link).length}</div><div class="stat-label">With Discord</div></div>
+      `;
+      // nations stats
+      const totalCities = nations.reduce((s,n)=> s + (n.num_cities || 0), 0);
+      const avgScore = nations.length ? (nations.reduce((s,n)=> s + (Number(n.score)||0),0)/nations.length).toFixed(2) : 0;
+      document.getElementById('nation-stats').innerHTML = `
+        <div class="stat-card"><div class="stat-value">${nations.length}</div><div class="stat-label">Nation Summaries</div></div>
+        <div class="stat-card"><div class="stat-value">${totalCities.toLocaleString()}</div><div class="stat-label">Total Cities</div></div>
+        <div class="stat-card"><div class="stat-value">${avgScore}</div><div class="stat-label">Avg Score</div></div>
+      `;
+      // cities stats
+      const totalInfra = cities.reduce((s,c)=> s + (Number(c.infrastructure)||0), 0);
+      const powered = cities.filter(c=>c.powered).length;
+      document.getElementById('city-stats').innerHTML = `
+        <div class="stat-card"><div class="stat-value">${cities.length}</div><div class="stat-label">Cities (from details)</div></div>
+        <div class="stat-card"><div class="stat-value">${totalInfra.toLocaleString()}</div><div class="stat-label">Total Infrastructure</div></div>
+        <div class="stat-card"><div class="stat-value">${powered}</div><div class="stat-label">Powered Cities</div></div>
+      `;
+    }
+
+    // Toggle city details under row (in-table)
+    const expandedCityRows = new Set();
+    function toggleCityDetails(cityId) {
+      const existing = document.getElementById(`city-details-${cityId}`);
+      const mainRow = document.querySelector(`tr[data-city-id="${cityId}"]`);
+      if (!mainRow) return;
+      if (existing) {
+        existing.remove();
+        expandedCityRows.delete(cityId);
+        mainRow.classList.remove('expanded');
         return;
       }
+      const city = cities.find(c=>c.id === cityId);
+      if (!city) return;
+      const detailsRow = document.createElement('tr');
+      detailsRow.id = `city-details-${cityId}`;
+      detailsRow.className = 'details-row show';
+      const td = document.createElement('td');
+      td.colSpan = 8;
+      td.className = 'details-cell';
+      td.innerHTML = `
+        <div class="details-content">
+          <div class="detail-group">
+            <h4>City Info</h4>
+            <div class="detail-item"><span class="detail-label">ID</span><span>${city.id}</span></div>
+            <div class="detail-item"><span class="detail-label">Name</span><span>${city.name || '—'}</span></div>
+            <div class="detail-item"><span class="detail-label">Nation</span><span>${city.nation_name}</span></div>
+            <div class="detail-item"><span class="detail-label">Age</span><span>${city.age} days</span></div>
+          </div>
+          <div class="detail-group">
+            <h4>Power & Resources</h4>
+            <div class="detail-item"><span class="detail-label">Powered</span><span>${city.powered ? 'Yes' : 'No'}</span></div>
+            <div class="detail-item"><span class="detail-label">Coal</span><span>${city.coal_power || 0}</span></div>
+            <div class="detail-item"><span class="detail-label">Oil</span><span>${city.oil_power || 0}</span></div>
+            <div class="detail-item"><span class="detail-label">Nuclear</span><span>${city.nuclear_power || 0}</span></div>
+            <div class="detail-item"><span class="detail-label">Wind</span><span>${city.wind_power || 0}</span></div>
+          </div>
+          <div class="detail-group">
+            <h4>Infrastructure</h4>
+            <div class="detail-item"><span class="detail-label">Hospital</span><span>${city.hospital || 0}</span></div>
+            <div class="detail-item"><span class="detail-label">Police</span><span>${city.police_station || 0}</span></div>
+            <div class="detail-item"><span class="detail-label">Factory</span><span>${city.factory || 0}</span></div>
+            <div class="detail-item"><span class="detail-label">Stadium</span><span>${city.stadium || 0}</span></div>
+          </div>
+        </div>
+      `;
+      detailsRow.appendChild(td);
+      mainRow.after(detailsRow);
+      expandedCityRows.add(cityId);
+      mainRow.classList.add('expanded');
+    }
 
-      // Update URL
-      const url = new URL(window.location);
-      url.searchParams.set('view', 'nation');
-      url.searchParams.set('id', nationId);
-      window.history.pushState({}, '', url);
-
-      // Hide all sections except nation detail
+    // Open nation detail (in-page) using cached full nation or fetching it
+    async function openNationDetail(nationId) {
+      const nation = await fetchNationDetail(nationId);
+      if (!nation) {
+        alert('Failed to load nation detail');
+        return;
+      }
+      // hide others
       document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
       document.getElementById('nation-detail-section').classList.add('active');
-
-      // Hide tabs
-      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-
-      // Render nation detail
+      // render nation
       const content = document.getElementById('nation-detail-content');
       content.innerHTML = `
         <div class="nation-header">
-          ${nation.flag ? `<img src="${nation.flag}" alt="Flag">` : ''}
+          ${nation.flag ? `<img src="${nation.flag}" alt="flag" />` : ''}
           <div class="nation-header-info">
-            <h2>${nation.nation_name}</h2>
-            <p>Leader: ${nation.leader_name} | Score: ${parseFloat(nation.score || 0).toLocaleString()}</p>
+            <h2>${nation.nation_name || '—'}</h2>
+            <p class="small-muted">Leader: ${nation.leader_name || '—'} | Score: ${Number(nation.score||0).toLocaleString()}</p>
+          </div>
+        </div>
+        <div class="details-content">
+          <div class="detail-group">
+            <h4>Basic</h4>
+            <div class="detail-item"><span class="detail-label">ID</span><span>${nation.id}</span></div>
+            <div class="detail-item"><span class="detail-label">Founded</span><span>${nation.date ? new Date(nation.date).toLocaleDateString() : '—'}</span></div>
+            <div class="detail-item"><span class="detail-label">Last Active</span><span>${nation.last_active ? new Date(nation.last_active).toLocaleString() : '—'}</span></div>
+            <div class="detail-item"><span class="detail-label">Vacation</span><span>${nation.vacation_mode_turns ? 'Yes' : 'No'}</span></div>
+          </div>
+          <div class="detail-group">
+            <h4>Military</h4>
+            <div class="detail-item"><span class="detail-label">Soldiers</span><span>${(nation.soldiers||0).toLocaleString()}</span></div>
+            <div class="detail-item"><span class="detail-label">Tanks</span><span>${(nation.tanks||0).toLocaleString()}</span></div>
+            <div class="detail-item"><span class="detail-label">Aircraft</span><span>${(nation.aircraft||0).toLocaleString()}</span></div>
+            <div class="detail-item"><span class="detail-label">Ships</span><span>${(nation.ships||0).toLocaleString()}</span></div>
+          </div>
+          <div class="detail-group">
+            <h4>Economy & Infrastructure</h4>
+            <div class="detail-item"><span class="detail-label">Cities</span><span>${nation.num_cities || 0}</span></div>
+            <div class="detail-item"><span class="detail-label">Projects</span><span>${nation.projects || 0}</span></div>
+            <div class="detail-item"><span class="detail-label">Score</span><span>${nation.score ? Number(nation.score).toLocaleString() : '—'}</span></div>
           </div>
         </div>
 
-        <div class="details-content" style="margin-bottom: 30px;">
-          <div class="detail-group">
-            <h4>📊 Basic Information</h4>
-            <div class="detail-item"><span class="detail-label">Nation ID:</span><span class="detail-value">${nation.id}</span></div>
-            <div class="detail-item"><span class="detail-label">Leader:</span><span class="detail-value">${nation.leader_name}</span></div>
-            <div class="detail-item"><span class="detail-label">Continent:</span><span class="detail-value">${nation.continent?.toUpperCase() || '—'}</span></div>
-            <div class="detail-item"><span class="detail-label">Color Bloc:</span><span class="detail-value" style="color: ${nation.color}">${nation.color || '—'}</span></div>
-            <div class="detail-item"><span class="detail-label">Founded:</span><span class="detail-value">${nation.date ? new Date(nation.date).toLocaleDateString() : '—'}</span></div>
-            <div class="detail-item"><span class="detail-label">Last Active:</span><span class="detail-value">${nation.last_active ? new Date(nation.last_active).toLocaleString() : '—'}</span></div>
-          </div>
-
-          <div class="detail-group">
-            <h4>⚔️ Military Forces</h4>
-            <div class="detail-item"><span class="detail-label">Soldiers:</span><span class="detail-value">${(nation.soldiers || 0).toLocaleString()}</span></div>
-            <div class="detail-item"><span class="detail-label">Tanks:</span><span class="detail-value">${(nation.tanks || 0).toLocaleString()}</span></div>
-            <div class="detail-item"><span class="detail-label">Aircraft:</span><span class="detail-value">${(nation.aircraft || 0).toLocaleString()}</span></div>
-            <div class="detail-item"><span class="detail-label">Ships:</span><span class="detail-value">${(nation.ships || 0).toLocaleString()}</span></div>
-            <div class="detail-item"><span class="detail-label">Missiles:</span><span class="detail-value">${(nation.missiles || 0).toLocaleString()}</span></div>
-            <div class="detail-item"><span class="detail-label">Nukes:</span><span class="detail-value">${(nation.nukes || 0).toLocaleString()}</span></div>
-          </div>
-
-          <div class="detail-group">
-            <h4>🏙️ Infrastructure</h4>
-            <div class="detail-item"><span class="detail-label">Number of Cities:</span><span class="detail-value">${nation.num_cities || 0}</span></div>
-            <div class="detail-item"><span class="detail-label">Projects:</span><span class="detail-value">${nation.projects || 0}</span></div>
-            <div class="detail-item"><span class="detail-label">Score:</span><span class="detail-value">${nation.score ? parseFloat(nation.score).toLocaleString() : '—'}</span></div>
-            <div class="detail-item"><span class="detail-label">Vacation Mode:</span><span class="detail-value">${nation.vacation_mode_turns ? 'Yes (' + nation.vacation_mode_turns + ' turns)' : 'No'}</span></div>
-            <div class="detail-item"><span class="detail-label">Beige Turns:</span><span class="detail-value">${nation.beige_turns || 0}</span></div>
-          </div>
-
-          <div class="detail-group">
-            <h4>🤝 Alliance Information</h4>
-            <div class="detail-item"><span class="detail-label">Alliance ID:</span><span class="detail-value">${nation.alliance_id || 'None'}</span></div>
-            <div class="detail-item"><span class="detail-label">Position:</span><span class="detail-value">${nation.alliance_position || '—'}</span></div>
-            ${nation.alliance ? `
-              <div class="detail-item"><span class="detail-label">Alliance Name:</span><span class="detail-value">${nation.alliance.name}</span></div>
-              <div class="detail-item"><span class="detail-label">Alliance Acronym:</span><span class="detail-value">${nation.alliance.acronym}</span></div>
-            ` : ''}
-          </div>
-        </div>
-
-        <h3 style="margin-bottom: 15px;">🏙️ Cities (${nation.cities?.length || 0})</h3>
+        <h3 style="margin-top:14px">Cities (${(nation.cities && nation.cities.length) || 0})</h3>
         <div class="cities-grid">
-          ${nation.cities?.map(city => `
-            <div class="city-card" onclick="viewCityDetail('${city.id}')">
-              <h4>${city.name || 'Unnamed City'}</h4>
-              <div class="detail-item"><span class="detail-label">Infrastructure:</span><span class="detail-value">${parseFloat(city.infrastructure || 0).toLocaleString(undefined, {maximumFractionDigits: 2})}</span></div>
-              <div class="detail-item"><span class="detail-label">Land:</span><span class="detail-value">${parseFloat(city.land || 0).toLocaleString()}</span></div>
-              <div class="detail-item"><span class="detail-label">Powered:</span><span class="detail-value">${city.powered ? '✅ Yes' : '❌ No'}</span></div>
-              <div class="detail-item"><span class="detail-label">Age:</span><span class="detail-value">${city.date ? Math.floor((Date.now() - new Date(city.date)) / (1000 * 60 * 60 * 24)) + ' days' : '—'}</span></div>
+          ${(nation.cities && nation.cities.length) ? nation.cities.map(city=>`
+            <div class="city-card" data-city-id="${city.id}">
+              <h4>${city.name || 'Unnamed'}</h4>
+              <div class="detail-item"><span class="detail-label">Infra</span><span>${Number(city.infrastructure||0).toLocaleString()}</span></div>
+              <div class="detail-item"><span class="detail-label">Land</span><span>${Number(city.land||0).toLocaleString()}</span></div>
+              <div class="detail-item"><span class="detail-label">Powered</span><span>${city.powered ? '✅' : '❌'}</span></div>
+              <div class="detail-item"><span class="detail-label">Age</span><span>${city.date ? Math.floor((Date.now()-new Date(city.date))/(1000*60*60*24)) + ' days' : '—'}</span></div>
             </div>
-          `).join('') || '<p>No cities data available</p>'}
+          `).join('') : '<p>No city data</p>'}
         </div>
       `;
+      // Attach click events for those cards to open a city in cities tab (optional)
+      content.querySelectorAll('.city-card').forEach(card=>{
+        card.addEventListener('click', () => {
+          const cid = card.getAttribute('data-city-id');
+          // switch to cities tab and try to highlight / open
+          document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+          document.querySelector('.tab[data-tab="cities"]').classList.add('active');
+          document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+          document.getElementById('cities-section').classList.add('active');
+          // try to find city in global cities array; if not present it's OK
+          const cidObj = cities.find(c=>String(c.id) === String(cid));
+          if (cidObj) {
+            // set filter and show page with that city
+            filteredCities = cities.filter(c=>String(c.id) === String(cid));
+            cityPage = 1;
+            renderCities();
+          }
+        });
+      });
     }
 
-    function goBackToNations() {
-      const url = new URL(window.location);
-      url.searchParams.set('view', 'nations');
-      url.searchParams.delete('id');
-      window.history.pushState({}, '', url);
+    // navigation / UI wiring
+    document.querySelectorAll('.tab').forEach(btn=>{
+      btn.addEventListener('click', (ev)=>{
+        const tab = btn.getAttribute('data-tab');
+        document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+        btn.classList.add('active');
+        document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+        document.getElementById(`${tab}-section`).classList.add('active');
+        // reset query params in URL
+        history.replaceState({}, '', window.location.pathname + `?view=${tab}`);
+      });
+    });
 
-      document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-      document.getElementById('nations-section').classList.add('active');
+    // page prev/next handlers
+    document.getElementById('alliances-prev').addEventListener('click', ()=>{ alliancePage = Math.max(1, alliancePage-1); renderAlliances(); });
+    document.getElementById('alliances-next').addEventListener('click', ()=>{ alliancePage++; renderAlliances(); });
 
-      const tabBtn = document.querySelector(`.tab[onclick="switchTab('nations')"]`);
-      if (tabBtn) {
-        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-        tabBtn.classList.add('active');
-      }
-    }
+    document.getElementById('nations-prev').addEventListener('click', ()=>{ nationPage = Math.max(1, nationPage-1); renderNations(); });
+    document.getElementById('nations-next').addEventListener('click', ()=>{ nationPage++; renderNations(); });
 
-    function viewCityDetail(cityId) {
-      // Find city in the cities array
-      const city = cities.find(c => c.id === cityId);
-      if (!city) return;
+    document.getElementById('cities-prev').addEventListener('click', ()=>{ cityPage = Math.max(1, cityPage-1); renderCities(); });
+    document.getElementById('cities-next').addEventListener('click', ()=>{ cityPage++; renderCities(); });
 
-      // Scroll to top and show details
-      window.scrollTo(0, 0);
-      toggleCityDetails(cityId);
-      
-      // Switch to cities tab
-      const url = new URL(window.location);
-      url.searchParams.set('view', 'cities');
-      window.history.pushState({}, '', url);
-      
-      document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-      document.getElementById('cities-section').classList.add('active');
-      
-      const tabBtn = document.querySelector(`.tab[onclick="switchTab('cities')"]`);
-      if (tabBtn) {
-        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-        tabBtn.classList.add('active');
-      }
-    }
-
-    document.querySelector("#alliancesSearch").addEventListener("input", e => {
-      const q = e.target.value.toLowerCase();
-      filteredAlliances = alliances.filter(a =>
-        (a.name?.toLowerCase().includes(q)) ||
-        (a.acronym?.toLowerCase().includes(q))
-      );
-      currentAlliancePage = 1;
+    // search
+    document.getElementById('alliancesSearch').addEventListener('input', (e)=>{
+      const q = e.target.value.trim().toLowerCase();
+      filteredAlliances = alliances.filter(a => (a.name||'').toLowerCase().includes(q) || (a.acronym||'').toLowerCase().includes(q));
+      alliancePage = 1;
       renderAlliances();
     });
-
-    document.querySelector("#nationsSearch").addEventListener("input", e => {
-      const q = e.target.value.toLowerCase();
-      filteredNations = nations.filter(n =>
-        (n.nation_name?.toLowerCase().includes(q)) ||
-        (n.leader_name?.toLowerCase().includes(q))
-      );
-      currentNationPage = 1;
-      expandedRows.clear();
+    document.getElementById('nationsSearch').addEventListener('input', (e)=>{
+      const q = e.target.value.trim().toLowerCase();
+      filteredNations = nations.filter(n => (n.nation_name||'').toLowerCase().includes(q) || (n.leader_name||'').toLowerCase().includes(q));
+      nationPage = 1;
       renderNations();
     });
-
-    document.querySelector("#citiesSearch").addEventListener("input", e => {
-      const q = e.target.value.toLowerCase();
-      filteredCities = cities.filter(c =>
-        (c.name?.toLowerCase().includes(q)) ||
-        (c.nation_name?.toLowerCase().includes(q))
-      );
-      currentCityPage = 1;
-      expandedCities.clear();
+    document.getElementById('citiesSearch').addEventListener('input', (e)=>{
+      const q = e.target.value.trim().toLowerCase();
+      filteredCities = cities.filter(c => (c.name||'').toLowerCase().includes(q) || (c.nation_name||'').toLowerCase().includes(q));
+      cityPage = 1;
       renderCities();
     });
 
-    function toggleCityDetails(cityId) {
-      const city = cities.find(c => c.id === cityId);
-      if (!city) return;
-
-      const detailsRowId = `city-details-${cityId}`;
-      const existingRow = document.getElementById(detailsRowId);
-      const mainRow = document.querySelector(`tr[data-city-id="${cityId}"]`);
-
-      if (existingRow) {
-        existingRow.remove();
-        expandedCities.delete(cityId);
-        mainRow.classList.remove('expanded');
-      } else {
-        const detailsRow = document.createElement('tr');
-        detailsRow.id = detailsRowId;
-        detailsRow.className = 'details-row show';
-        
-        const detailsCell = document.createElement('td');
-        detailsCell.colSpan = 8;
-        detailsCell.className = 'details-cell';
-        
-        detailsCell.innerHTML = `
-          <div class="details-content">
-            <div class="detail-group">
-              <h4>🏙️ City Info</h4>
-              <div class="detail-item"><span class="detail-label">City ID:</span><span class="detail-value">${city.id}</span></div>
-              <div class="detail-item"><span class="detail-label">Name:</span><span class="detail-value">${city.name || 'Unnamed'}</span></div>
-              <div class="detail-item"><span class="detail-label">Nation:</span><span class="detail-value">${city.nation_name}</span></div>
-              <div class="detail-item"><span class="detail-label">Age:</span><span class="detail-value">${city.date ? Math.floor((Date.now() - new Date(city.date)) / (1000 * 60 * 60 * 24)) + ' days' : '—'}</span></div>
-            </div>
-
-            <div class="detail-group">
-              <h4>⚡ Power & Resources</h4>
-              <div class="detail-item"><span class="detail-label">Powered:</span><span class="detail-value">${city.powered ? '✅ Yes' : '❌ No'}</span></div>
-              <div class="detail-item"><span class="detail-label">Coal Power:</span><span class="detail-value">${city.coal_power || 0}</span></div>
-              <div class="detail-item"><span class="detail-label">Oil Power:</span><span class="detail-value">${city.oil_power || 0}</span></div>
-              <div class="detail-item"><span class="detail-label">Nuclear Power:</span><span class="detail-value">${city.nuclear_power || 0}</span></div>
-              <div class="detail-item"><span class="detail-label">Wind Power:</span><span class="detail-value">${city.wind_power || 0}</span></div>
-            </div>
-
-            <div class="detail-group">
-              <h4>⛏️ Mining</h4>
-              <div class="detail-item"><span class="detail-label">Coal Mines:</span><span class="detail-value">${city.coal_mine || 0}</span></div>
-              <div class="detail-item"><span class="detail-label">Oil Wells:</span><span class="detail-value">${city.oil_well || 0}</span></div>
-              <div class="detail-item"><span class="detail-label">Uranium Mines:</span><span class="detail-value">${city.uranium_mine || 0}</span></div>
-              <div class="detail-item"><span class="detail-label">Lead Mines:</span><span class="detail-value">${city.lead_mine || 0}</span></div>
-              <div class="detail-item"><span class="detail-label">Iron Mines:</span><span class="detail-value">${city.iron_mine || 0}</span></div>
-              <div class="detail-item"><span class="detail-label">Bauxite Mines:</span><span class="detail-value">${city.bauxite_mine || 0}</span></div>
-            </div>
-
-            <div class="detail-group">
-              <h4>🏭 Manufacturing</h4>
-              <div class="detail-item"><span class="detail-label">Oil Refineries:</span><span class="detail-value">${city.oil_refinery || 0}</span></div>
-              <div class="detail-item"><span class="detail-label">Aluminum Refineries:</span><span class="detail-value">${city.aluminum_refinery || 0}</span></div>
-              <div class="detail-item"><span class="detail-label">Steel Mills:</span><span class="detail-value">${city.steel_mill || 0}</span></div>
-              <div class="detail-item"><span class="detail-label">Munitions Factories:</span><span class="detail-value">${city.munitions_factory || 0}</span></div>
-              <div class="detail-item"><span class="detail-label">Factories:</span><span class="detail-value">${city.factory || 0}</span></div>
-            </div>
-
-            <div class="detail-group">
-              <h4>🏢 Infrastructure</h4>
-              <div class="detail-item"><span class="detail-label">Hospitals:</span><span class="detail-value">${city.hospital || 0}</span></div>
-              <div class="detail-item"><span class="detail-label">Police Stations:</span><span class="detail-value">${city.police_station || 0}</span></div>
-              <div class="detail-item"><span class="detail-label">Banks:</span><span class="detail-value">${city.bank || 0}</span></div>
-              <div class="detail-item"><span class="detail-label">Shopping Malls:</span><span class="detail-value">${city.shopping_mall || 0}</span></div>
-              <div class="detail-item"><span class="detail-label">Stadiums:</span><span class="detail-value">${city.stadium || 0}</span></div>
-              <div class="detail-item"><span class="detail-label">Supermarkets:</span><span class="detail-value">${city.supermarket || 0}</span></div>
-              <div class="detail-item"><span class="detail-label">Subways:</span><span class="detail-value">${city.subway || 0}</span></div>
-              <div class="detail-item"><span class="detail-label">Recycling Centers:</span><span class="detail-value">${city.recycling_center || 0}</span></div>
-            </div>
-
-            <div class="detail-group">
-              <h4>⚔️ Military</h4>
-              <div class="detail-item"><span class="detail-label">Barracks:</span><span class="detail-value">${city.barracks || 0}</span></div>
-              <div class="detail-item"><span class="detail-label">Hangars:</span><span class="detail-value">${city.hangar || 0}</span></div>
-              <div class="detail-item"><span class="detail-label">Drydocks:</span><span class="detail-value">${city.drydock || 0}</span></div>
-            </div>
-
-            <div class="detail-group">
-              <h4>🌾 Agriculture</h4>
-              <div class="detail-item"><span class="detail-label">Farms:</span><span class="detail-value">${city.farm || 0}</span></div>
-            </div>
-          </div>
-        `;
-        
-        detailsRow.appendChild(detailsCell);
-        mainRow.after(detailsRow);
-        expandedCities.add(cityId);
-        mainRow.classList.add('expanded');
-      }
-    }
-
-    function renderCities() {
-      const tbody = document.querySelector("#citiesTable tbody");
-      tbody.innerHTML = "";
-
-      const totalPages = Math.ceil(filteredCities.length / ITEMS_PER_PAGE);
-      const start = (currentCityPage - 1) * ITEMS_PER_PAGE;
-      const end = start + ITEMS_PER_PAGE;
-      const pageData = filteredCities.slice(start, end);
-
-      pageData.forEach(c => {
-        const tr = document.createElement("tr");
-        tr.setAttribute('data-city-id', c.id);
-        const isExpanded = expandedCities.has(c.id);
-        
-        const cityAge = c.date ? Math.floor((Date.now() - new Date(c.date)) / (1000 * 60 * 60 * 24)) : 0;
-        const population = Math.floor((c.infrastructure || 0) * 100);
-        
-        tr.innerHTML = `
-          <td><span class="expand-icon ${isExpanded ? 'rotated' : ''}">▶</span></td>
-          <td><strong>${c.name || 'Unnamed City'}</strong></td>
-          <td>${c.nation_name || '—'}</td>
-          <td>${c.infrastructure ? parseFloat(c.infrastructure).toLocaleString(undefined, {maximumFractionDigits: 2}) : '—'}</td>
-          <td>${c.land ? parseFloat(c.land).toLocaleString() : '—'}</td>
-          <td>${c.powered ? '✅' : '❌'}</td>
-          <td>${population.toLocaleString()}</td>
-          <td>${cityAge} days</td>
-        `;
-        
-        tr.onclick = () => toggleCityDetails(c.id);
-        tbody.appendChild(tr);
-        
-        if (isExpanded) {
-          toggleCityDetails(c.id);
-        }
-      });
-
-      document.getElementById('cities-page-info').textContent = `Page ${currentCityPage} of ${totalPages} (${filteredCities.length} total)`;
-      document.getElementById('cities-loading').style.display = 'none';
-      document.getElementById('citiesTable').style.display = 'table';
-      
-      const paginationBtns = document.querySelectorAll('#cities-pagination button');
-      paginationBtns[0].disabled = currentCityPage === 1;
-      paginationBtns[1].disabled = currentCityPage === totalPages || totalPages === 0;
-    }
-
-    function switchTab(tab) {
-      // Update URL with query parameter
-      const url = new URL(window.location);
-      url.searchParams.set('view', tab);
-      window.history.pushState({}, '', url);
-
-      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    // back to nations button
+    document.getElementById('back-to-nations').addEventListener('click', ()=>{
       document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-      
-      event.target.classList.add('active');
-      document.getElementById(`${tab}-section`).classList.add('active');
+      document.getElementById('nations-section').classList.add('active');
+      document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+      document.querySelector('.tab[data-tab="nations"]').classList.add('active');
+    });
+
+    // refresh
+    document.getElementById('refresh-btn').addEventListener('click', async ()=>{
+      document.getElementById('refresh-btn').disabled = true;
+      document.getElementById('refresh-btn').textContent = '⏳ Refreshing...';
+      await fetchAllData(true);
+      document.getElementById('refresh-btn').disabled = false;
+      document.getElementById('refresh-btn').textContent = '🔄 Refresh Now';
+    });
+
+    // load on start
+    async function init() {
+      setStatus('Starting…', true);
+      // try load cache
+      await openDatabase().then(d=>db=d).catch(e=>console.warn('IndexedDB open failed', e));
+      const loaded = await loadCache();
+      if (loaded) {
+        // render cached immediately
+        filteredAlliances = [...alliances];
+        filteredNations = [...nations];
+        filteredCities = [...cities];
+        renderAll();
+        setStatus('Loaded from cache', true);
+      } else {
+        setStatus('No cache — fetching…', true);
+      }
+
+      // fetch fresh data if cache expired or missing
+      if (!isCacheValid()) {
+        await fetchAllData(true);
+      } else {
+        // schedule background refresh at end of cache duration
+        setStatus('Using cached data', true);
+      }
+
+      // update timers and schedule auto refresh every CACHE_DURATION
+      updateTimers();
+      setInterval(async ()=>{ await fetchAllData(true); }, CACHE_DURATION);
+      setInterval(updateTimers, 1000);
     }
 
-    function loadTabFromURL() {
-      const url = new URL(window.location);
-      const view = url.searchParams.get('view');
-      const nationId = url.searchParams.get('id');
-      
-      // If viewing a specific nation
-      if (view === 'nation' && nationId) {
-        viewNationDetail(nationId);
+    // restore view from URL if requested
+    function loadFromUrl() {
+      const params = new URLSearchParams(window.location.search);
+      const view = params.get('view');
+      const id = params.get('id');
+      if (view === 'nation' && id) {
+        // try open nation detail (will load full data if needed)
+        openNationDetail(id).catch(()=>{});
         return;
       }
-      
-      // Otherwise load normal tab
-      const tabView = view || 'alliances';
-      
-      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-      document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-      
-      const tabBtn = document.querySelector(`.tab[onclick="switchTab('${tabView}')"]`);
-      if (tabBtn) {
-        tabBtn.classList.add('active');
-        document.getElementById(`${tabView}-section`).classList.add('active');
-      } else {
-        document.querySelector('.tab').classList.add('active');
-        document.getElementById('alliances-section').classList.add('active');
+      if (view) {
+        const tabBtn = document.querySelector(`.tab[data-tab="${view}"]`);
+        if (tabBtn) tabBtn.click();
       }
     }
 
-    async function init() {
-      console.log('🚀 Initializing PnW Data Viewer...');
-      
-      // Load tab from URL
-      loadTabFromURL();
+    // Start
+    init().then(()=>loadFromUrl()).catch(e=>console.error(e));
 
-      // Try loading from IndexedDB first
-      const hasLocalData = await loadFromIndexedDB();
-      
-      if (hasLocalData) {
-        console.log('⚡ Using cached data for instant load');
-        // Show cached data immediately
-        renderAlliances();
-        renderNations();
-        renderCities();
-        updateStats();
-        updateStatusBar();
-        
-        document.getElementById('status-text').textContent = 'Loaded from cache';
-        
-        // Check if cache is still valid
-        if (!isCacheValid()) {
-          console.log('🔄 Cache expired, fetching fresh data in background...');
-          await fetchData();
-        } else {
-          const minutesRemaining = Math.floor((CACHE_DURATION - (Date.now() - lastFetchTime)) / 1000 / 60);
-          console.log(`✓ Cache valid for ${minutesRemaining} more minutes`);
-        }
-      } else {
-        console.log('📡 No cache found, fetching from API...');
-        // No cached data, fetch from API
-        await fetchData();
-      }
-      
-      updateStatusBar();
-      
-      // Set up automatic refresh
-      refreshInterval = setInterval(() => {
-        console.log('⏰ 15 minutes elapsed, refreshing data...');
-        fetchData();
-      }, CACHE_DURATION);
-      
-      countdownInterval = setInterval(updateStatusBar, 1000);
-      
-      console.log('✓ Initialization complete!');
-    }
-
-    // Clear old localStorage if it exists (migration to IndexedDB)
-    if (localStorage.getItem('pnw_viewer_data')) {
-      localStorage.removeItem('pnw_viewer_data');
-      console.log('🧹 Migrated from localStorage to IndexedDB');
-    }
-    if (localStorage.getItem('pnw_alliances_data')) {
-      localStorage.removeItem('pnw_alliances_data');
-      localStorage.removeItem('pnw_nations_data');
-      localStorage.removeItem('pnw_last_fetch_time');
-      console.log('🧹 Cleaned up old storage keys');
-    }
-
-    init();
+    // Expose a couple debugging helpers if needed
+    window._pnw = {
+      fetchAllData, fetchNationDetail, saveCache, loadCache, _state: ()=>({alliances,nations,Object_keys_nationDetails:Object.keys(nationDetails)})
+    };
   </script>
 </body>
 </html>
