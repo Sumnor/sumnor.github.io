@@ -728,7 +728,7 @@
         // Fetch alliances (all) and first 5 pages of nations (summary only)
         const [alliancesRes, nationsRes] = await Promise.all([
           fetch(`${API}/alliance`, { method: "POST" }),
-          fetch(`${API}/nations/summary?page=1&limit=500`, { method: "POST" })
+          fetch(`${API}/nations/summary?page=1&limit=50000`, { method: "POST" })
         ]);
 
         const alliancesData = await alliancesRes.json();
