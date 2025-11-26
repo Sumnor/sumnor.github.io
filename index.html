@@ -925,30 +925,42 @@
     function renderNations() {
       const tbody = document.querySelector("#nationsTable tbody");
       tbody.innerHTML = "";
-
+    
       const totalPages = Math.ceil(filteredNations.length / ITEMS_PER_PAGE);
       const start = (currentNationPage - 1) * ITEMS_PER_PAGE;
       const end = start + ITEMS_PER_PAGE;
       const pageData = filteredNations.slice(start, end);
-
+    
       pageData.forEach(n => {
         const tr = document.createElement("tr");
-        
+    
+        tr.onclick = () => openNationDetail(n.id);
+    
         tr.innerHTML = `
-          <td>${n.flag ? `<img class="flag" src="${n.flag}" alt="Flag">` : "—"}</td>
-          <td><strong>${n.nation_name || "—"}</strong></td>
-          <td>${n.leader_name || "—"}</td>
-          <td>${n.continent ? n.continent.toUpperCase() : "—"}</td>
-          <td>${n.score ? parseFloat(n.score).toLocaleString() : "—"}</td>
-          <td>${n.num_cities || "—"}</td>
-          <td style="color: ${n.color || '#000'}">${n.color ? '⬤ ' + n.color : "—"}</td>
-          <td>${n.alliance_id || "None"}</td>
-          <td>${n.alliance_position || "—"}</td>
+          <td>${n.flag ? `<img class="flag" src="${n.flag}">` : "—"}</td>
+          <td><strong>${n.nation_name ?? "—"}</strong></td>
+          <td>${n.leader_name ?? "—"}</td>
+          <td>${n.continent ?? "—"}</td>
+          <td>${n.score ? Number(n.score).toLocaleString() : "—"}</td>
+          <td>${n.num_cities ?? "—"}</td>
+          <td>${n.color ?? "—"}</td>
+          <td>${n.alliance_name ?? "—"}</td>
+          <td>${n.position ?? "—"}</td>
         `;
-        
-        tr.onclick = () => viewNationDetail(n.id);
+    
         tbody.appendChild(tr);
       });
+    
+      document.getElementById('nations-page-info').textContent =
+        `Page ${currentNationPage} of ${totalPages} (${filteredNations.length} total)`;
+    
+      document.getElementById('nations-loading').style.display = 'none';
+      document.getElementById('nationsTable').style.display = 'table';
+    
+      const btns = document.querySelectorAll('#nations-pagination button');
+      btns[0].disabled = currentNationPage === 1;
+      btns[1].disabled = currentNationPage === totalPages || totalPages === 0;
+    }
 
       document.getElementById('nations-page-info').textContent = `Page ${currentNationPage} of ${totalPages} (${filteredNations.length} total)`;
       document.getElementById('nations-loading').style.display = 'none';
