@@ -546,6 +546,7 @@
 
     let alliances = [];
     let nations = [];
+    let nationDetails = {}; // Cache for full nation data
     let cities = [];
     let filteredAlliances = [];
     let filteredNations = [];
@@ -558,6 +559,7 @@
     let countdownInterval;
     let expandedRows = new Set();
     let expandedCities = new Set();
+    let loadedPages = new Set(); // Track which pages we've loaded
 
     function isCacheValid() {
       return (Date.now() - lastFetchTime) < CACHE_DURATION;
@@ -592,8 +594,9 @@
         const dataToSave = {
           alliances: alliances,
           nations: nations,
+          nationDetails: nationDetails,
           timestamp: lastFetchTime,
-          version: '1.0'
+          version: '2.0'
         };
         
         const jsonString = JSON.stringify(dataToSave);
@@ -609,7 +612,7 @@
         });
         
         console.log(`✓ Data saved to IndexedDB (${sizeInMB} MB)`);
-        console.log(`✓ ${alliances.length} alliances, ${nations.length} nations, ${cities.length} cities`);
+        console.log(`✓ ${alliances.length} alliances, ${nations.length} nation summaries`);
       } catch (e) {
         console.error('❌ Failed to save to IndexedDB:', e);
       }
@@ -639,16 +642,17 @@
           
           alliances = data.alliances || [];
           nations = data.nations || [];
+          nationDetails = data.nationDetails || {};
           lastFetchTime = data.timestamp || 0;
           filteredAlliances = [...alliances];
           filteredNations = [...nations];
           
-          // Extract cities from nations
-          extractCities();
+          // Extract cities from cached nation details
+          extractCitiesFromDetails();
           
           const cacheAge = Math.floor((Date.now() - lastFetchTime) / 1000 / 60);
           console.log(`✓ Loaded from IndexedDB (cached ${cacheAge} minutes ago)`);
-          console.log(`✓ ${alliances.length} alliances, ${nations.length} nations, ${cities.length} cities`);
+          console.log(`✓ ${alliances.length} alliances, ${nations.length} nation summaries, ${Object.keys(nationDetails).length} full nations`);
           return true;
         } else {
           console.log('ℹ️ No cached data found, will fetch from API');
@@ -659,9 +663,9 @@
       return false;
     }
 
-    function extractCities() {
+    function extractCitiesFromDetails() {
       cities = [];
-      nations.forEach(nation => {
+      Object.values(nationDetails).forEach(nation => {
         if (nation.cities && Array.isArray(nation.cities)) {
           nation.cities.forEach(city => {
             cities.push({
@@ -674,7 +678,7 @@
         }
       });
       filteredCities = [...cities];
-      console.log(`✓ Extracted ${cities.length} cities from nations data`);
+      console.log(`✓ Extracted ${cities.length} cities from cached nation details`);
     }
 
     function updateStatusBar() {
@@ -721,9 +725,10 @@
       document.getElementById('status-text').textContent = 'Fetching data...';
 
       try {
+        // Fetch alliances (all) and first 5 pages of nations (summary only)
         const [alliancesRes, nationsRes] = await Promise.all([
           fetch(`${API}/alliance`, { method: "POST" }),
-          fetch(`${API}/nations`, { method: "POST" })
+          fetch(`${API}/nations/summary?page=1&limit=500`, { method: "POST" })
         ]);
 
         const alliancesData = await alliancesRes.json();
@@ -735,8 +740,11 @@
         filteredNations = [...nations];
         lastFetchTime = Date.now();
 
-        // Extract cities from nations
-        extractCities();
+        // Mark first page as loaded
+        loadedPages.add(1);
+
+        // Extract cities from cached full nations only
+        extractCitiesFromDetails();
 
         // Save to IndexedDB
         await saveToIndexedDB();
@@ -757,6 +765,33 @@
         console.error('Error fetching data:', error);
         document.getElementById('status-text').textContent = 'Connection error';
       }
+    }
+
+    // NEW: Fetch full nation detail on demand
+    async function fetchNationDetail(nationId) {
+      // Check if already cached
+      if (nationDetails[nationId]) {
+        console.log(`Using cached nation detail for ${nationId}`);
+        return nationDetails[nationId];
+      }
+
+      console.log(`Fetching full nation data for ${nationId}...`);
+      try {
+        const res = await fetch(`${API}/nations/${nationId}`);
+        const data = await res.json();
+        
+        if (data.nation) {
+          nationDetails[nationId] = data.nation;
+          // Save updated cache
+          await saveToIndexedDB();
+          // Re-extract cities
+          extractCitiesFromDetails();
+          return data.nation;
+        }
+      } catch (error) {
+        console.error(`Error fetching nation ${nationId}:`, error);
+      }
+      return null;
     }
 
     function updateStats() {
@@ -781,8 +816,8 @@
       
       const nationStatsHtml = `
         <div class="stat-card">
-          <div class="stat-value">${nations.length}</div>
-          <div class="stat-label">Total Nations</div>
+          <div class="stat-value">${nations.length}+</div>
+          <div class="stat-label">Nations Loaded</div>
         </div>
         <div class="stat-card">
           <div class="stat-value">${totalCities.toLocaleString()}</div>
@@ -802,7 +837,7 @@
       const cityStatsHtml = `
         <div class="stat-card">
           <div class="stat-value">${cities.length.toLocaleString()}</div>
-          <div class="stat-label">Total Cities</div>
+          <div class="stat-label">Cities (from details)</div>
         </div>
         <div class="stat-card">
           <div class="stat-value">${totalInfra.toLocaleString(undefined, {maximumFractionDigits: 0})}</div>
@@ -924,9 +959,13 @@
       paginationBtns[1].disabled = currentNationPage === totalPages || totalPages === 0;
     }
 
-    function viewNationDetail(nationId) {
-      const nation = nations.find(n => n.id === nationId);
-      if (!nation) return;
+    async function viewNationDetail(nationId) {
+      // Fetch full nation data if not already cached
+      const nation = await fetchNationDetail(nationId);
+      if (!nation) {
+        alert('Failed to load nation details');
+        return;
+      }
 
       // Update URL
       const url = new URL(window.location);
