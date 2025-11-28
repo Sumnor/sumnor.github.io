@@ -583,43 +583,10 @@
         <button class="refresh-btn" onclick="goBackToNations()" style="margin-bottom: 20px;">← Back to Nations</button>
         <div id="nation-detail-content"></div>
       </div>
-
-      <!-- CITIES SECTION -->
-      <div id="cities-section" class="section">
-        <div class="stats" id="city-stats"></div>
-        <input type="text" id="citiesSearch" class="search-box" placeholder="🔍 Search cities by name or nation...">
-        
-        <div class="pagination" id="cities-pagination">
-          <button onclick="changeCityPage(-1)">← Previous</button>
-          <span class="page-info" id="cities-page-info">Page 1</span>
-          <button onclick="changeCityPage(1)">Next →</button>
-        </div>
-
-        <div id="cities-loading" class="loading">
-          <div class="spinner"></div>
-          <p>Loading cities data...</p>
-        </div>
-        <table id="citiesTable" style="display: none;">
-          <thead>
-            <tr>
-              <th></th>
-              <th>City Name</th>
-              <th>Nation</th>
-              <th>Infrastructure</th>
-              <th>Land</th>
-              <th>Powered</th>
-              <th>Population</th>
-              <th>Age</th>
-            </tr>
-          </thead>
-          <tbody></tbody>
-        </table>
-      </div>
-    </div>
-  </div>
+       
 
   <script>
-    const API = "https://philip-cap-judges-groove.trycloudflare.com";
+    const API = "https://hayes-heard-tuning-mattress.trycloudflare.com";
     const CACHE_DURATION = 15 * 60 * 1000;
     const ITEMS_PER_PAGE = 100;
     const STORAGE_KEY_ALLIANCES = 'pnw_alliances_data';
