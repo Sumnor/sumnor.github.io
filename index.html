@@ -1,17 +1,1011 @@
-<div class="stat-card">
-          <div class="stat-value">${alliances.length}</div>
-          <div class="stat-label">Total Alliances</div>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Politics & War - Data Viewer</title>
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    header {
+      text-align: center;
+      color: white;
+      margin-bottom: 30px;
+    }
+
+    h1 {
+      font-size: 2.5em;
+      margin-bottom: 10px;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    }
+
+    .status-bar {
+      background: rgba(255,255,255,0.1);
+      padding: 15px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: white;
+      backdrop-filter: blur(10px);
+      flex-wrap: wrap;
+      gap: 15px;
+    }
+
+    .status-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .status-indicator {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #4caf50;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    .tabs {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 0;
+    }
+
+    .tab {
+      padding: 15px 30px;
+      background: rgba(255,255,255,0.2);
+      border: none;
+      border-radius: 10px 10px 0 0;
+      color: white;
+      font-size: 1em;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      backdrop-filter: blur(10px);
+    }
+
+    .tab:hover {
+      background: rgba(255,255,255,0.3);
+    }
+
+    .tab.active {
+      background: white;
+      color: #1e3c72;
+    }
+
+    .content {
+      background: white;
+      border-radius: 0 10px 10px 10px;
+      padding: 30px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    }
+
+    .section {
+      display: none;
+    }
+
+    .section.active {
+      display: block;
+    }
+
+    .search-box {
+      width: 100%;
+      padding: 12px 20px;
+      font-size: 1em;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      transition: border-color 0.3s;
+    }
+
+    .search-box:focus {
+      outline: none;
+      border-color: #2a5298;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+
+    .stat-card {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 20px;
+      border-radius: 10px;
+      text-align: center;
+    }
+
+    .stat-value {
+      font-size: 2em;
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+
+    .stat-label {
+      font-size: 0.9em;
+      opacity: 0.9;
+    }
+
+    .pagination {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 10px;
+      margin: 20px 0;
+      flex-wrap: wrap;
+    }
+
+    .pagination button {
+      padding: 8px 16px;
+      background: #667eea;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.9em;
+      transition: background 0.3s;
+    }
+
+    .pagination button:hover:not(:disabled) {
+      background: #5568d3;
+    }
+
+    .pagination button:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+    }
+
+    .pagination .page-info {
+      padding: 8px 16px;
+      background: rgba(102, 126, 234, 0.1);
+      border-radius: 6px;
+      font-weight: 600;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+
+    thead {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+    }
+
+    th {
+      padding: 15px 10px;
+      text-align: left;
+      font-weight: 600;
+      position: sticky;
+      top: 0;
+    }
+
+    td {
+      padding: 12px 10px;
+      border-bottom: 1px solid #f0f0f0;
+    }
+
+    tbody tr {
+      transition: background-color 0.2s;
+      cursor: pointer;
+    }
+
+    tbody tr:hover {
+      background-color: #f5f5f5;
+    }
+
+    tbody tr.expanded {
+      background-color: #e8f4f8;
+    }
+
+    .nation-header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 30px;
+      border-radius: 10px;
+      margin-bottom: 30px;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .nation-header img {
+      width: 80px;
+      height: auto;
+      border-radius: 8px;
+      border: 3px solid white;
+    }
+
+    .nation-header-info h2 {
+      font-size: 2em;
+      margin-bottom: 10px;
+    }
+
+    .nation-header-info p {
+      opacity: 0.9;
+      font-size: 1.1em;
+    }
+
+    .details-content {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 15px;
+    }
+
+    .detail-group {
+      background: white;
+      padding: 15px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .detail-group h4 {
+      margin-bottom: 10px;
+      color: #667eea;
+      border-bottom: 2px solid #667eea;
+      padding-bottom: 5px;
+    }
+
+    .detail-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 5px 0;
+      font-size: 0.9em;
+    }
+
+    .detail-label {
+      font-weight: 600;
+      color: #666;
+    }
+
+    .detail-value {
+      color: #333;
+    }
+
+    .graph-container {
+      margin: 20px 0;
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .graph-container img {
+      width: 100%;
+      height: auto;
+      border-radius: 8px;
+    }
+
+    .graph-container h3 {
+      margin-bottom: 15px;
+      color: #667eea;
+    }
+
+    .info-grid {
+      display: grid;
+      grid-template-columns: 1fr 2fr;
+      gap: 20px;
+      margin: 20px 0;
+    }
+
+    .info-panel {
+      background: #f8f9fa;
+      padding: 20px;
+      border-radius: 10px;
+      border: 2px solid #e0e0e0;
+    }
+
+    .info-panel h4 {
+      color: #667eea;
+      margin-bottom: 15px;
+      font-size: 1.2em;
+    }
+
+    .cities-dropdown {
+      margin-top: 30px;
+    }
+
+    .cities-dropdown-header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 15px 20px;
+      border-radius: 8px;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: all 0.3s;
+      margin-bottom: 10px;
+    }
+
+    .cities-dropdown-header:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    }
+
+    .cities-dropdown-content {
+      display: none;
+      padding: 10px;
+    }
+
+    .cities-dropdown-content.show {
+      display: block;
+    }
+
+    .city-item {
+      background: white;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      margin-bottom: 10px;
+      overflow: hidden;
+    }
+
+    .city-item-header {
+      padding: 15px;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: background 0.2s;
+    }
+
+    .city-item-header:hover {
+      background: #f5f5f5;
+    }
+
+    .city-item-content {
+      display: none;
+      padding: 20px;
+      background: #f8f9fa;
+      border-top: 2px solid #e0e0e0;
+    }
+
+    .city-item-content.show {
+      display: block;
+    }
+
+    img.flag {
+      width: 40px;
+      height: auto;
+      border-radius: 4px;
+    }
+
+    a {
+      color: #2a5298;
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+
+    .loading {
+      text-align: center;
+      padding: 40px;
+      color: #666;
+    }
+
+    .spinner {
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid #2a5298;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 20px;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .refresh-btn {
+      background: #4caf50;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.9em;
+      transition: background 0.3s;
+    }
+
+    .refresh-btn:hover {
+      background: #45a049;
+    }
+
+    .refresh-btn:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+    }
+
+    .expand-icon {
+      display: inline-block;
+      transition: transform 0.3s;
+      margin-right: 5px;
+    }
+
+    .expand-icon.rotated {
+      transform: rotate(90deg);
+    }
+
+    /* Blitz Planner Styles */
+    .blitz-controls {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+
+    .control-group {
+      background: #f8f9fa;
+      padding: 20px;
+      border-radius: 10px;
+      border: 2px solid #e0e0e0;
+    }
+
+    .control-group label {
+      display: block;
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 8px;
+    }
+
+    .control-group input, .control-group select {
+      width: 100%;
+      padding: 10px;
+      border: 2px solid #e0e0e0;
+      border-radius: 6px;
+      font-size: 1em;
+    }
+
+    .control-group input:focus, .control-group select:focus {
+      outline: none;
+      border-color: #667eea;
+    }
+
+    .checkbox-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .checkbox-group input[type="checkbox"] {
+      width: auto;
+      transform: scale(1.3);
+      cursor: pointer;
+    }
+
+    .generate-btn {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      padding: 15px 30px;
+      border-radius: 8px;
+      font-size: 1.1em;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      width: 100%;
+    }
+
+    .generate-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+    }
+
+    .generate-btn:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .target-list {
+      margin-top: 20px;
+    }
+
+    .target-card {
+      background: white;
+      border: 2px solid #e0e0e0;
+      border-radius: 10px;
+      padding: 20px;
+      margin-bottom: 15px;
+      transition: all 0.3s;
+    }
+
+    .target-card:hover {
+      border-color: #667eea;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+
+    .target-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid #e0e0e0;
+    }
+
+    .target-info {
+      flex: 1;
+    }
+
+    .target-nation {
+      font-size: 1.3em;
+      font-weight: 600;
+      color: #333;
+    }
+
+    .target-stats {
+      color: #666;
+      margin-top: 5px;
+    }
+
+    .attack-plan {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 10px;
+    }
+
+    .attack-type {
+      background: #f0f4ff;
+      padding: 10px;
+      border-radius: 6px;
+      border-left: 4px solid #667eea;
+    }
+
+    .attack-type-label {
+      font-weight: 600;
+      color: #667eea;
+      margin-bottom: 5px;
+    }
+
+    .attack-type-detail {
+      color: #666;
+      font-size: 0.9em;
+    }
+
+    .beige-snipe {
+      background: #fff3cd;
+      border-left-color: #ffc107;
+    }
+
+    .slot-info {
+      background: #e8f5e9;
+      padding: 10px;
+      border-radius: 6px;
+      margin-top: 10px;
+      border-left: 4px solid #4caf50;
+    }
+
+    .slot-info strong {
+      color: #2e7d32;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>⚔️ Politics & War Data Viewer</h1>
+      <p>Real-time alliance and nation statistics</p>
+    </header>
+
+    <div class="status-bar">
+      <div class="status-item">
+        <div class="status-indicator"></div>
+        <span id="status-text">Connected</span>
+      </div>
+      <div class="status-item">
+        <span id="last-update">Last updated: Never</span>
+      </div>
+      <div class="status-item">
+        <button class="refresh-btn" id="refresh-btn" onclick="forceRefresh()">🔄 Refresh Now</button>
+      </div>
+      <div class="status-item">
+        <span id="next-update">Next update in: 15:00</span>
+      </div>
+    </div>
+
+    <div class="tabs">
+      <button class="tab active" onclick="switchTab('alliances')">Alliances</button>
+      <button class="tab" onclick="switchTab('nations')">Nations</button>
+      <button class="tab" onclick="switchTab('blitz')">Blitz Planner</button>
+    </div>
+
+    <div class="content">
+      <!-- ALLIANCES SECTION -->
+      <div id="alliances-section" class="section active">
+        <div class="stats" id="alliance-stats"></div>
+        <input type="text" id="alliancesSearch" class="search-box" placeholder="🔍 Search alliances by name or acronym...">
+        
+        <div class="pagination" id="alliances-pagination">
+          <button onclick="changeAlliancePage(-1)">← Previous</button>
+          <span class="page-info" id="alliances-page-info">Page 1</span>
+          <button onclick="changeAlliancePage(1)">Next →</button>
         </div>
-        <div class="stat-card">
-          <div class="stat-value">${alliances.filter(a => a.accept_members).length}</div>
-          <div class="stat-label">Recruiting</div>
+
+        <div id="alliances-loading" class="loading">
+          <div class="spinner"></div>
+          <p>Loading alliances data...</p>
         </div>
-        <div class="stat-card">
-          <div class="stat-value">${alliances.filter(a => a.discord_link).length}</div>
-          <div class="stat-label">With Discord</div>
+        <table id="alliancesTable" style="display: none;">
+          <thead>
+            <tr>
+              <th>Flag</th>
+              <th>ID</th>
+              <th>Name</th>
+              <th>Acronym</th>
+              <th>Rank</th>
+              <th>Score</th>
+              <th>Founded</th>
+              <th>Recruiting</th>
+              <th>Discord</th>
+              <th>Wiki</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+
+      <!-- NATIONS SECTION -->
+      <div id="nations-section" class="section">
+        <div class="stats" id="nation-stats"></div>
+        <input type="text" id="nationsSearch" class="search-box" placeholder="🔍 Search nations by name or leader...">
+        
+        <div class="pagination" id="nations-pagination">
+          <button onclick="changeNationPage(-1)">← Previous</button>
+          <span class="page-info" id="nations-page-info">Page 1</span>
+          <button onclick="changeNationPage(1)">Next →</button>
         </div>
-      `;
-      document.getElementById('alliance-stats').innerHTML = allianceStatsHtml;
+
+        <div id="nations-loading" class="loading">
+          <div class="spinner"></div>
+          <p>Loading nations data...</p>
+        </div>
+        <table id="nationsTable" style="display: none;">
+          <thead>
+            <tr>
+              <th>Flag</th>
+              <th>Nation</th>
+              <th>Leader</th>
+              <th>Continent</th>
+              <th>Score</th>
+              <th>Cities</th>
+              <th>Color</th>
+              <th>Alliance</th>
+              <th>Position</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+
+      <!-- NATION DETAIL VIEW -->
+      <div id="nation-detail-section" class="section">
+        <button class="refresh-btn" onclick="goBackToNations()" style="margin-bottom: 20px;">← Back to Nations</button>
+        <div id="nation-detail-content"></div>
+      </div>
+
+      <!-- BLITZ PLANNER SECTION -->
+      <div id="blitz-section" class="section">
+        <h2 style="margin-bottom: 20px; color: #667eea;">⚔️ Blitz Planning Tool</h2>
+        
+        <div class="blitz-controls">
+          <div class="control-group">
+            <label for="attacker-alliance">Attacking Alliance ID</label>
+            <input type="text" id="attacker-alliance" placeholder="e.g., 439">
+          </div>
+          
+          <div class="control-group">
+            <label for="defender-alliance">Target Alliance ID</label>
+            <input type="text" id="defender-alliance" placeholder="e.g., 300">
+          </div>
+          
+          <div class="control-group">
+            <label for="strategy">Strategy</label>
+            <select id="strategy">
+              <option value="standard">Standard (Match scores)</option>
+              <option value="aggressive">Aggressive (Hit up)</option>
+              <option value="conservative">Conservative (Hit down)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="blitz-controls">
+          <div class="control-group">
+            <label>Options</label>
+            <div class="checkbox-group">
+              <input type="checkbox" id="beige-snipe-enabled">
+              <label for="beige-snipe-enabled" style="margin: 0;">Enable Beige Sniping</label>
+            </div>
+            <div class="checkbox-group">
+              <input type="checkbox" id="activity-slot" checked>
+              <label for="activity-slot" style="margin: 0;">Slot by Activity</label>
+            </div>
+          </div>
+
+          <div class="control-group">
+            <label for="attack-type-filter">Prioritize Attack Type</label>
+            <select id="attack-type-filter">
+              <option value="all">All Types</option>
+              <option value="ground">Ground Focus</option>
+              <option value="air">Air Focus</option>
+              <option value="naval">Naval Focus</option>
+            </select>
+          </div>
+
+          <div class="control-group">
+            <button class="generate-btn" onclick="generateBlitzPlan()">🎯 Generate Blitz Plan</button>
+          </div>
+        </div>
+
+        <div id="blitz-results" style="margin-top: 30px;"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const API = "https://philip-cap-judges-groove.trycloudflare.com";
+    const CACHE_DURATION = 15 * 60 * 1000;
+    const ITEMS_PER_PAGE = 100;
+
+    let alliances = [];
+    let nations = [];
+    let nationDetails = {};
+    let filteredAlliances = [];
+    let filteredNations = [];
+    let currentAlliancePage = 1;
+    let currentNationPage = 1;
+    let lastFetchTime = 0;
+    let refreshInterval;
+    let countdownInterval;
+    let expandedRows = new Set();
+
+    const DB_NAME = 'pnw_viewer_db';
+    const DB_VERSION = 1;
+    const STORE_NAME = 'game_data';
+    let db = null;
+
+    function isCacheValid() {
+      return (Date.now() - lastFetchTime) < CACHE_DURATION;
+    }
+
+    function openDatabase() {
+      return new Promise((resolve, reject) => {
+        const request = indexedDB.open(DB_NAME, DB_VERSION);
+        
+        request.onerror = () => reject(request.error);
+        request.onsuccess = () => resolve(request.result);
+        
+        request.onupgradeneeded = (event) => {
+          const db = event.target.result;
+          if (!db.objectStoreNames.contains(STORE_NAME)) {
+            db.createObjectStore(STORE_NAME);
+          }
+        };
+      });
+    }
+
+    async function saveToIndexedDB() {
+      try {
+        if (!db) db = await openDatabase();
+        
+        const dataToSave = {
+          alliances: alliances,
+          nations: nations,
+          nationDetails: nationDetails,
+          timestamp: lastFetchTime,
+          version: '2.0'
+        };
+        
+        const transaction = db.transaction([STORE_NAME], 'readwrite');
+        const store = transaction.objectStore(STORE_NAME);
+        store.put(dataToSave, 'cached_data');
+        
+        await new Promise((resolve, reject) => {
+          transaction.oncomplete = resolve;
+          transaction.onerror = () => reject(transaction.error);
+        });
+        
+        console.log(`✓ Data saved to IndexedDB`);
+      } catch (e) {
+        console.error('❌ Failed to save to IndexedDB:', e);
+      }
+    }
+
+    async function loadFromIndexedDB() {
+      try {
+        if (!db) db = await openDatabase();
+        
+        const transaction = db.transaction([STORE_NAME], 'readonly');
+        const store = transaction.objectStore(STORE_NAME);
+        const request = store.get('cached_data');
+        
+        const data = await new Promise((resolve, reject) => {
+          request.onsuccess = () => resolve(request.result);
+          request.onerror = () => reject(request.error);
+        });
+        
+        if (data) {
+          console.log('📦 Found cached data in IndexedDB');
+          
+          if (!data.alliances || !data.nations || !data.timestamp) {
+            console.warn('⚠️ Invalid cached data structure, clearing cache');
+            return false;
+          }
+          
+          alliances = data.alliances || [];
+          nations = data.nations || [];
+          nationDetails = data.nationDetails || {};
+          lastFetchTime = data.timestamp || 0;
+          filteredAlliances = [...alliances];
+          filteredNations = [...nations];
+          
+          console.log(`✓ Loaded from IndexedDB`);
+          return true;
+        }
+      } catch (e) {
+        console.error('❌ Failed to load from IndexedDB:', e);
+      }
+      return false;
+    }
+
+    function updateStatusBar() {
+      const now = Date.now();
+      const elapsed = now - lastFetchTime;
+      const remaining = CACHE_DURATION - elapsed;
+
+      if (lastFetchTime === 0) {
+        document.getElementById('last-update').textContent = 'Last updated: Never';
+        document.getElementById('next-update').textContent = 'Next update in: --:--';
+      } else {
+        const lastUpdate = new Date(lastFetchTime);
+        document.getElementById('last-update').textContent = `Last updated: ${lastUpdate.toLocaleTimeString()}`;
+
+        if (remaining > 0) {
+          const minutes = Math.floor(remaining / 60000);
+          const seconds = Math.floor((remaining % 60000) / 1000);
+          document.getElementById('next-update').textContent = `Next update in: ${minutes}:${seconds.toString().padStart(2, '0')}`;
+        } else {
+          document.getElementById('next-update').textContent = 'Updating...';
+        }
+      }
+    }
+
+    async function forceRefresh() {
+      const btn = document.getElementById('refresh-btn');
+      btn.disabled = true;
+      btn.textContent = '⏳ Refreshing...';
+      
+      lastFetchTime = 0;
+      await fetchData();
+      
+      btn.disabled = false;
+      btn.textContent = '🔄 Refresh Now';
+    }
+
+    async function fetchData() {
+      if (isCacheValid() && alliances.length > 0 && nations.length > 0) {
+        console.log('Using cached data');
+        return;
+      }
+
+      console.log('Fetching fresh data from API...');
+      document.getElementById('status-text').textContent = 'Fetching data...';
+
+      try {
+        const [alliancesRes, nationsRes] = await Promise.all([
+          fetch(`${API}/alliance`, { method: "POST" }),
+          fetch(`${API}/nations/summary?page=1&limit=50000`, { method: "POST" })
+        ]);
+
+        const alliancesData = await alliancesRes.json();
+        const nationsData = await nationsRes.json();
+
+        alliances = alliancesData.alliances || [];
+        nations = nationsData.nations || [];
+        filteredAlliances = [...alliances];
+        filteredNations = [...nations];
+        lastFetchTime = Date.now();
+
+        await saveToIndexedDB();
+
+        document.getElementById('status-text').textContent = 'Connected';
+        
+        currentAlliancePage = 1;
+        currentNationPage = 1;
+        expandedRows.clear();
+        
+        renderAlliances();
+        renderNations();
+        updateStats();
+      } catch (error) {
+        console.error('Error fetching data:', error);
+        document.getElementById('status-text').textContent = 'Connection error';
+      }
+    }
+
+    async function fetchNationDetail(nationId) {
+      if (nationDetails[nationId]) {
+        console.log(`Using cached nation detail for ${nationId}`);
+        return nationDetails[nationId];
+      }
+
+      console.log(`Fetching full nation data for ${nationId}...`);
+      try {
+        const res = await fetch(`${API}/nations/${nationId}`);
+        const data = await res.json();
+        
+        if (data.nation) {
+          nationDetails[nationId] = data.nation;
+          await saveToIndexedDB();
+          return data.nation;
+        }
+      } catch (error) {
+        console.error(`Error fetching nation ${nationId}:`, error);
+      }
+      return null;
+    }
+
+    async function fetchIncomeData(nationId) {
+      try {
+        const res = await fetch(`${API}/nations/${nationId}/income`);
+        const data = await res.json();
+        return data;
+      } catch (error) {
+        console.error(`Error fetching income for ${nationId}:`, error);
+        return null;
+      }
+    }
+
+    function updateStats() {
+      const allianceStatsHtml = `
+          <div class="stat-card">
+                    <div class="stat-value">${alliances.length}</div>
+                    <div class="stat-label">Total Alliances</div>
+                  </div>
+                  <div class="stat-card">
+                    <div class="stat-value">${alliances.filter(a => a.accept_members).length}</div>
+                    <div class="stat-label">Recruiting</div>
+                  </div>
+                  <div class="stat-card">
+                    <div class="stat-value">${alliances.filter(a => a.discord_link).length}</div>
+                    <div class="stat-label">With Discord</div>
+                  </div>
+                `;
+                document.getElementById('alliance-stats').innerHTML = allianceStatsHtml;
 
       const totalCities = nations.reduce((sum, n) => sum + (n.num_cities || 0), 0);
       const avgScore = nations.length > 0 ? (nations.reduce((sum, n) => sum + (n.score || 0), 0) / nations.length).toFixed(2) : 0;
