@@ -503,6 +503,515 @@
                   <div class="target-stats">
                     Attacker Score: ${(match.attacker.score || 0).toLocaleString()} | 
                     Target Score: ${(match.target.score || 0).toLocaleString()} | 
+                    Cities: ${match.target.num_cities || 0}.toLocaleString()} | 
+</div>
+</div>
+</div>
+<div class="stat-card">
+          <div class="stat-value">${alliances.length}</div>
+          <div class="stat-label">Total Alliances</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value">${alliances.filter(a => a.accept_members).length}</div>
+          <div class="stat-label">Recruiting</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value">${alliances.filter(a => a.discord_link).length}</div>
+          <div class="stat-label">With Discord</div>
+        </div>
+      `;
+      document.getElementById('alliance-stats').innerHTML = allianceStatsHtml;
+
+      const totalCities = nations.reduce((sum, n) => sum + (n.num_cities || 0), 0);
+      const avgScore = nations.length > 0 ? (nations.reduce((sum, n) => sum + (n.score || 0), 0) / nations.length).toFixed(2) : 0;
+      
+      const nationStatsHtml = `
+        <div class="stat-card">
+          <div class="stat-value">${nations.length.toLocaleString()}</div>
+          <div class="stat-label">Nations Loaded</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value">${totalCities.toLocaleString()}</div>
+          <div class="stat-label">Total Cities</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value">${avgScore}</div>
+          <div class="stat-label">Avg Score</div>
+        </div>
+      `;
+      document.getElementById('nation-stats').innerHTML = nationStatsHtml;
+    }
+
+    function changeAlliancePage(delta) {
+      const totalPages = Math.ceil(filteredAlliances.length / ITEMS_PER_PAGE);
+      const newPage = currentAlliancePage + delta;
+      
+      if (newPage >= 1 && newPage <= totalPages) {
+        currentAlliancePage = newPage;
+        renderAlliances();
+      }
+    }
+
+    function changeNationPage(delta) {
+      const totalPages = Math.ceil(filteredNations.length / ITEMS_PER_PAGE);
+      const newPage = currentNationPage + delta;
+      
+      if (newPage >= 1 && newPage <= totalPages) {
+        currentNationPage = newPage;
+        expandedRows.clear();
+        renderNations();
+      }
+    }
+
+    function renderAlliances() {
+      const tbody = document.querySelector("#alliancesTable tbody");
+      tbody.innerHTML = "";
+
+      const totalPages = Math.ceil(filteredAlliances.length / ITEMS_PER_PAGE);
+      const start = (currentAlliancePage - 1) * ITEMS_PER_PAGE;
+      const end = start + ITEMS_PER_PAGE;
+      const pageData = filteredAlliances.slice(start, end);
+
+      pageData.forEach(a => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${a.flag ? `<img class="flag" src="${a.flag}" alt="Flag">` : "—"}</td>
+          <td>${a.id || "—"}</td>
+          <td><strong>${a.name || "—"}</strong></td>
+          <td>${a.acronym || "—"}</td>
+          <td>${a.rank || "—"}</td>
+          <td>${a.score ? parseFloat(a.score).toLocaleString() : "—"}</td>
+          <td>${a.date ? new Date(a.date).toLocaleDateString() : "—"}</td>
+          <td>${a.accept_members ? "✅ Yes" : "❌ No"}</td>
+          <td>${a.discord_link ? `<a href="${a.discord_link}" target="_blank">Join</a>` : "—"}</td>
+          <td>${a.wiki_link ? `<a href="${a.wiki_link}" target="_blank">View</a>` : "—"}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      document.getElementById('alliances-page-info').textContent = `Page ${currentAlliancePage} of ${totalPages} (${filteredAlliances.length} total)`;
+      document.getElementById('alliances-loading').style.display = 'none';
+      document.getElementById('alliancesTable').style.display = 'table';
+      
+      const paginationBtns = document.querySelectorAll('#alliances-pagination button');
+      paginationBtns[0].disabled = currentAlliancePage === 1;
+      paginationBtns[1].disabled = currentAlliancePage === totalPages || totalPages === 0;
+    }
+
+    function renderNations() {
+      const tbody = document.querySelector("#nationsTable tbody");
+      tbody.innerHTML = "";
+
+      const totalPages = Math.ceil(filteredNations.length / ITEMS_PER_PAGE);
+      const start = (currentNationPage - 1) * ITEMS_PER_PAGE;
+      const end = start + ITEMS_PER_PAGE;
+      const pageData = filteredNations.slice(start, end);
+
+      pageData.forEach(n => {
+        const tr = document.createElement("tr");
+        
+        tr.innerHTML = `
+          <td>${n.flag ? `<img class="flag" src="${n.flag}" alt="Flag">` : "—"}</td>
+          <td><strong>${n.nation_name || "—"}</strong></td>
+          <td>${n.leader_name || "—"}</td>
+          <td>${n.continent ? n.continent.toUpperCase() : "—"}</td>
+          <td>${n.score ? parseFloat(n.score).toLocaleString() : "—"}</td>
+          <td>${n.num_cities || "—"}</td>
+          <td style="color: ${n.color || '#000'}">${n.color ? '⬤ ' + n.color : "—"}</td>
+          <td>${n.alliance_id || "None"}</td>
+          <td>${n.alliance_position || "—"}</td>
+        `;
+        
+        tr.onclick = () => viewNationDetail(n.id);
+        tbody.appendChild(tr);
+      });
+
+      document.getElementById('nations-page-info').textContent = `Page ${currentNationPage} of ${totalPages} (${filteredNations.length} total)`;
+      document.getElementById('nations-loading').style.display = 'none';
+      document.getElementById('nationsTable').style.display = 'table';
+      
+      const paginationBtns = document.querySelectorAll('#nations-pagination button');
+      paginationBtns[0].disabled = currentNationPage === 1;
+      paginationBtns[1].disabled = currentNationPage === totalPages || totalPages === 0;
+    }
+
+    async function viewNationDetail(nationId) {
+      const nation = await fetchNationDetail(nationId);
+      if (!nation) {
+        alert('Failed to load nation details');
+        return;
+      }
+
+      // Fetch income data
+      const incomeData = await fetchIncomeData(nationId);
+
+      const url = new URL(window.location);
+      url.searchParams.set('view', 'nation');
+      url.searchParams.set('id', nationId);
+      window.history.pushState({}, '', url);
+
+      document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+      document.getElementById('nation-detail-section').classList.add('active');
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+
+      const content = document.getElementById('nation-detail-content');
+      
+      // Build income/MMR info panels
+      let incomePanel = '';
+      if (incomeData && !incomeData.error) {
+        incomePanel = `
+          <div class="info-panel">
+            <h4>💰 Daily Income</h4>
+            <div class="detail-item"><span class="detail-label">Net Profit:</span><span class="detail-value">$${(incomeData.net_daily_profit || 0).toLocaleString(undefined, {maximumFractionDigits: 0})}</span></div>
+            <div class="detail-item"><span class="detail-label">Production Value:</span><span class="detail-value">$${(incomeData.value_of_output || 0).toLocaleString(undefined, {maximumFractionDigits: 0})}</span></div>
+            <div class="detail-item"><span class="detail-label">Consumption Cost:</span><span class="detail-value">$${(incomeData.consumption_cost || 0).toLocaleString(undefined, {maximumFractionDigits: 0})}</span></div>
+            <div class="detail-item"><span class="detail-label">Total Upkeep:</span><span class="detail-value">$${(incomeData.total_upkeep || 0).toLocaleString(undefined, {maximumFractionDigits: 0})}</span></div>
+            <div class="detail-item"><span class="detail-label">Military Upkeep:</span><span class="detail-value">$${(incomeData.military_upkeep_money || 0).toLocaleString(undefined, {maximumFractionDigits: 0})}</span></div>
+          </div>
+        `;
+      }
+
+      let mmrPanel = `
+        <div class="info-panel">
+          <h4>⚔️ Military (MMR)</h4>
+          <div class="detail-item"><span class="detail-label">Soldiers:</span><span class="detail-value">${(nation.soldiers || 0).toLocaleString()}</span></div>
+          <div class="detail-item"><span class="detail-label">Tanks:</span><span class="detail-value">${(nation.tanks || 0).toLocaleString()}</span></div>
+          <div class="detail-item"><span class="detail-label">Aircraft:</span><span class="detail-value">${(nation.aircraft || 0).toLocaleString()}</span></div>
+          <div class="detail-item"><span class="detail-label">Ships:</span><span class="detail-value">${(nation.ships || 0).toLocaleString()}</span></div>
+          <div class="detail-item"><span class="detail-label">Missiles:</span><span class="detail-value">${(nation.missiles || 0).toLocaleString()}</span></div>
+          <div class="detail-item"><span class="detail-label">Nukes:</span><span class="detail-value">${(nation.nukes || 0).toLocaleString()}</span></div>
+        </div>
+      `;
+
+      content.innerHTML = `
+        <div class="nation-header">
+          ${nation.flag ? `<img src="${nation.flag}" alt="Flag">` : ''}
+          <div class="nation-header-info">
+            <h2>${nation.nation_name}</h2>
+            <p>Leader: ${nation.leader_name} | Score: ${parseFloat(nation.score || 0).toLocaleString()}</p>
+          </div>
+        </div>
+
+        <div class="details-content" style="margin-bottom: 30px;">
+          <div class="detail-group">
+            <h4>📊 Basic Information</h4>
+            <div class="detail-item"><span class="detail-label">Nation ID:</span><span class="detail-value">${nation.id}</span></div>
+            <div class="detail-item"><span class="detail-label">Leader:</span><span class="detail-value">${nation.leader_name}</span></div>
+            <div class="detail-item"><span class="detail-label">Continent:</span><span class="detail-value">${nation.continent?.toUpperCase() || '—'}</span></div>
+            <div class="detail-item"><span class="detail-label">Color Bloc:</span><span class="detail-value" style="color: ${nation.color}">${nation.color || '—'}</span></div>
+            <div class="detail-item"><span class="detail-label">Founded:</span><span class="detail-value">${nation.date ? new Date(nation.date).toLocaleDateString() : '—'}</span></div>
+            <div class="detail-item"><span class="detail-label">Last Active:</span><span class="detail-value">${nation.last_active ? new Date(nation.last_active).toLocaleString() : '—'}</span></div>
+          </div>
+
+          <div class="detail-group">
+            <h4>🏙️ Infrastructure</h4>
+            <div class="detail-item"><span class="detail-label">Number of Cities:</span><span class="detail-value">${nation.num_cities || 0}</span></div>
+            <div class="detail-item"><span class="detail-label">Projects:</span><span class="detail-value">${nation.projects || 0}</span></div>
+            <div class="detail-item"><span class="detail-label">Score:</span><span class="detail-value">${nation.score ? parseFloat(nation.score).toLocaleString() : '—'}</span></div>
+            <div class="detail-item"><span class="detail-label">Vacation Mode:</span><span class="detail-value">${nation.vacation_mode_turns ? 'Yes (' + nation.vacation_mode_turns + ' turns)' : 'No'}</span></div>
+            <div class="detail-item"><span class="detail-label">Beige Turns:</span><span class="detail-value">${nation.beige_turns || 0}</span></div>
+          </div>
+
+          <div class="detail-group">
+            <h4>🤝 Alliance Information</h4>
+            <div class="detail-item"><span class="detail-label">Alliance ID:</span><span class="detail-value">${nation.alliance_id || 'None'}</span></div>
+            <div class="detail-item"><span class="detail-label">Position:</span><span class="detail-value">${nation.alliance_position || '—'}</span></div>
+            ${nation.alliance ? `
+              <div class="detail-item"><span class="detail-label">Alliance Name:</span><span class="detail-value">${nation.alliance.name}</span></div>
+              <div class="detail-item"><span class="detail-label">Alliance Acronym:</span><span class="detail-value">${nation.alliance.acronym}</span></div>
+            ` : ''}
+          </div>
+        </div>
+
+        <!-- Income and MMR Info Side by Side -->
+        <div class="info-grid">
+          ${incomePanel}
+          ${mmrPanel}
+        </div>
+
+        <!-- Income Graph -->
+        <div class="graph-container">
+          <h3>💰 Daily Income (Last 30 Days)</h3>
+          <img src="${API}/nations/${nationId}/income_graph" alt="Income Graph" onerror="this.parentElement.style.display='none'">
+        </div>
+
+        <!-- MMR Graph -->
+        <div class="graph-container">
+          <h3>⚔️ Military Strength (Last 30 Days)</h3>
+          <img src="${API}/nations/${nationId}/mmr_graph" alt="MMR Graph" onerror="this.parentElement.style.display='none'">
+        </div>
+
+        <!-- Cities Dropdown -->
+        <div class="cities-dropdown">
+          <div class="cities-dropdown-header" onclick="toggleCitiesDropdown()">
+            <h3>🏙️ Cities (${nation.cities?.length || 0})</h3>
+            <span class="expand-icon" id="cities-dropdown-icon">▼</span>
+          </div>
+          <div class="cities-dropdown-content" id="cities-dropdown-content">
+            ${nation.cities?.map((city, index) => `
+              <div class="city-item">
+                <div class="city-item-header" onclick="toggleCityItem(${index})">
+                  <div>
+                    <strong>${city.name || 'Unnamed City'}</strong>
+                    <span style="margin-left: 15px; color: #666;">
+                      Infra: ${parseFloat(city.infrastructure || 0).toLocaleString(undefined, {maximumFractionDigits: 2})} | 
+                      Land: ${parseFloat(city.land || 0).toLocaleString()} | 
+                      ${city.powered ? '✅ Powered' : '❌ Unpowered'}
+                    </span>
+                  </div>
+                  <span class="expand-icon" id="city-icon-${index}">▶</span>
+                </div>
+                <div class="city-item-content" id="city-content-${index}">
+                  <div class="details-content">
+                    <div class="detail-group">
+                      <h4>🏙️ City Info</h4>
+                      <div class="detail-item"><span class="detail-label">City ID:</span><span class="detail-value">${city.id}</span></div>
+                      <div class="detail-item"><span class="detail-label">Name:</span><span class="detail-value">${city.name || 'Unnamed'}</span></div>
+                      <div class="detail-item"><span class="detail-label">Infrastructure:</span><span class="detail-value">${parseFloat(city.infrastructure || 0).toLocaleString(undefined, {maximumFractionDigits: 2})}</span></div>
+                      <div class="detail-item"><span class="detail-label">Land:</span><span class="detail-value">${parseFloat(city.land || 0).toLocaleString()}</span></div>
+                      <div class="detail-item"><span class="detail-label">Age:</span><span class="detail-value">${city.date ? Math.floor((Date.now() - new Date(city.date)) / (1000 * 60 * 60 * 24)) + ' days' : '—'}</span></div>
+                      <div class="detail-item"><span class="detail-label">Population:</span><span class="detail-value">${Math.floor((city.infrastructure || 0) * 100).toLocaleString()}</span></div>
+                    </div>
+
+                    <div class="detail-group">
+                      <h4>⚡ Power</h4>
+                      <div class="detail-item"><span class="detail-label">Powered:</span><span class="detail-value">${city.powered ? '✅ Yes' : '❌ No'}</span></div>
+                      <div class="detail-item"><span class="detail-label">Coal Power:</span><span class="detail-value">${city.coal_power || 0}</span></div>
+                      <div class="detail-item"><span class="detail-label">Oil Power:</span><span class="detail-value">${city.oil_power || 0}</span></div>
+                      <div class="detail-item"><span class="detail-label">Nuclear Power:</span><span class="detail-value">${city.nuclear_power || 0}</span></div>
+                      <div class="detail-item"><span class="detail-label">Wind Power:</span><span class="detail-value">${city.wind_power || 0}</span></div>
+                    </div>
+
+                    <div class="detail-group">
+                      <h4>⛏️ Mining</h4>
+                      <div class="detail-item"><span class="detail-label">Coal Mines:</span><span class="detail-value">${city.coal_mine || 0}</span></div>
+                      <div class="detail-item"><span class="detail-label">Oil Wells:</span><span class="detail-value">${city.oil_well || 0}</span></div>
+                      <div class="detail-item"><span class="detail-label">Uranium Mines:</span><span class="detail-value">${city.uranium_mine || 0}</span></div>
+                      <div class="detail-item"><span class="detail-label">Lead Mines:</span><span class="detail-value">${city.lead_mine || 0}</span></div>
+                      <div class="detail-item"><span class="detail-label">Iron Mines:</span><span class="detail-value">${city.iron_mine || 0}</span></div>
+                      <div class="detail-item"><span class="detail-label">Bauxite Mines:</span><span class="detail-value">${city.bauxite_mine || 0}</span></div>
+                    </div>
+
+                    <div class="detail-group">
+                      <h4>🏭 Manufacturing</h4>
+                      <div class="detail-item"><span class="detail-label">Oil Refineries:</span><span class="detail-value">${city.oil_refinery || 0}</span></div>
+                      <div class="detail-item"><span class="detail-label">Aluminum Refineries:</span><span class="detail-value">${city.aluminum_refinery || 0}</span></div>
+                      <div class="detail-item"><span class="detail-label">Steel Mills:</span><span class="detail-value">${city.steel_mill || 0}</span></div>
+                      <div class="detail-item"><span class="detail-label">Munitions Factories:</span><span class="detail-value">${city.munitions_factory || 0}</span></div>
+                      <div class="detail-item"><span class="detail-label">Factories:</span><span class="detail-value">${city.factory || 0}</span></div>
+                    </div>
+
+                    <div class="detail-group">
+                      <h4>🏢 Infrastructure</h4>
+                      <div class="detail-item"><span class="detail-label">Hospitals:</span><span class="detail-value">${city.hospital || 0}</span></div>
+                      <div class="detail-item"><span class="detail-label">Police Stations:</span><span class="detail-value">${city.police_station || 0}</span></div>
+                      <div class="detail-item"><span class="detail-label">Banks:</span><span class="detail-value">${city.bank || 0}</span></div>
+                      <div class="detail-item"><span class="detail-label">Shopping Malls:</span><span class="detail-value">${city.shopping_mall || 0}</span></div>
+                      <div class="detail-item"><span class="detail-label">Stadiums:</span><span class="detail-value">${city.stadium || 0}</span></div>
+                      <div class="detail-item"><span class="detail-label">Supermarkets:</span><span class="detail-value">${city.supermarket || 0}</span></div>
+                      <div class="detail-item"><span class="detail-label">Subways:</span><span class="detail-value">${city.subway || 0}</span></div>
+                      <div class="detail-item"><span class="detail-label">Recycling Centers:</span><span class="detail-value">${city.recycling_center || 0}</span></div>
+                    </div>
+
+                    <div class="detail-group">
+                      <h4>⚔️ Military</h4>
+                      <div class="detail-item"><span class="detail-label">Barracks:</span><span class="detail-value">${city.barracks || 0}</span></div>
+                      <div class="detail-item"><span class="detail-label">Hangars:</span><span class="detail-value">${city.hangar || 0}</span></div>
+                      <div class="detail-item"><span class="detail-label">Drydocks:</span><span class="detail-value">${city.drydock || 0}</span></div>
+                    </div>
+
+                    <div class="detail-group">
+                      <h4>🌾 Agriculture</h4>
+                      <div class="detail-item"><span class="detail-label">Farms:</span><span class="detail-value">${city.farm || 0}</span></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            `).join('') || '<p>No cities data available</p>'}
+          </div>
+        </div>
+      `;
+    }
+
+    function toggleCitiesDropdown() {
+      const content = document.getElementById('cities-dropdown-content');
+      const icon = document.getElementById('cities-dropdown-icon');
+      
+      if (content.classList.contains('show')) {
+        content.classList.remove('show');
+        icon.textContent = '▼';
+      } else {
+        content.classList.add('show');
+        icon.textContent = '▲';
+      }
+    }
+
+    function toggleCityItem(index) {
+      const content = document.getElementById(`city-content-${index}`);
+      const icon = document.getElementById(`city-icon-${index}`);
+      
+      if (content.classList.contains('show')) {
+        content.classList.remove('show');
+        icon.textContent = '▶';
+      } else {
+        content.classList.add('show');
+        icon.textContent = '▼';
+      }
+    }
+
+    function goBackToNations() {
+      const url = new URL(window.location);
+      url.searchParams.set('view', 'nations');
+      url.searchParams.delete('id');
+      window.history.pushState({}, '', url);
+
+      document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+      document.getElementById('nations-section').classList.add('active');
+
+      const tabBtn = document.querySelector(`.tab[onclick="switchTab('nations')"]`);
+      if (tabBtn) {
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        tabBtn.classList.add('active');
+      }
+    }
+
+    // Blitz Planner Functions
+    async function generateBlitzPlan() {
+      const attackerAllianceId = document.getElementById('attacker-alliance').value.trim();
+      const defenderAllianceId = document.getElementById('defender-alliance').value.trim();
+      const strategy = document.getElementById('strategy').value;
+      const beigeSnipeEnabled = document.getElementById('beige-snipe-enabled').checked;
+      const activitySlot = document.getElementById('activity-slot').checked;
+      const attackTypeFilter = document.getElementById('attack-type-filter').value;
+
+      if (!attackerAllianceId || !defenderAllianceId) {
+        alert('Please enter both attacking and target alliance IDs');
+        return;
+      }
+
+      const resultsDiv = document.getElementById('blitz-results');
+      resultsDiv.innerHTML = '<div class="loading"><div class="spinner"></div><p>Generating blitz plan...</p></div>';
+
+      // Get attackers and defenders
+      const attackers = nations.filter(n => n.alliance_id === attackerAllianceId);
+      const defenders = nations.filter(n => n.alliance_id === defenderAllianceId);
+
+      if (attackers.length === 0 || defenders.length === 0) {
+        resultsDiv.innerHTML = '<p style="color: red;">Could not find nations in one or both alliances. Please check the IDs.</p>';
+        return;
+      }
+
+      // Sort by activity if enabled
+      if (activitySlot) {
+        attackers.sort((a, b) => {
+          const aActive = a.last_active ? new Date(a.last_active).getTime() : 0;
+          const bActive = b.last_active ? new Date(b.last_active).getTime() : 0;
+          return bActive - aActive; // Most active first
+        });
+      }
+
+      // Sort defenders by score
+      defenders.sort((a, b) => (b.score || 0) - (a.score || 0));
+
+      // Generate matches
+      const matches = [];
+      const usedDefenders = new Set();
+
+      for (const attacker of attackers) {
+        const attackerScore = attacker.score || 0;
+        let targetRange = { min: attackerScore * 0.75, max: attackerScore * 1.25 };
+
+        if (strategy === 'aggressive') {
+          targetRange = { min: attackerScore * 0.9, max: attackerScore * 1.5 };
+        } else if (strategy === 'conservative') {
+          targetRange = { min: attackerScore * 0.5, max: attackerScore * 1.1 };
+        }
+
+        // Find suitable target
+        let target = null;
+        for (const defender of defenders) {
+          if (usedDefenders.has(defender.id)) continue;
+          
+          const defenderScore = defender.score || 0;
+          if (defenderScore >= targetRange.min && defenderScore <= targetRange.max) {
+            target = defender;
+            usedDefenders.add(defender.id);
+            break;
+          }
+        }
+
+        if (!target && defenders.length > usedDefenders.size) {
+          // Fallback: find closest score
+          const availableDefenders = defenders.filter(d => !usedDefenders.has(d.id));
+          target = availableDefenders.reduce((closest, d) => {
+            const closestDiff = Math.abs((closest.score || 0) - attackerScore);
+            const dDiff = Math.abs((d.score || 0) - attackerScore);
+            return dDiff < closestDiff ? d : closest;
+          });
+          if (target) usedDefenders.add(target.id);
+        }
+
+        if (target) {
+          // Determine attack types
+          const attackTypes = determineAttackTypes(attacker, target, attackTypeFilter);
+          
+          matches.push({
+            attacker,
+            target,
+            attackTypes,
+            isBeigeSnipe: beigeSnipeEnabled && (target.beige_turns || 0) > 0
+          });
+        }
+      }
+
+      // Render results
+      renderBlitzResults(matches);
+    }
+
+    function determineAttackTypes(attacker, target, filter) {
+      const types = [];
+      
+      // Based on filter or analyze military
+      if (filter === 'all' || filter === 'ground') {
+        types.push({ type: 'Ground', detail: '3x Ground Attacks', icon: '🪖' });
+      }
+      if (filter === 'all' || filter === 'air') {
+        types.push({ type: 'Air', detail: '3x Air Attacks', icon: '✈️' });
+      }
+      if (filter === 'all' || filter === 'naval') {
+        types.push({ type: 'Naval', detail: '2x Naval Attacks', icon: '🚢' });
+      }
+      
+      // Always add naval if possible
+      if (filter === 'all') {
+        types.push({ type: 'Naval', detail: '1x Naval Attack', icon: '🚢' });
+      }
+
+      return types;
+    }
+
+    function renderBlitzResults(matches) {
+      const resultsDiv = document.getElementById('blitz-results');
+      
+      if (matches.length === 0) {
+        resultsDiv.innerHTML = '<p style="color: red;">No suitable targets found. Try adjusting your strategy.</p>';
+        return;
+      }
+
+      const html = `
+        <h3 style="color: #667eea; margin-bottom: 20px;">📋 Blitz Plan Generated (${matches.length} targets)</h3>
+        <div class="target-list">
+          ${matches.map((match, index) => `
+            <div class="target-card ${match.isBeigeSnipe ? 'beige-snipe' : ''}">
+              <div class="target-header">
+                <div class="target-info">
+                  <div class="target-nation">
+                    #${index + 1}: ${match.attacker.nation_name} → ${match.target.nation_name}
+                    ${match.isBeigeSnipe ? '⚠️ BEIGE SNIPE' : ''}
+                  </div>
+                  <div class="target-stats">
+                    Attacker Score: ${(match.attacker.score || 0).toLocaleString()} | 
+                    Target Score: ${(match.target.score || 0).toLocaleString()} | 
                     Cities: ${match.target.num_cities || 0}
 </div>
 </div>
