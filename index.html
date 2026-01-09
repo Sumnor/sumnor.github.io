@@ -488,14 +488,20 @@
         // Check auth on load
         window.addEventListener('load', async () => {
             const params = new URLSearchParams(window.location.search);
+            
             if (params.get('auth') === 'success') {
-                window.history.replaceState({}, '', window.location.pathname);
-                await checkAuth();
+                // Remove query params from URL
+                const url = new URL(window.location);
+                url.search = '';
+                window.history.replaceState({}, '', url);
             } else if (params.get('error') === 'auth_failed') {
                 alert('Discord login failed. Please try again.');
-                window.history.replaceState({}, '', window.location.pathname);
+                const url = new URL(window.location);
+                url.search = '';
+                window.history.replaceState({}, '', url);
             }
             
+            // Always check auth on page load
             await checkAuth();
         });
 
