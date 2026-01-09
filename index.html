@@ -1,0 +1,739 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>INTRA - Integrated Financial System</title>
+    <link rel="icon" href="intra_icons/INTRA.png" type="image/png">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --bg: #0a0a0a;
+            --surface: #111;
+            --surface-light: #1a1a1a;
+            --accent: #5865f2;
+            --accent-hover: #4752c4;
+            --text: #fff;
+            --text-dim: #b0b0b0;
+            --success: #23a559;
+            --danger: #da373c;
+            --border: #2a2a2a;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+        }
+
+        /* Hero */
+        .hero {
+            height: 100vh;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .hero-bg {
+            position: absolute;
+            inset: 0;
+            z-index: 0;
+        }
+
+        .hero-bg video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0.3;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 10;
+            text-align: center;
+            padding: 40px;
+            background: rgba(10, 10, 10, 0.8);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            backdrop-filter: blur(20px);
+        }
+
+        .hero-content h1 {
+            font-size: clamp(3rem, 10vw, 6rem);
+            font-weight: 900;
+            letter-spacing: -3px;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, #fff, var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero-content p {
+            font-size: 1.2rem;
+            color: var(--text-dim);
+            margin-bottom: 30px;
+        }
+
+        .btn {
+            padding: 14px 32px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 1rem;
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--accent-hover);
+            transform: translateY(-2px);
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+
+        /* Services */
+        .services {
+            padding: 100px 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .services h2 {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 50px;
+        }
+
+        .service-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .service-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 30px;
+            text-align: center;
+            text-decoration: none;
+            color: var(--text);
+            transition: all 0.3s;
+        }
+
+        .service-card:hover {
+            border-color: var(--accent);
+            transform: translateY(-5px);
+        }
+
+        .service-card img {
+            width: 60px;
+            height: 60px;
+            margin-bottom: 15px;
+        }
+
+        .service-card h3 {
+            font-size: 1.1rem;
+            margin-bottom: 10px;
+        }
+
+        /* Account View */
+        .account-view {
+            display: none;
+            padding: 60px 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .back-btn {
+            background: none;
+            border: none;
+            color: var(--accent);
+            cursor: pointer;
+            font-weight: 700;
+            margin-bottom: 20px;
+            font-size: 1rem;
+        }
+
+        .account-header {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 20px;
+        }
+
+        .account-header h2 {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .user-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            border: 3px solid var(--accent);
+        }
+
+        .resource-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .resource-item {
+            background: var(--surface-light);
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+        }
+
+        .resource-name {
+            font-size: 0.85rem;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            margin-bottom: 5px;
+        }
+
+        .resource-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .action-buttons button {
+            flex: 1;
+        }
+
+        /* Loans */
+        .loans-section {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 30px;
+            margin-top: 20px;
+        }
+
+        .loan-card {
+            background: var(--surface-light);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 15px;
+        }
+
+        .progress-bar {
+            background: var(--border);
+            height: 8px;
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 15px 0;
+        }
+
+        .progress-fill {
+            background: var(--success);
+            height: 100%;
+            transition: width 0.3s;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 30px;
+            max-width: 500px;
+            width: 90%;
+        }
+
+        .modal-content h3 {
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--text-dim);
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            background: var(--surface-light);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text);
+            font-size: 1rem;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Hero -->
+    <section class="hero" id="hero">
+        <div class="hero-bg">
+            <video autoplay muted loop playsinline>
+                <source src="intra_icons/Untitled video - Made with Clipchamp (1).mp4" type="video/mp4">
+            </video>
+        </div>
+        <div class="hero-content">
+            <h1>INTRA</h1>
+            <p>Integrated Financial System for Politics & War</p>
+            <button class="btn btn-primary" id="login-btn" onclick="login()">LOGIN WITH DISCORD</button>
+        </div>
+    </section>
+
+    <!-- Services -->
+    <section class="services" id="services">
+        <h2>Our Services</h2>
+        <div class="service-grid">
+            <a href="#" class="service-card" id="account-card" onclick="openAccount(event)">
+                <img src="intra_icons/INTRA.png" alt="Account">
+                <h3>View Account</h3>
+                <p style="font-size: 0.9rem; color: var(--text-dim)">Manage your resources</p>
+            </a>
+            <a href="#" class="service-card" onclick="openLoans(event)">
+                <img src="intra_icons/INTRA.png" alt="Loans">
+                <h3>Loans</h3>
+                <p style="font-size: 0.9rem; color: var(--text-dim)">Request financial aid</p>
+            </a>
+            <a href="#" class="service-card" onclick="openBotRequest(event)">
+                <img src="intra_icons/INTRA.png" alt="Bot">
+                <h3>Bot Request</h3>
+                <p style="font-size: 0.9rem; color: var(--text-dim)">Custom bot development</p>
+            </a>
+            <a href="#" class="service-card">
+                <img src="intra_icons/INTRA.png" alt="Website">
+                <h3>Website Request</h3>
+                <p style="font-size: 0.9rem; color: var(--text-dim)">Professional websites</p>
+            </a>
+        </div>
+    </section>
+
+    <!-- Account View -->
+    <section class="account-view" id="account-view">
+        <button class="back-btn" onclick="closeAccount()">← Back to Services</button>
+        
+        <div class="account-header">
+            <div class="user-info">
+                <img id="user-avatar" class="user-avatar" src="" alt="Avatar">
+                <div>
+                    <h2 id="username">Loading...</h2>
+                    <p style="color: var(--text-dim)" id="user-id">ID: ---</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="account-header">
+            <h3>Resources</h3>
+            <div class="resource-grid" id="resources">
+                <!-- Resources will be loaded here -->
+            </div>
+
+            <div class="action-buttons">
+                <button class="btn btn-success" onclick="openDepositModal()">Deposit</button>
+                <button class="btn btn-danger" onclick="openWithdrawModal()">Withdraw</button>
+            </div>
+        </div>
+
+        <div class="loans-section">
+            <h3>Active Loans</h3>
+            <div id="loans-list">
+                <!-- Loans will be loaded here -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Deposit Modal -->
+    <div class="modal" id="deposit-modal">
+        <div class="modal-content">
+            <h3>Deposit Resources</h3>
+            <p style="color: var(--text-dim); margin-bottom: 20px;">Enter the amounts you wish to deposit</p>
+            
+            <div class="form-group">
+                <label>Food</label>
+                <input type="number" id="deposit-food" min="0" value="0">
+            </div>
+            <div class="form-group">
+                <label>Coal</label>
+                <input type="number" id="deposit-coal" min="0" value="0">
+            </div>
+            <div class="form-group">
+                <label>Oil</label>
+                <input type="number" id="deposit-oil" min="0" value="0">
+            </div>
+            
+            <div class="modal-buttons">
+                <button class="btn btn-primary" onclick="submitDeposit()">Submit Deposit</button>
+                <button class="btn" style="background: var(--surface-light)" onclick="closeModals()">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Withdraw Modal -->
+    <div class="modal" id="withdraw-modal">
+        <div class="modal-content">
+            <h3>Withdraw Resources</h3>
+            <p style="color: var(--text-dim); margin-bottom: 20px;">Enter the amounts you wish to withdraw</p>
+            
+            <div class="form-group">
+                <label>Food</label>
+                <input type="number" id="withdraw-food" min="0" value="0">
+            </div>
+            <div class="form-group">
+                <label>Coal</label>
+                <input type="number" id="withdraw-coal" min="0" value="0">
+            </div>
+            <div class="form-group">
+                <label>Oil</label>
+                <input type="number" id="withdraw-oil" min="0" value="0">
+            </div>
+            
+            <div class="modal-buttons">
+                <button class="btn btn-danger" onclick="submitWithdraw()">Submit Withdrawal</button>
+                <button class="btn" style="background: var(--surface-light)" onclick="closeModals()">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loan Request Modal -->
+    <div class="modal" id="loan-modal">
+        <div class="modal-content">
+            <h3>Request Loan</h3>
+            
+            <div class="form-group">
+                <label>Amount</label>
+                <input type="number" id="loan-amount" min="0" placeholder="1000000">
+            </div>
+            <div class="form-group">
+                <label>Period (weeks)</label>
+                <input type="number" id="loan-period" min="1" max="12" value="4">
+            </div>
+            <div class="form-group">
+                <label>Reason</label>
+                <textarea id="loan-reason" placeholder="Why do you need this loan?"></textarea>
+            </div>
+            
+            <div class="modal-buttons">
+                <button class="btn btn-primary" onclick="submitLoan()">Submit Request</button>
+                <button class="btn" style="background: var(--surface-light)" onclick="closeModals()">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'https://your-backend.railway.app';
+        let currentUser = null;
+
+        // Check auth on load
+        window.addEventListener('load', async () => {
+            const params = new URLSearchParams(window.location.search);
+            if (params.get('auth') === 'success') {
+                window.history.replaceState({}, '', '/');
+            }
+            
+            await checkAuth();
+        });
+
+        async function checkAuth() {
+            try {
+                const res = await fetch(`${API_URL}/auth/user`, {
+                    credentials: 'include'
+                });
+                const data = await res.json();
+                
+                if (data.authenticated) {
+                    currentUser = data.user;
+                    updateUIForLoggedIn();
+                }
+            } catch (error) {
+                console.error('Auth check failed:', error);
+            }
+        }
+
+        function updateUIForLoggedIn() {
+            const loginBtn = document.getElementById('login-btn');
+            loginBtn.textContent = `Logged in as ${currentUser.username}`;
+            loginBtn.style.background = 'var(--success)';
+            loginBtn.onclick = null;
+        }
+
+        function login() {
+            window.location.href = `${API_URL}/auth/discord`;
+        }
+
+        function openAccount(e) {
+            e.preventDefault();
+            if (!currentUser) {
+                alert('Please login first');
+                return;
+            }
+            
+            document.getElementById('hero').style.display = 'none';
+            document.getElementById('services').style.display = 'none';
+            document.getElementById('account-view').style.display = 'block';
+            
+            loadAccountData();
+        }
+
+        function closeAccount() {
+            document.getElementById('hero').style.display = 'flex';
+            document.getElementById('services').style.display = 'block';
+            document.getElementById('account-view').style.display = 'none';
+        }
+
+        async function loadAccountData() {
+            try {
+                const res = await fetch(`${API_URL}/api/account`, {
+                    credentials: 'include'
+                });
+                
+                if (!res.ok) throw new Error('Failed to load account');
+                
+                const data = await res.json();
+                
+                // Update user info
+                document.getElementById('username').textContent = currentUser.username;
+                document.getElementById('user-id').textContent = `ID: ${currentUser.id}`;
+                document.getElementById('user-avatar').src = `https://cdn.discordapp.com/avatars/${currentUser.id}/${currentUser.avatar}.png`;
+                
+                // Update resources
+                const resources = data.safekeep || {};
+                const resourcesDiv = document.getElementById('resources');
+                resourcesDiv.innerHTML = Object.entries(resources)
+                    .filter(([key]) => !['owner', 'aa_name', 'nation_id'].includes(key))
+                    .map(([key, value]) => `
+                        <div class="resource-item">
+                            <div class="resource-name">${key}</div>
+                            <div class="resource-value">${Number(value).toLocaleString()}</div>
+                        </div>
+                    `).join('');
+                
+                // Load loans
+                await loadLoans();
+            } catch (error) {
+                console.error('Error loading account:', error);
+                alert('Failed to load account data');
+            }
+        }
+
+        async function loadLoans() {
+            try {
+                const res = await fetch(`${API_URL}/api/loans`, {
+                    credentials: 'include'
+                });
+                const loans = await res.json();
+                
+                const loansDiv = document.getElementById('loans-list');
+                
+                if (!loans || loans.length === 0) {
+                    loansDiv.innerHTML = '<p style="color: var(--text-dim)">No active loans</p>';
+                    return;
+                }
+                
+                loansDiv.innerHTML = loans.map(loan => {
+                    const progress = (loan.paidBack / loan.amount) * 100;
+                    return `
+                        <div class="loan-card">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                                <span>$${loan.amount.toLocaleString()}</span>
+                                <span style="color: var(--text-dim)">$${loan.paidBack.toLocaleString()} paid</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: ${progress}%"></div>
+                            </div>
+                            <button class="btn btn-success" style="width: 100%; margin-top: 10px" onclick="payLoan('${loan.id}')">Pay Loan</button>
+                        </div>
+                    `;
+                }).join('');
+            } catch (error) {
+                console.error('Error loading loans:', error);
+            }
+        }
+
+        function openLoans(e) {
+            e.preventDefault();
+            if (!currentUser) {
+                alert('Please login first');
+                return;
+            }
+            document.getElementById('loan-modal').classList.add('active');
+        }
+
+        function openBotRequest(e) {
+            e.preventDefault();
+            if (!currentUser) {
+                alert('Please login first');
+                return;
+            }
+            alert('Bot request feature coming soon!');
+        }
+
+        function openDepositModal() {
+            document.getElementById('deposit-modal').classList.add('active');
+        }
+
+        function openWithdrawModal() {
+            document.getElementById('withdraw-modal').classList.add('active');
+        }
+
+        function closeModals() {
+            document.querySelectorAll('.modal').forEach(m => m.classList.remove('active'));
+        }
+
+        async function submitDeposit() {
+            const food = parseInt(document.getElementById('deposit-food').value) || 0;
+            const coal = parseInt(document.getElementById('deposit-coal').value) || 0;
+            const oil = parseInt(document.getElementById('deposit-oil').value) || 0;
+            
+            try {
+                const res = await fetch(`${API_URL}/api/deposit`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include',
+                    body: JSON.stringify({ resources: { food, coal, oil } })
+                });
+                
+                if (res.ok) {
+                    alert('Deposit request submitted!');
+                    closeModals();
+                    loadAccountData();
+                }
+            } catch (error) {
+                alert('Deposit failed: ' + error.message);
+            }
+        }
+
+        async function submitWithdraw() {
+            const food = parseInt(document.getElementById('withdraw-food').value) || 0;
+            const coal = parseInt(document.getElementById('withdraw-coal').value) || 0;
+            const oil = parseInt(document.getElementById('withdraw-oil').value) || 0;
+            
+            try {
+                const res = await fetch(`${API_URL}/api/withdraw`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include',
+                    body: JSON.stringify({ resources: { food, coal, oil } })
+                });
+                
+                if (res.ok) {
+                    alert('Withdrawal request submitted!');
+                    closeModals();
+                    loadAccountData();
+                }
+            } catch (error) {
+                alert('Withdrawal failed: ' + error.message);
+            }
+        }
+
+        async function submitLoan() {
+            const amount = parseInt(document.getElementById('loan-amount').value);
+            const period = parseInt(document.getElementById('loan-period').value);
+            const reason = document.getElementById('loan-reason').value;
+            
+            if (!amount || !reason) {
+                alert('Please fill all fields');
+                return;
+            }
+            
+            try {
+                const res = await fetch(`${API_URL}/api/loans/request`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include',
+                    body: JSON.stringify({ amount, period, reason })
+                });
+                
+                if (res.ok) {
+                    alert('Loan request submitted for review!');
+                    closeModals();
+                }
+            } catch (error) {
+                alert('Loan request failed: ' + error.message);
+            }
+        }
+
+        async function payLoan(loanId) {
+            const amount = prompt('How much do you want to pay?');
+            if (!amount) return;
+            
+            try {
+                const res = await fetch(`${API_URL}/api/loans/pay`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include',
+                    body: JSON.stringify({ loanId, amount: parseInt(amount) })
+                });
+                
+                if (res.ok) {
+                    alert('Payment submitted!');
+                    loadLoans();
+                }
+            } catch (error) {
+                alert('Payment failed: ' + error.message);
+            }
+        }
+    </script>
+</body>
+</html>
