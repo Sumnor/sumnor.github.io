@@ -489,7 +489,11 @@
         window.addEventListener('load', async () => {
             const params = new URLSearchParams(window.location.search);
             if (params.get('auth') === 'success') {
-                window.history.replaceState({}, '', '/');
+                window.history.replaceState({}, '', window.location.pathname);
+                await checkAuth();
+            } else if (params.get('error') === 'auth_failed') {
+                alert('Discord login failed. Please try again.');
+                window.history.replaceState({}, '', window.location.pathname);
             }
             
             await checkAuth();
