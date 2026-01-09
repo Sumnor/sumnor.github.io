@@ -508,6 +508,7 @@
         async function checkAuth() {
             try {
                 const res = await fetch(`${API_URL}/auth/user`, {
+                    'bypass-tunnel-reminder': 'true',
                     credentials: 'include'
                 });
                 const data = await res.json();
@@ -555,6 +556,7 @@
         async function loadAccountData() {
             try {
                 const res = await fetch(`${API_URL}/api/account`, {
+                    'bypass-tunnel-reminder': 'true',
                     credentials: 'include'
                 });
                 
@@ -590,6 +592,7 @@
         async function loadLoans() {
             try {
                 const res = await fetch(`${API_URL}/api/loans`, {
+                    'bypass-tunnel-reminder': 'true',
                     credentials: 'include'
                 });
                 const loans = await res.json();
@@ -660,6 +663,7 @@
                 const res = await fetch(`${API_URL}/api/deposit`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
+                    'bypass-tunnel-reminder': 'true',
                     credentials: 'include',
                     body: JSON.stringify({ resources: { food, coal, oil } })
                 });
