@@ -228,28 +228,6 @@
             margin-top: 20px;
         }
 
-        .loan-card {
-            background: var(--surface-light);
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            padding: 20px;
-            margin-bottom: 15px;
-        }
-
-        .progress-bar {
-            background: var(--border);
-            height: 8px;
-            border-radius: 4px;
-            overflow: hidden;
-            margin: 15px 0;
-        }
-
-        .progress-fill {
-            background: var(--success);
-            height: 100%;
-            transition: width 0.3s;
-        }
-
         .modal {
             display: none;
             position: fixed;
@@ -258,6 +236,7 @@
             z-index: 1000;
             align-items: center;
             justify-content: center;
+            overflow-y: auto;
         }
 
         .modal.active {
@@ -269,8 +248,10 @@
             border: 1px solid var(--border);
             border-radius: 12px;
             padding: 30px;
-            max-width: 500px;
+            max-width: 600px;
             width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
         }
 
         .modal-content h3 {
@@ -316,6 +297,12 @@
             color: var(--success);
             font-weight: 600;
         }
+
+        .resource-inputs {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
     </style>
 </head>
 <body>
@@ -345,7 +332,7 @@
                 <h3>Bot Request</h3>
                 <p style="font-size: 0.9rem; color: var(--text-dim)">Custom bot development</p>
             </div>
-            <div class="service-card">
+            <div class="service-card" onclick="openWebsiteRequest(event)">
                 <h3>Website Request</h3>
                 <p style="font-size: 0.9rem; color: var(--text-dim)">Professional websites</p>
             </div>
@@ -367,9 +354,7 @@
 
         <div class="account-header">
             <h3>Resources</h3>
-            <div class="resource-grid" id="resources">
-                <!-- Resources will be loaded here -->
-            </div>
+            <div class="resource-grid" id="resources"></div>
 
             <div class="action-buttons">
                 <button class="btn btn-success" onclick="openDepositModal()">Deposit</button>
@@ -379,9 +364,7 @@
 
         <div class="loans-section">
             <h3>Loan Information</h3>
-            <div id="loans-list">
-                <!-- Loan info will be loaded here -->
-            </div>
+            <div id="loans-list"></div>
         </div>
     </section>
 
@@ -391,16 +374,55 @@
             <p style="color: var(--text-dim); margin-bottom: 20px;">Enter the amounts you wish to deposit</p>
             
             <div class="form-group">
-                <label>Food</label>
-                <input type="number" id="deposit-food" min="0" value="0">
+                <label>Money</label>
+                <input type="number" id="deposit-money" min="0" value="0">
             </div>
-            <div class="form-group">
-                <label>Coal</label>
-                <input type="number" id="deposit-coal" min="0" value="0">
-            </div>
-            <div class="form-group">
-                <label>Oil</label>
-                <input type="number" id="deposit-oil" min="0" value="0">
+
+            <div class="resource-inputs">
+                <div class="form-group">
+                    <label>Food</label>
+                    <input type="number" id="deposit-food" min="0" value="0">
+                </div>
+                <div class="form-group">
+                    <label>Coal</label>
+                    <input type="number" id="deposit-coal" min="0" value="0">
+                </div>
+                <div class="form-group">
+                    <label>Oil</label>
+                    <input type="number" id="deposit-oil" min="0" value="0">
+                </div>
+                <div class="form-group">
+                    <label>Uranium</label>
+                    <input type="number" id="deposit-uranium" min="0" value="0">
+                </div>
+                <div class="form-group">
+                    <label>Iron</label>
+                    <input type="number" id="deposit-iron" min="0" value="0">
+                </div>
+                <div class="form-group">
+                    <label>Bauxite</label>
+                    <input type="number" id="deposit-bauxite" min="0" value="0">
+                </div>
+                <div class="form-group">
+                    <label>Lead</label>
+                    <input type="number" id="deposit-lead" min="0" value="0">
+                </div>
+                <div class="form-group">
+                    <label>Gasoline</label>
+                    <input type="number" id="deposit-gasoline" min="0" value="0">
+                </div>
+                <div class="form-group">
+                    <label>Munitions</label>
+                    <input type="number" id="deposit-munitions" min="0" value="0">
+                </div>
+                <div class="form-group">
+                    <label>Steel</label>
+                    <input type="number" id="deposit-steel" min="0" value="0">
+                </div>
+                <div class="form-group">
+                    <label>Aluminum</label>
+                    <input type="number" id="deposit-aluminum" min="0" value="0">
+                </div>
             </div>
             
             <div class="modal-buttons">
@@ -416,16 +438,55 @@
             <p style="color: var(--text-dim); margin-bottom: 20px;">Enter the amounts you wish to withdraw</p>
             
             <div class="form-group">
-                <label>Food</label>
-                <input type="number" id="withdraw-food" min="0" value="0">
+                <label>Money</label>
+                <input type="number" id="withdraw-money" min="0" value="0">
             </div>
-            <div class="form-group">
-                <label>Coal</label>
-                <input type="number" id="withdraw-coal" min="0" value="0">
-            </div>
-            <div class="form-group">
-                <label>Oil</label>
-                <input type="number" id="withdraw-oil" min="0" value="0">
+
+            <div class="resource-inputs">
+                <div class="form-group">
+                    <label>Food</label>
+                    <input type="number" id="withdraw-food" min="0" value="0">
+                </div>
+                <div class="form-group">
+                    <label>Coal</label>
+                    <input type="number" id="withdraw-coal" min="0" value="0">
+                </div>
+                <div class="form-group">
+                    <label>Oil</label>
+                    <input type="number" id="withdraw-oil" min="0" value="0">
+                </div>
+                <div class="form-group">
+                    <label>Uranium</label>
+                    <input type="number" id="withdraw-uranium" min="0" value="0">
+                </div>
+                <div class="form-group">
+                    <label>Iron</label>
+                    <input type="number" id="withdraw-iron" min="0" value="0">
+                </div>
+                <div class="form-group">
+                    <label>Bauxite</label>
+                    <input type="number" id="withdraw-bauxite" min="0" value="0">
+                </div>
+                <div class="form-group">
+                    <label>Lead</label>
+                    <input type="number" id="withdraw-lead" min="0" value="0">
+                </div>
+                <div class="form-group">
+                    <label>Gasoline</label>
+                    <input type="number" id="withdraw-gasoline" min="0" value="0">
+                </div>
+                <div class="form-group">
+                    <label>Munitions</label>
+                    <input type="number" id="withdraw-munitions" min="0" value="0">
+                </div>
+                <div class="form-group">
+                    <label>Steel</label>
+                    <input type="number" id="withdraw-steel" min="0" value="0">
+                </div>
+                <div class="form-group">
+                    <label>Aluminum</label>
+                    <input type="number" id="withdraw-aluminum" min="0" value="0">
+                </div>
             </div>
             
             <div class="modal-buttons">
@@ -459,33 +520,80 @@
         </div>
     </div>
 
+    <div class="modal" id="bot-modal">
+        <div class="modal-content">
+            <h3>Request Bot Development</h3>
+            
+            <div class="form-group">
+                <label>Description</label>
+                <textarea id="bot-description" placeholder="Describe what you want the bot to do..."></textarea>
+            </div>
+            
+            <div class="modal-buttons">
+                <button class="btn btn-primary" onclick="submitBotRequest()">Submit Request</button>
+                <button class="btn" style="background: var(--surface-light)" onclick="closeModals()">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="website-modal">
+        <div class="modal-content">
+            <h3>Request Website Development</h3>
+            
+            <div class="form-group">
+                <label>Description</label>
+                <textarea id="website-description" placeholder="Describe what you want the website to include..."></textarea>
+            </div>
+            
+            <div class="modal-buttons">
+                <button class="btn btn-primary" onclick="submitWebsiteRequest()">Submit Request</button>
+                <button class="btn" style="background: var(--surface-light)" onclick="closeModals()">Cancel</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         const API_URL = 'https://intrarp1603.pagekite.me';
         let currentUser = null;
+        let authToken = null;
 
         window.addEventListener('load', async () => {
             const params = new URLSearchParams(window.location.search);
             
-            if (params.get('auth') === 'success') {
+            // Check for token in URL (from OAuth callback)
+            if (params.get('token')) {
+                authToken = params.get('token');
+                localStorage.setItem('intra_token', authToken);
+                
+                // Clean URL
                 const url = new URL(window.location);
                 url.search = '';
                 window.history.replaceState({}, '', url);
-            } else if (params.get('error') === 'auth_failed') {
-                alert('Discord login failed. Please try again.');
-                const url = new URL(window.location);
-                url.search = '';
-                window.history.replaceState({}, '', url);
+            } else {
+                // Try to get token from localStorage
+                authToken = localStorage.getItem('intra_token');
             }
             
-            await checkAuth();
+            if (authToken) {
+                await checkAuth();
+            }
         });
 
         async function checkAuth() {
             try {
                 const res = await fetch(`${API_URL}/auth/user`, {
-                    headers: { 'bypass-tunnel-reminder': 'true' },
-                    credentials: 'include'
+                    headers: { 
+                        'Authorization': `Bearer ${authToken}`,
+                        'bypass-tunnel-reminder': 'true'
+                    }
                 });
+                
+                if (!res.ok) {
+                    localStorage.removeItem('intra_token');
+                    authToken = null;
+                    return;
+                }
+                
                 const data = await res.json();
                 
                 if (data.authenticated) {
@@ -494,6 +602,8 @@
                 }
             } catch (error) {
                 console.error('Auth check failed:', error);
+                localStorage.removeItem('intra_token');
+                authToken = null;
             }
         }
 
@@ -535,13 +645,14 @@
         async function loadAccountData() {
             try {
                 const res = await fetch(`${API_URL}/api/account`, {
-                    headers: { 'bypass-tunnel-reminder': 'true' },
-                    credentials: 'include'
+                    headers: { 
+                        'Authorization': `Bearer ${authToken}`,
+                        'bypass-tunnel-reminder': 'true'
+                    }
                 });
                 
                 const data = await res.json();
                 
-                // Check if account doesn't exist
                 if (data.noAccount) {
                     document.getElementById('account-view').innerHTML = `
                         <div style="text-align: center; padding: 100px 20px;">
@@ -574,41 +685,38 @@
                 const accountData = data.account || {};
                 const safekeepData = data.safekeep || {};
                 
-                // Display account info (money, loans, trust)
                 const resourcesDiv = document.getElementById('resources');
                 resourcesDiv.innerHTML = `
                     <div class="resource-item">
                         <div class="resource-name">Money</div>
-                        <div class="resource-value">${Number(accountData.money || 0).toLocaleString()}</div>
+                        <div class="resource-value">$${Number(accountData.money || 0).toLocaleString()}</div>
                     </div>
                     <div class="resource-item">
                         <div class="resource-name">Trust</div>
-                        <div class="resource-value">${Number(accountData.trust || 0).toLocaleString()}</div>
+                        <div class="resource-value">$${Number(accountData.trust || 0).toLocaleString()}</div>
                     </div>
                 `;
                 
-                // Add safekeep resources
-                Object.entries(safekeepData)
-                    .filter(([key]) => !['owner', 'aa_name', 'nation_id', 'credits'].includes(key))
-                    .forEach(([key, value]) => {
-                        if (value > 0) {
-                            resourcesDiv.innerHTML += `
-                                <div class="resource-item">
-                                    <div class="resource-name">${key}</div>
-                                    <div class="resource-value">${Number(value).toLocaleString()}</div>
-                                </div>
-                            `;
-                        }
-                    });
+                const resources = ['food', 'uranium', 'iron', 'coal', 'bauxite', 'oil', 'lead', 'steel', 'aluminum', 'munitions', 'gasoline'];
+                resources.forEach(res => {
+                    const value = safekeepData[res] || 0;
+                    if (value > 0) {
+                        resourcesDiv.innerHTML += `
+                            <div class="resource-item">
+                                <div class="resource-name">${res}</div>
+                                <div class="resource-value">${Number(value).toLocaleString()}</div>
+                            </div>
+                        `;
+                    }
+                });
                 
-                // Display loan information
                 const loansDiv = document.getElementById('loans-list');
                 if (accountData.loans > 0) {
                     loansDiv.innerHTML = `
-                        <div class="loan-card">
-                            <p><strong>Active Loan:</strong> ${Number(accountData.loans).toLocaleString()}</p>
-                            <p><strong>Interest:</strong> ${Number(accountData.loan_inter || 0).toLocaleString()}</p>
-                            <p><strong>Weekly Payment:</strong> ${Number(accountData.loan_weekly || 0).toLocaleString()}</p>
+                        <div style="background: var(--surface-light); border: 1px solid var(--border); border-radius: 8px; padding: 20px;">
+                            <p><strong>Active Loan:</strong> $${Number(accountData.loans).toLocaleString()}</p>
+                            <p><strong>Interest:</strong> $${Number(accountData.loan_inter || 0).toLocaleString()}</p>
+                            <p><strong>Weekly Payment:</strong> $${Number(accountData.loan_weekly || 0).toLocaleString()}</p>
                             <p><strong>Weeks Remaining:</strong> ${accountData.loan_weeks || 0}</p>
                         </div>
                     `;
@@ -636,7 +744,16 @@
                 alert('Please login first');
                 return;
             }
-            alert('Bot request feature coming soon!');
+            document.getElementById('bot-modal').classList.add('active');
+        }
+
+        function openWebsiteRequest(e) {
+            e.preventDefault();
+            if (!currentUser) {
+                alert('Please login first');
+                return;
+            }
+            document.getElementById('website-modal').classList.add('active');
         }
 
         function openDepositModal() {
@@ -652,19 +769,30 @@
         }
 
         async function submitDeposit() {
-            const food = parseInt(document.getElementById('deposit-food').value) || 0;
-            const coal = parseInt(document.getElementById('deposit-coal').value) || 0;
-            const oil = parseInt(document.getElementById('deposit-oil').value) || 0;
+            const resources = {
+                food: parseInt(document.getElementById('deposit-food').value) || 0,
+                coal: parseInt(document.getElementById('deposit-coal').value) || 0,
+                oil: parseInt(document.getElementById('deposit-oil').value) || 0,
+                uranium: parseInt(document.getElementById('deposit-uranium').value) || 0,
+                iron: parseInt(document.getElementById('deposit-iron').value) || 0,
+                bauxite: parseInt(document.getElementById('deposit-bauxite').value) || 0,
+                lead: parseInt(document.getElementById('deposit-lead').value) || 0,
+                gasoline: parseInt(document.getElementById('deposit-gasoline').value) || 0,
+                munitions: parseInt(document.getElementById('deposit-munitions').value) || 0,
+                steel: parseInt(document.getElementById('deposit-steel').value) || 0,
+                aluminum: parseInt(document.getElementById('deposit-aluminum').value) || 0
+            };
+            const money = parseInt(document.getElementById('deposit-money').value) || 0;
             
             try {
                 const res = await fetch(`${API_URL}/api/deposit`, {
                     method: 'POST',
                     headers: { 
+                        'Authorization': `Bearer ${authToken}`,
                         'bypass-tunnel-reminder': 'true', 
                         'Content-Type': 'application/json' 
                     },
-                    credentials: 'include',
-                    body: JSON.stringify({ resources: { food, coal, oil } })
+                    body: JSON.stringify({ resources, money })
                 });
                 
                 if (res.ok) {
@@ -678,25 +806,39 @@
         }
 
         async function submitWithdraw() {
-            const food = parseInt(document.getElementById('withdraw-food').value) || 0;
-            const coal = parseInt(document.getElementById('withdraw-coal').value) || 0;
-            const oil = parseInt(document.getElementById('withdraw-oil').value) || 0;
+            const resources = {
+                food: parseInt(document.getElementById('withdraw-food').value) || 0,
+                coal: parseInt(document.getElementById('withdraw-coal').value) || 0,
+                oil: parseInt(document.getElementById('withdraw-oil').value) || 0,
+                uranium: parseInt(document.getElementById('withdraw-uranium').value) || 0,
+                iron: parseInt(document.getElementById('withdraw-iron').value) || 0,
+                bauxite: parseInt(document.getElementById('withdraw-bauxite').value) || 0,
+                lead: parseInt(document.getElementById('withdraw-lead').value) || 0,
+                gasoline: parseInt(document.getElementById('withdraw-gasoline').value) || 0,
+                munitions: parseInt(document.getElementById('withdraw-munitions').value) || 0,
+                steel: parseInt(document.getElementById('withdraw-steel').value) || 0,
+                aluminum: parseInt(document.getElementById('withdraw-aluminum').value) || 0
+            };
+            const money = parseInt(document.getElementById('withdraw-money').value) || 0;
             
             try {
                 const res = await fetch(`${API_URL}/api/withdraw`, {
                     method: 'POST',
                     headers: { 
+                        'Authorization': `Bearer ${authToken}`,
                         'bypass-tunnel-reminder': 'true',
                         'Content-Type': 'application/json' 
                     },
-                    credentials: 'include',
-                    body: JSON.stringify({ resources: { food, coal, oil } })
+                    body: JSON.stringify({ resources, money })
                 });
                 
                 if (res.ok) {
                     alert('Withdrawal request submitted!');
                     closeModals();
                     loadAccountData();
+                } else {
+                    const error = await res.json();
+                    alert(error.error || 'Withdrawal failed');
                 }
             } catch (error) {
                 alert('Withdrawal failed: ' + error.message);
@@ -717,10 +859,10 @@
                 const res = await fetch(`${API_URL}/api/loans/request`, {
                     method: 'POST',
                     headers: { 
+                        'Authorization': `Bearer ${authToken}`,
                         'bypass-tunnel-reminder': 'true',
                         'Content-Type': 'application/json' 
                     },
-                    credentials: 'include',
                     body: JSON.stringify({ amount, period, reason })
                 });
                 
@@ -730,6 +872,62 @@
                 }
             } catch (error) {
                 alert('Loan request failed: ' + error.message);
+            }
+        }
+
+        async function submitBotRequest() {
+            const description = document.getElementById('bot-description').value;
+            
+            if (!description) {
+                alert('Please provide a description');
+                return;
+            }
+            
+            try {
+                const res = await fetch(`${API_URL}/api/bot/request`, {
+                    method: 'POST',
+                    headers: { 
+                        'Authorization': `Bearer ${authToken}`,
+                        'bypass-tunnel-reminder': 'true',
+                        'Content-Type': 'application/json' 
+                    },
+                    body: JSON.stringify({ description })
+                });
+                
+                if (res.ok) {
+                    alert('Bot request submitted!');
+                    closeModals();
+                }
+            } catch (error) {
+                alert('Request failed: ' + error.message);
+            }
+        }
+
+        async function submitWebsiteRequest() {
+            const description = document.getElementById('website-description').value;
+            
+            if (!description) {
+                alert('Please provide a description');
+                return;
+            }
+            
+            try {
+                const res = await fetch(`${API_URL}/api/website/request`, {
+                    method: 'POST',
+                    headers: { 
+                        'Authorization': `Bearer ${authToken}`,
+                        'bypass-tunnel-reminder': 'true',
+                        'Content-Type': 'application/json' 
+                    },
+                    body: JSON.stringify({ description })
+                });
+                
+                if (res.ok) {
+                    alert('Website request submitted!');
+                    closeModals();
+                }
+            } catch (error) {
+                alert('Request failed: ' + error.message);
             }
         }
     </script>
