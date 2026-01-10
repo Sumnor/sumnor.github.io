@@ -4,8 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>INTRA - Integrated Financial System</title>
-    <link rel="icon" href="intra_icons/INTRA.png" type="image/png">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
             --bg: #0a0a0a;
@@ -29,7 +27,6 @@
             line-height: 1.6;
         }
 
-        /* Hero */
         .hero {
             height: 100vh;
             position: relative;
@@ -43,13 +40,7 @@
             position: absolute;
             inset: 0;
             z-index: 0;
-        }
-
-        .hero-bg video {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            opacity: 0.3;
+            background: linear-gradient(135deg, #1a1a2e 0%, #0a0a0a 100%);
         }
 
         .hero-content {
@@ -109,7 +100,6 @@
             color: white;
         }
 
-        /* Services */
         .services {
             padding: 100px 20px;
             max-width: 1200px;
@@ -137,6 +127,7 @@
             text-decoration: none;
             color: var(--text);
             transition: all 0.3s;
+            cursor: pointer;
         }
 
         .service-card:hover {
@@ -144,18 +135,11 @@
             transform: translateY(-5px);
         }
 
-        .service-card img {
-            width: 60px;
-            height: 60px;
-            margin-bottom: 15px;
-        }
-
         .service-card h3 {
             font-size: 1.1rem;
             margin-bottom: 10px;
         }
 
-        /* Account View */
         .account-view {
             display: none;
             padding: 60px 20px;
@@ -236,7 +220,6 @@
             flex: 1;
         }
 
-        /* Loans */
         .loans-section {
             background: var(--surface);
             border: 1px solid var(--border);
@@ -267,7 +250,6 @@
             transition: width 0.3s;
         }
 
-        /* Modal */
         .modal {
             display: none;
             position: fixed;
@@ -326,51 +308,50 @@
             gap: 10px;
             margin-top: 20px;
         }
+
+        .user-status {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--success);
+            font-weight: 600;
+        }
     </style>
 </head>
 <body>
-    <!-- Hero -->
     <section class="hero" id="hero">
-        <div class="hero-bg">
-            <video autoplay muted loop playsinline>
-                <source src="intra_icons/Untitled video - Made with Clipchamp (1).mp4" type="video/mp4">
-            </video>
-        </div>
+        <div class="hero-bg"></div>
         <div class="hero-content">
             <h1>INTRA</h1>
             <p>Integrated Financial System for Politics & War</p>
-            <button class="btn btn-primary" id="login-btn" onclick="login()">LOGIN WITH DISCORD</button>
+            <div id="login-section">
+                <button class="btn btn-primary" id="login-btn" onclick="login()">LOGIN WITH DISCORD</button>
+            </div>
         </div>
     </section>
 
-    <!-- Services -->
     <section class="services" id="services">
         <h2>Our Services</h2>
         <div class="service-grid">
-            <a href="#" class="service-card" id="account-card" onclick="openAccount(event)">
-                <img src="intra_icons/INTRA.png" alt="Account">
+            <div class="service-card" onclick="openAccount(event)">
                 <h3>View Account</h3>
                 <p style="font-size: 0.9rem; color: var(--text-dim)">Manage your resources</p>
-            </a>
-            <a href="#" class="service-card" onclick="openLoans(event)">
-                <img src="intra_icons/INTRA.png" alt="Loans">
+            </div>
+            <div class="service-card" onclick="openLoans(event)">
                 <h3>Loans</h3>
                 <p style="font-size: 0.9rem; color: var(--text-dim)">Request financial aid</p>
-            </a>
-            <a href="#" class="service-card" onclick="openBotRequest(event)">
-                <img src="intra_icons/INTRA.png" alt="Bot">
+            </div>
+            <div class="service-card" onclick="openBotRequest(event)">
                 <h3>Bot Request</h3>
                 <p style="font-size: 0.9rem; color: var(--text-dim)">Custom bot development</p>
-            </a>
-            <a href="#" class="service-card">
-                <img src="intra_icons/INTRA.png" alt="Website">
+            </div>
+            <div class="service-card">
                 <h3>Website Request</h3>
                 <p style="font-size: 0.9rem; color: var(--text-dim)">Professional websites</p>
-            </a>
+            </div>
         </div>
     </section>
 
-    <!-- Account View -->
     <section class="account-view" id="account-view">
         <button class="back-btn" onclick="closeAccount()">← Back to Services</button>
         
@@ -397,14 +378,13 @@
         </div>
 
         <div class="loans-section">
-            <h3>Active Loans</h3>
+            <h3>Loan Information</h3>
             <div id="loans-list">
-                <!-- Loans will be loaded here -->
+                <!-- Loan info will be loaded here -->
             </div>
         </div>
     </section>
 
-    <!-- Deposit Modal -->
     <div class="modal" id="deposit-modal">
         <div class="modal-content">
             <h3>Deposit Resources</h3>
@@ -430,7 +410,6 @@
         </div>
     </div>
 
-    <!-- Withdraw Modal -->
     <div class="modal" id="withdraw-modal">
         <div class="modal-content">
             <h3>Withdraw Resources</h3>
@@ -456,7 +435,6 @@
         </div>
     </div>
 
-    <!-- Loan Request Modal -->
     <div class="modal" id="loan-modal">
         <div class="modal-content">
             <h3>Request Loan</h3>
@@ -485,12 +463,10 @@
         const API_URL = 'https://intrarp1603.pagekite.me';
         let currentUser = null;
 
-        // Check auth on load
         window.addEventListener('load', async () => {
             const params = new URLSearchParams(window.location.search);
             
             if (params.get('auth') === 'success') {
-                // Remove query params from URL
                 const url = new URL(window.location);
                 url.search = '';
                 window.history.replaceState({}, '', url);
@@ -501,16 +477,13 @@
                 window.history.replaceState({}, '', url);
             }
             
-            // Always check auth on page load
             await checkAuth();
         });
 
         async function checkAuth() {
             try {
                 const res = await fetch(`${API_URL}/auth/user`, {
-                    headers: {
-                        'bypass-tunnel-reminder': 'true' // Must be inside 'headers'
-                    },
+                    headers: { 'bypass-tunnel-reminder': 'true' },
                     credentials: 'include'
                 });
                 const data = await res.json();
@@ -525,10 +498,14 @@
         }
 
         function updateUIForLoggedIn() {
-            const loginBtn = document.getElementById('login-btn');
-            loginBtn.textContent = `Logged in as ${currentUser.username}`;
-            loginBtn.style.background = 'var(--success)';
-            loginBtn.onclick = null;
+            const loginSection = document.getElementById('login-section');
+            loginSection.innerHTML = `
+                <div class="user-status">
+                    <img src="https://cdn.discordapp.com/avatars/${currentUser.id}/${currentUser.avatar}.png" 
+                         style="width: 40px; height: 40px; border-radius: 50%;" alt="Avatar">
+                    <span>Logged in as ${currentUser.username}</span>
+                </div>
+            `;
         }
 
         function login() {
@@ -558,9 +535,7 @@
         async function loadAccountData() {
             try {
                 const res = await fetch(`${API_URL}/api/account`, {
-                    headers: {
-        'bypass-tunnel-reminder': 'true' // Must be inside 'headers'
-    },
+                    headers: { 'bypass-tunnel-reminder': 'true' },
                     credentials: 'include'
                 });
                 
@@ -568,65 +543,57 @@
                 
                 const data = await res.json();
                 
-                // Update user info
                 document.getElementById('username').textContent = currentUser.username;
                 document.getElementById('user-id').textContent = `ID: ${currentUser.id}`;
                 document.getElementById('user-avatar').src = `https://cdn.discordapp.com/avatars/${currentUser.id}/${currentUser.avatar}.png`;
                 
-                // Update resources
-                const resources = data.safekeep || {};
-                const resourcesDiv = document.getElementById('resources');
-                resourcesDiv.innerHTML = Object.entries(resources)
-                    .filter(([key]) => !['owner', 'aa_name', 'nation_id'].includes(key))
-                    .map(([key, value]) => `
-                        <div class="resource-item">
-                            <div class="resource-name">${key}</div>
-                            <div class="resource-value">${Number(value).toLocaleString()}</div>
-                        </div>
-                    `).join('');
+                const accountData = data.account || {};
+                const safekeepData = data.safekeep || {};
                 
-                // Load loans
-                await loadLoans();
+                // Display account info (money, loans, trust)
+                const resourcesDiv = document.getElementById('resources');
+                resourcesDiv.innerHTML = `
+                    <div class="resource-item">
+                        <div class="resource-name">Money</div>
+                        <div class="resource-value">$${Number(accountData.money || 0).toLocaleString()}</div>
+                    </div>
+                    <div class="resource-item">
+                        <div class="resource-name">Trust</div>
+                        <div class="resource-value">$${Number(accountData.trust || 0).toLocaleString()}</div>
+                    </div>
+                `;
+                
+                // Add safekeep resources
+                Object.entries(safekeepData)
+                    .filter(([key]) => !['owner', 'aa_name', 'nation_id', 'credits'].includes(key))
+                    .forEach(([key, value]) => {
+                        if (value > 0) {
+                            resourcesDiv.innerHTML += `
+                                <div class="resource-item">
+                                    <div class="resource-name">${key}</div>
+                                    <div class="resource-value">${Number(value).toLocaleString()}</div>
+                                </div>
+                            `;
+                        }
+                    });
+                
+                // Display loan information
+                const loansDiv = document.getElementById('loans-list');
+                if (accountData.loans > 0) {
+                    loansDiv.innerHTML = `
+                        <div class="loan-card">
+                            <p><strong>Active Loan:</strong> $${Number(accountData.loans).toLocaleString()}</p>
+                            <p><strong>Interest:</strong> $${Number(accountData.loan_inter || 0).toLocaleString()}</p>
+                            <p><strong>Weekly Payment:</strong> $${Number(accountData.loan_weekly || 0).toLocaleString()}</p>
+                            <p><strong>Weeks Remaining:</strong> ${accountData.loan_weeks || 0}</p>
+                        </div>
+                    `;
+                } else {
+                    loansDiv.innerHTML = '<p style="color: var(--text-dim)">No active loans</p>';
+                }
             } catch (error) {
                 console.error('Error loading account:', error);
                 alert('Failed to load account data');
-            }
-        }
-
-        async function loadLoans() {
-            try {
-                const res = await fetch(`${API_URL}/api/loans`, {
-                    headers: {
-        'bypass-tunnel-reminder': 'true' // Must be inside 'headers'
-    },
-                    credentials: 'include'
-                });
-                const loans = await res.json();
-                
-                const loansDiv = document.getElementById('loans-list');
-                
-                if (!loans || loans.length === 0) {
-                    loansDiv.innerHTML = '<p style="color: var(--text-dim)">No active loans</p>';
-                    return;
-                }
-                
-                loansDiv.innerHTML = loans.map(loan => {
-                    const progress = (loan.paidBack / loan.amount) * 100;
-                    return `
-                        <div class="loan-card">
-                            <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
-                                <span>$${loan.amount.toLocaleString()}</span>
-                                <span style="color: var(--text-dim)">$${loan.paidBack.toLocaleString()} paid</span>
-                            </div>
-                            <div class="progress-bar">
-                                <div class="progress-fill" style="width: ${progress}%"></div>
-                            </div>
-                            <button class="btn btn-success" style="width: 100%; margin-top: 10px" onclick="payLoan('${loan.id}')">Pay Loan</button>
-                        </div>
-                    `;
-                }).join('');
-            } catch (error) {
-                console.error('Error loading loans:', error);
             }
         }
 
@@ -668,7 +635,10 @@
             try {
                 const res = await fetch(`${API_URL}/api/deposit`, {
                     method: 'POST',
-                    headers: { 'bypass-tunnel-reminder': 'true', 'Content-Type': 'application/json' },
+                    headers: { 
+                        'bypass-tunnel-reminder': 'true', 
+                        'Content-Type': 'application/json' 
+                    },
                     credentials: 'include',
                     body: JSON.stringify({ resources: { food, coal, oil } })
                 });
@@ -691,7 +661,10 @@
             try {
                 const res = await fetch(`${API_URL}/api/withdraw`, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: { 
+                        'bypass-tunnel-reminder': 'true',
+                        'Content-Type': 'application/json' 
+                    },
                     credentials: 'include',
                     body: JSON.stringify({ resources: { food, coal, oil } })
                 });
@@ -719,7 +692,10 @@
             try {
                 const res = await fetch(`${API_URL}/api/loans/request`, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: { 
+                        'bypass-tunnel-reminder': 'true',
+                        'Content-Type': 'application/json' 
+                    },
                     credentials: 'include',
                     body: JSON.stringify({ amount, period, reason })
                 });
@@ -730,27 +706,6 @@
                 }
             } catch (error) {
                 alert('Loan request failed: ' + error.message);
-            }
-        }
-
-        async function payLoan(loanId) {
-            const amount = prompt('How much do you want to pay?');
-            if (!amount) return;
-            
-            try {
-                const res = await fetch(`${API_URL}/api/loans/pay`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    credentials: 'include',
-                    body: JSON.stringify({ loanId, amount: parseInt(amount) })
-                });
-                
-                if (res.ok) {
-                    alert('Payment submitted!');
-                    loadLoans();
-                }
-            } catch (error) {
-                alert('Payment failed: ' + error.message);
             }
         }
     </script>
