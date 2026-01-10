@@ -821,6 +821,13 @@
             };
             const money = parseInt(document.getElementById('withdraw-money').value) || 0;
             
+            // Check if at least one resource is selected
+            const hasResources = Object.values(resources).some(v => v > 0) || money > 0;
+            if (!hasResources) {
+                alert('Please select at least one resource to withdraw');
+                return;
+            }
+            
             try {
                 const res = await fetch(`${API_URL}/api/withdraw`, {
                     method: 'POST',
@@ -832,13 +839,18 @@
                     body: JSON.stringify({ resources, money })
                 });
                 
+                const data = await res.json();
+                
                 if (res.ok) {
-                    alert('Withdrawal request submitted!');
+                    let message = '✅ Withdrawal submitted!\n';
+                    if (data.warnings && data.warnings.length > 0) {
+                        message += '\n' + data.warnings.join('\n');
+                    }
+                    alert(message);
                     closeModals();
                     loadAccountData();
                 } else {
-                    const error = await res.json();
-                    alert(error.error || 'Withdrawal failed');
+                    alert(data.error || 'Withdrawal failed');
                 }
             } catch (error) {
                 alert('Withdrawal failed: ' + error.message);
