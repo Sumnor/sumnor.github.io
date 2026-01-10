@@ -539,9 +539,33 @@
                     credentials: 'include'
                 });
                 
-                if (!res.ok) throw new Error('Failed to load account');
-                
                 const data = await res.json();
+                
+                // Check if account doesn't exist
+                if (data.noAccount) {
+                    document.getElementById('account-view').innerHTML = `
+                        <div style="text-align: center; padding: 100px 20px;">
+                            <h2 style="font-size: 2rem; margin-bottom: 20px;">No Account Bound</h2>
+                            <p style="color: var(--text-dim); font-size: 1.2rem; margin-bottom: 30px;">
+                                You need to open an account through our Discord server first.
+                            </p>
+                            <a href="https://discord.gg/your-discord-invite" 
+                               class="btn btn-primary" 
+                               style="display: inline-block; text-decoration: none;">
+                                Go to Discord
+                            </a>
+                            <br><br>
+                            <button class="btn" 
+                                    style="background: var(--surface-light); margin-top: 20px;" 
+                                    onclick="closeAccount()">
+                                Back to Home
+                            </button>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                if (!res.ok) throw new Error('Failed to load account');
                 
                 document.getElementById('username').textContent = currentUser.username;
                 document.getElementById('user-id').textContent = `ID: ${currentUser.id}`;
@@ -555,11 +579,11 @@
                 resourcesDiv.innerHTML = `
                     <div class="resource-item">
                         <div class="resource-name">Money</div>
-                        <div class="resource-value">$${Number(accountData.money || 0).toLocaleString()}</div>
+                        <div class="resource-value">${Number(accountData.money || 0).toLocaleString()}</div>
                     </div>
                     <div class="resource-item">
                         <div class="resource-name">Trust</div>
-                        <div class="resource-value">$${Number(accountData.trust || 0).toLocaleString()}</div>
+                        <div class="resource-value">${Number(accountData.trust || 0).toLocaleString()}</div>
                     </div>
                 `;
                 
@@ -582,9 +606,9 @@
                 if (accountData.loans > 0) {
                     loansDiv.innerHTML = `
                         <div class="loan-card">
-                            <p><strong>Active Loan:</strong> $${Number(accountData.loans).toLocaleString()}</p>
-                            <p><strong>Interest:</strong> $${Number(accountData.loan_inter || 0).toLocaleString()}</p>
-                            <p><strong>Weekly Payment:</strong> $${Number(accountData.loan_weekly || 0).toLocaleString()}</p>
+                            <p><strong>Active Loan:</strong> ${Number(accountData.loans).toLocaleString()}</p>
+                            <p><strong>Interest:</strong> ${Number(accountData.loan_inter || 0).toLocaleString()}</p>
+                            <p><strong>Weekly Payment:</strong> ${Number(accountData.loan_weekly || 0).toLocaleString()}</p>
                             <p><strong>Weeks Remaining:</strong> ${accountData.loan_weeks || 0}</p>
                         </div>
                     `;
