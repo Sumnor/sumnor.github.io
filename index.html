@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Research Agent 🔬</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@700;800&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --dark:    #0f172a;
+    --accent:  #6366f1;
+    --accent2: #a5b4fc;
+    --light:   #f1f5f9;
+    --mid:     #64748b;
+    --green:   #22c55e;
+    --yellow:  #eab308;
+    --red:     #ef4444;
+    --bg:      #080e1c;
+    --surface: #111827;
+    --border:  rgba(99,102,241,.25);
+    --glass:   rgba(255,255,255,.04);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: #e2e8f0;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── GRID BG ── */
+  body::before {
+    content: '';
+    position: fixed; inset: 0; z-index: 0;
+    background-image:
+      linear-gradient(rgba(99,102,241,.06) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(99,102,241,.06) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+  }
+
+  /* ── GLOW ── */
+  .glow {
+    position: fixed; top: -200px; left: 50%;
+    transform: translateX(-50%);
+    width: 800px; height: 500px;
+    background: radial-gradient(ellipse, rgba(99,102,241,.18) 0%, transparent 70%);
+    pointer-events: none; z-index: 0;
+  }
+
+  /* ── LAYOUT ── */
+  .wrap {
+    position: relative; z-index: 1;
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 48px 24px 80px;
+  }
+
+  /* ── HEADER ── */
+  header {
+    display: flex; align-items: center; gap: 12px;
+    margin-bottom: 40px;
+  }
+  .logo {
+    font-family: 'Syne', sans-serif;
+    font-size: 22px; font-weight: 800;
+    color: #fff;
+    letter-spacing: -0.5px;
+  }
+  .logo span { color: var(--accent2); }
+  .badge {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    background: var(--border);
+    border: 1px solid var(--border);
+    color: var(--accent2);
+    padding: 2px 8px;
+    border-radius: 99px;
+    letter-spacing: .05em;
+  }
+  .hint {
+    margin-left: auto;
+    font-size: 12px;
+    color: var(--mid);
+    font-family: 'DM Mono', monospace;
+  }
+
+  /* ── SECTION LABEL ── */
+  .section-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: .12em;
+    color: var(--accent2);
+    text-transform: uppercase;
+    margin-bottom: 10px;
+    opacity: .75;
+  }
+
+  /* ── TEXTAREA ── */
+  .input-block {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 20px;
+    transition: border-color .2s;
+  }
+  .input-block:focus-within { border-color: var(--accent); }
+
+  textarea {
+    width: 100%;
+    background: transparent;
+    border: none;
+    outline: none;
+    resize: none;
+    font-family: 'DM Mono', monospace;
+    font-size: 14px;
+    color: #e2e8f0;
+    line-height: 1.7;
+    min-height: 110px;
+  }
+  textarea::placeholder { color: var(--mid); }
+
+  .input-footer {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px solid var(--border);
+    font-size: 11px;
+    color: var(--mid);
+  }
+  .input-footer code {
+    background: rgba(99,102,241,.15);
+    color: var(--accent2);
+    padding: 1px 5px;
+    border-radius: 4px;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+  }
+
+  /* ── MODE CARDS ── */
+  .modes {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+  .mode-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px 14px;
+    cursor: pointer;
+    transition: border-color .2s, background .2s;
+    user-select: none;
+  }
+  .mode-card:hover { background: var(--glass); }
+  .mode-card.active {
+    border-color: var(--accent);
+    background: rgba(99,102,241,.12);
+  }
+  .mode-card input[type=radio] { display: none; }
+  .mode-icon { font-size: 22px; margin-bottom: 8px; }
+  .mode-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 13px; font-weight: 700;
+    color: #fff;
+    margin-bottom: 3px;
+  }
+  .mode-desc {
+    font-size: 11px;
+    color: var(--mid);
+    line-height: 1.5;
+  }
+
+  /* ── RUN BUTTON ── */
+  .run-btn {
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    width: 100%; padding: 14px;
+    background: var(--accent);
+    border: none; border-radius: 10px;
+    font-family: 'Syne', sans-serif;
+    font-size: 14px; font-weight: 700;
+    color: #fff;
+    cursor: pointer;
+    transition: opacity .2s, transform .1s;
+    margin-bottom: 32px;
+  }
+  .run-btn:hover { opacity: .88; }
+  .run-btn:active { transform: scale(.99); }
+  .run-btn:disabled { opacity: .4; cursor: not-allowed; }
+
+  /* ── LOG TERMINAL ── */
+  .terminal {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 28px;
+    display: none;
+  }
+  .terminal.visible { display: block; }
+  .term-header {
+    display: flex; align-items: center; gap: 6px;
+    padding: 10px 14px;
+    background: rgba(0,0,0,.3);
+    border-bottom: 1px solid var(--border);
+  }
+  .dot { width: 10px; height: 10px; border-radius: 50%; }
+  .dot-r { background: #ef4444; }
+  .dot-y { background: #eab308; }
+  .dot-g { background: #22c55e; }
+  .term-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--mid);
+    margin-left: 6px;
+  }
+  .term-body {
+    padding: 14px 16px;
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    line-height: 1.75;
+    color: #94a3b8;
+    max-height: 260px;
+    overflow-y: auto;
+  }
+  .term-body .line-ok   { color: var(--green); }
+  .term-body .line-skip { color: var(--yellow); }
+  .term-body .line-err  { color: var(--red); }
+  .term-body .line-info { color: var(--accent2); }
+  .term-body .line-head { color: #fff; font-weight: 500; }
+
+  /* ── PREVIEW CARD ── */
+  #preview-area { display: none; }
+  #preview-area.visible { display: block; }
+
+  .preview-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+  }
+  .preview-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--border);
+    background: rgba(0,0,0,.2);
+  }
+  .preview-meta {
+    display: flex; align-items: center; gap: 10px;
+  }
+  .file-icon { font-size: 22px; }
+  .file-info {}
+  .file-name {
+    font-family: 'DM Mono', monospace;
+    font-size: 13px; color: #fff;
+  }
+  .file-size {
+    font-size: 11px; color: var(--mid);
+    margin-top: 1px;
+  }
+  .preview-actions { display: flex; gap: 8px; }
+
+  .btn-dl {
+    display: flex; align-items: center; gap: 5px;
+    padding: 8px 16px;
+    background: var(--accent);
+    border: none; border-radius: 8px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px; font-weight: 500;
+    color: #fff; cursor: pointer;
+    transition: opacity .2s;
+    text-decoration: none;
+  }
+  .btn-dl:hover { opacity: .85; }
+  .btn-clear {
+    display: flex; align-items: center; gap: 5px;
+    padding: 8px 14px;
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 13px; color: var(--mid);
+    cursor: pointer; transition: border-color .2s;
+  }
+  .btn-clear:hover { border-color: var(--red); color: var(--red); }
+
+  .preview-body { padding: 0; }
+
+  /* PDF embed */
+  #pdf-embed {
+    width: 100%; height: 560px;
+    border: none; display: block;
+    background: #1a1a2e;
+  }
+
+  /* PPTX slide strip */
+  #pptx-preview {
+    padding: 20px 18px;
+  }
+  .pptx-note {
+    font-size: 13px; color: var(--mid);
+    line-height: 1.6;
+    margin-bottom: 16px;
+  }
+  .slide-strip {
+    display: flex; gap: 10px;
+    overflow-x: auto;
+    padding-bottom: 8px;
+  }
+  .slide-thumb {
+    flex-shrink: 0;
+    width: 200px; height: 118px;
+    background: #0f172a;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    display: flex; align-items: center; justify-content: center;
+    flex-direction: column; gap: 6px;
+  }
+  .slide-thumb-num {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px; color: var(--accent2);
+  }
+  .slide-thumb-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 11px; font-weight: 700;
+    color: #fff; text-align: center;
+    padding: 0 10px;
+  }
+
+  /* ── EPHEMERAL WARNING ── */
+  .ephemeral-note {
+    display: flex; align-items: center; gap: 8px;
+    padding: 10px 14px;
+    margin-bottom: 20px;
+    background: rgba(234,179,8,.08);
+    border: 1px solid rgba(234,179,8,.25);
+    border-radius: 8px;
+    font-size: 12px;
+    color: #fbbf24;
+    font-family: 'DM Mono', monospace;
+  }
+
+  /* ── HOW IT WORKS ── */
+  .how {
+    display: grid;
+    grid-template-columns: repeat(4,1fr);
+    gap: 12px;
+    margin-top: 32px;
+  }
+  .how-step {
+    padding: 14px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+  }
+  .how-num {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px; color: var(--accent);
+    margin-bottom: 6px;
+  }
+  .how-text { font-size: 12px; color: var(--mid); line-height: 1.5; }
+
+  /* scrollbar */
+  ::-webkit-scrollbar { width: 4px; height: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 99px; }
+
+  @media(max-width:600px) {
+    .modes { grid-template-columns: 1fr; }
+    .how   { grid-template-columns: 1fr 1fr; }
+    .preview-header { flex-direction: column; gap: 12px; align-items: flex-start; }
+  }
+
+  /* spinner */
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .spinner {
+    width: 14px; height: 14px;
+    border: 2px solid rgba(255,255,255,.3);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: spin .7s linear infinite;
+  }
+
+  /* fade-in */
+  @keyframes fadeUp {
+    from { opacity:0; transform: translateY(12px); }
+    to   { opacity:1; transform: translateY(0); }
+  }
+  .fade-up { animation: fadeUp .4s ease forwards; }
+</style>
+</head>
+<body>
+<div class="glow"></div>
+<div class="wrap">
+
+  <!-- HEADER -->
+  <header>
+    <div class="logo">Research<span>Agent</span></div>
+    <div class="badge">v1.0</div>
+    <div class="hint">↓ download to keep</div>
+  </header>
+
+  <!-- EPHEMERAL NOTE -->
+  <div class="ephemeral-note">
+    ⚠ Files live in-memory only — refresh = gone. Download before you leave.
+  </div>
+
+  <!-- INPUT -->
+  <div class="section-label">01 — Topic</div>
+  <div class="input-block">
+    <textarea id="topic-input" placeholder="salad bowl theory
+* title, what is salad bowl, melting pot, comparison, conclusion
+* 6 slides total"></textarea>
+    <div class="input-footer">
+      <span>First line = topic &nbsp;·&nbsp; <code>* line</code> = context / slide outline</span>
+      <span id="char-count">0 chars</span>
+    </div>
+  </div>
+
+  <!-- MODE -->
+  <div class="section-label">02 — Output Mode</div>
+  <div class="modes" id="mode-picker">
+    <label class="mode-card active">
+      <input type="radio" name="mode" value="1" checked/>
+      <div class="mode-icon">📄</div>
+      <div class="mode-title">Research Paper</div>
+      <div class="mode-desc">10 sources, full paragraphs, polished PDF</div>
+    </label>
+    <label class="mode-card">
+      <input type="radio" name="mode" value="2"/>
+      <div class="mode-icon">⚡</div>
+      <div class="mode-title">Breakdown</div>
+      <div class="mode-desc">Bullet-point key info, 6 sources, PDF</div>
+    </label>
+    <label class="mode-card">
+      <input type="radio" name="mode" value="3"/>
+      <div class="mode-icon">📊</div>
+      <div class="mode-title">Presentation</div>
+      <div class="mode-desc">PPTX slide deck — define slides with * lines</div>
+    </label>
+  </div>
+
+  <!-- RUN -->
+  <button class="run-btn" id="run-btn" onclick="runAgent()">
+    <span id="run-label">▶ Run Agent</span>
+    <div class="spinner" id="run-spinner" style="display:none;"></div>
+  </button>
+
+  <!-- TERMINAL -->
+  <div class="terminal" id="terminal">
+    <div class="term-header">
+      <div class="dot dot-r"></div>
+      <div class="dot dot-y"></div>
+      <div class="dot dot-g"></div>
+      <span class="term-label">researcher_nosql.py — output</span>
+    </div>
+    <div class="term-body" id="term-body"></div>
+  </div>
+
+  <!-- PREVIEW -->
+  <div id="preview-area">
+    <div class="preview-card fade-up">
+      <div class="preview-header">
+        <div class="preview-meta">
+          <div class="file-icon" id="file-icon">📄</div>
+          <div class="file-info">
+            <div class="file-name" id="file-name">output.pdf</div>
+            <div class="file-size" id="file-size">–</div>
+          </div>
+        </div>
+        <div class="preview-actions">
+          <a class="btn-dl" id="dl-btn" href="#" download>⬇ Download</a>
+          <button class="btn-clear" onclick="clearPreview()">✕ Clear</button>
+        </div>
+      </div>
+      <div class="preview-body" id="preview-body"></div>
+    </div>
+  </div>
+
+  <!-- HOW IT WORKS -->
+  <div class="how">
+    <div class="how-step">
+      <div class="how-num">STEP 01</div>
+      <div class="how-text">Type your topic + optional <code style="color:var(--accent2)">*</code> context lines</div>
+    </div>
+    <div class="how-step">
+      <div class="how-num">STEP 02</div>
+      <div class="how-text">Pick a mode — PDF paper, bullet breakdown, or slide deck</div>
+    </div>
+    <div class="how-step">
+      <div class="how-num">STEP 03</div>
+      <div class="how-text">Agent searches, scrapes & deduplicates public sources</div>
+    </div>
+    <div class="how-step">
+      <div class="how-num">STEP 04</div>
+      <div class="how-text">Preview in-browser, then download — files are ephemeral!</div>
+    </div>
+  </div>
+
+</div><!-- .wrap -->
+
+<script>
+// ── Mode cards ──
+document.querySelectorAll('.mode-card').forEach(card => {
+  card.addEventListener('click', () => {
+    document.querySelectorAll('.mode-card').forEach(c => c.classList.remove('active'));
+    card.classList.add('active');
+  });
+});
+
+// ── Char counter ──
+const topicInput = document.getElementById('topic-input');
+topicInput.addEventListener('input', () => {
+  document.getElementById('char-count').textContent = topicInput.value.length + ' chars';
+});
+
+// ── Simulated log lines (replace this section with real fetch/EventSource in production) ──
+const FAKE_LOGS = {
+  "1": [
+    {t:'head', txt:'╔═══════════════════════════════════════╗'},
+    {t:'head', txt:'║  Research Agent 🔬                     ║'},
+    {t:'head', txt:'╚═══════════════════════════════════════╝'},
+    {t:'info', txt:'🚀 Mode: Detailed Research Paper'},
+    {t:'info', txt:'[ 1/4 ] Searching...'},
+    {t:'info', txt:'  🔍 Searching: {TOPIC} (10 results)'},
+    {t:'info', txt:'[ 2/4 ] Scraping pages...'},
+    {t:'ok',   txt:'  ✅ Source 1 — Wikipedia → 12 paragraphs'},
+    {t:'ok',   txt:'  ✅ Source 2 — Academic paper → 9 paragraphs'},
+    {t:'ok',   txt:'  ✅ Source 3 — News article → 7 paragraphs'},
+    {t:'skip', txt:'  ⛔ SKIP  Paywalled source — blocked (paywall)'},
+    {t:'ok',   txt:'  ✅ Source 4 → 8 paragraphs'},
+    {t:'ok',   txt:'  ✅ Source 5 → 11 paragraphs'},
+    {t:'ok',   txt:'  ✅ Source 6 → 6 paragraphs'},
+    {t:'skip', txt:'  ⛔ SKIP  Behind login — blocked (sign in)'},
+    {t:'ok',   txt:'  ✅ Source 7 → 10 paragraphs'},
+    {t:'ok',   txt:'  ✅ Source 8 → 8 paragraphs'},
+    {t:'info', txt:'        (2 source(s) skipped)'},
+    {t:'info', txt:'[ 3/4 ] Deduplicating...'},
+    {t:'info', txt:'        71 → 54 items (17 duplicates removed)'},
+    {t:'info', txt:'[ 4/4 ] Fetching images & building output...'},
+    {t:'info', txt:'  🖼  Fetching images...'},
+    {t:'info', txt:'  📄 Building PDF...'},
+    {t:'ok',   txt:'✅  Done!'},
+  ],
+  "2": [
+    {t:'head', txt:'╔═══════════════════════════════════════╗'},
+    {t:'head', txt:'║  Research Agent 🔬 — Breakdown         ║'},
+    {t:'head', txt:'╚═══════════════════════════════════════╝'},
+    {t:'info', txt:'🚀 Mode: Breakdown'},
+    {t:'info', txt:'[ 1/4 ] Searching...'},
+    {t:'info', txt:'  🔍 Searching: {TOPIC} (6 results)'},
+    {t:'info', txt:'[ 2/4 ] Scraping pages...'},
+    {t:'ok',   txt:'  ✅ Source 1 → 6 points'},
+    {t:'ok',   txt:'  ✅ Source 2 → 5 points'},
+    {t:'skip', txt:'  ⛔ SKIP  Access denied — HTTP 403'},
+    {t:'ok',   txt:'  ✅ Source 3 → 6 points'},
+    {t:'ok',   txt:'  ✅ Source 4 → 4 points'},
+    {t:'ok',   txt:'  ✅ Source 5 → 6 points'},
+    {t:'info', txt:'[ 3/4 ] Deduplicating...'},
+    {t:'info', txt:'        27 → 22 items (5 duplicates removed)'},
+    {t:'info', txt:'[ 4/4 ] Building PDF...'},
+    {t:'ok',   txt:'✅  Done!'},
+  ],
+  "3": [
+    {t:'head', txt:'╔═══════════════════════════════════════╗'},
+    {t:'head', txt:'║  Research Agent 🔬 — Presentation      ║'},
+    {t:'head', txt:'╚═══════════════════════════════════════╝'},
+    {t:'info', txt:'🚀 Mode: Presentation (.pptx)'},
+    {t:'info', txt:'  Slide structure: title → intro → main → analysis → conclusion'},
+    {t:'info', txt:'[ 1/4 ] Searching...'},
+    {t:'info', txt:'  🔍 Searching: {TOPIC} (8 results)'},
+    {t:'info', txt:'[ 2/4 ] Scraping pages...'},
+    {t:'ok',   txt:'  ✅ Source 1 → 5 paragraphs'},
+    {t:'ok',   txt:'  ✅ Source 2 → 5 paragraphs'},
+    {t:'skip', txt:'  ⛔ SKIP  timeout'},
+    {t:'ok',   txt:'  ✅ Source 3 → 5 paragraphs'},
+    {t:'ok',   txt:'  ✅ Source 4 → 5 paragraphs'},
+    {t:'ok',   txt:'  ✅ Source 5 → 3 paragraphs'},
+    {t:'info', txt:'[ 3/4 ] Deduplicating...'},
+    {t:'info', txt:'        23 → 19 items (4 duplicates removed)'},
+    {t:'info', txt:'[ 4/4 ] Building PPTX...'},
+    {t:'info', txt:'  📊 Building PPTX...'},
+    {t:'ok',   txt:'✅  Done!'},
+  ]
+};
+
+let blobURL = null;
+
+// ── Run Agent ──
+async function runAgent() {
+  const topic = document.getElementById('topic-input').value.trim();
+  if (!topic) { alert('Enter a topic first.'); return; }
+
+  const mode = document.querySelector('input[name=mode]:checked').value;
+
+  const btn = document.getElementById('run-btn');
+  btn.disabled = true;
+  document.getElementById('run-label').textContent = 'Running…';
+  document.getElementById('run-spinner').style.display = 'flex';
+
+  clearPreview(false);
+
+  // show terminal
+  const terminal = document.getElementById('terminal');
+  const termBody  = document.getElementById('term-body');
+  terminal.classList.add('visible');
+  termBody.innerHTML = '';
+
+  // simulate logs
+  const logs = FAKE_LOGS[mode].map(l => ({
+    ...l,
+    txt: l.txt.replace('{TOPIC}', topic.split('\n')[0])
+  }));
+
+  for (const log of logs) {
+    await sleep(80 + Math.random() * 140);
+    const span = document.createElement('div');
+    span.className =
+      log.t === 'ok'   ? 'line-ok' :
+      log.t === 'skip' ? 'line-skip' :
+      log.t === 'err'  ? 'line-err' :
+      log.t === 'head' ? 'line-head' : 'line-info';
+    span.textContent = log.txt;
+    termBody.appendChild(span);
+    termBody.scrollTop = termBody.scrollHeight;
+  }
+
+  // ── Generate fake output for preview ──
+  if (mode === '1' || mode === '2') {
+    await buildFakePDF(topic, mode);
+  } else {
+    buildFakePPTX(topic);
+  }
+
+  btn.disabled = false;
+  document.getElementById('run-label').textContent = '▶ Run Agent';
+  document.getElementById('run-spinner').style.display = 'none';
+}
+
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+// ── Fake PDF ── (uses jsPDF from CDN)
+async function buildFakePDF(topic, mode) {
+  // We use a dynamic import of jsPDF to build a preview PDF in-browser
+  const script = document.createElement('script');
+  script.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
+  document.head.appendChild(script);
+  await new Promise(r => { script.onload = r; });
+
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+
+  // Cover
+  doc.setFillColor(15, 23, 42);
+  doc.rect(0, 0, 210, 297, 'F');
+  doc.setFillColor(99, 102, 241);
+  doc.rect(0, 90, 210, 40, 'F');
+  doc.setTextColor(255, 255, 255);
+  doc.setFontSize(22);
+  doc.text(topic.split('\n')[0].substring(0, 48), 105, 115, { align: 'center' });
+  doc.setFontSize(10);
+  doc.setTextColor(165, 180, 252);
+  doc.text(mode === '1' ? 'Detailed Research Paper' : 'Breakdown', 105, 130, { align: 'center' });
+  doc.setTextColor(100, 116, 139);
+  doc.text('Generated by Research Agent · ' + new Date().toLocaleDateString(), 105, 280, { align: 'center' });
+
+  // Content page
+  doc.addPage();
+  doc.setFillColor(241, 245, 249);
+  doc.rect(0, 0, 210, 297, 'F');
+  doc.setFontSize(14);
+  doc.setTextColor(15, 23, 42);
+  doc.text('Research Summary', 20, 30);
+  doc.setDrawColor(99, 102, 241);
+  doc.setLineWidth(0.5);
+  doc.line(20, 33, 190, 33);
+
+  doc.setFontSize(10);
+  doc.setTextColor(51, 65, 85);
+  const bodyText = [
+    `This is a preview generated for: "${topic.split('\n')[0]}"`,
+    '',
+    'In production, the Python script scrapes live web sources,',
+    'deduplicates content, fetches images, and produces a polished PDF',
+    `with ${mode === '1' ? '10 sources and full paragraphs' : '6 sources and bullet points'}.`,
+    '',
+    'Deploy the backend (researcher_nosql.py) and wire it to this UI',
+    'via a /run endpoint that streams logs and returns the file blob.',
+  ];
+  let y = 50;
+  bodyText.forEach(line => {
+    doc.text(line, 20, y);
+    y += 8;
+  });
+
+  const pdfBytes = doc.output('arraybuffer');
+  const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+  showPreview(blob, 'pdf', topic.split('\n')[0]);
+}
+
+function buildFakePPTX(topic) {
+  // For PPTX we can't render natively in browser — show a slide strip preview
+  const lines = document.getElementById('topic-input').value.split('\n');
+  const starLine = lines.find(l => l.startsWith('*') && l.includes(','));
+  let titles = ['Title', 'Table of Contents', 'Introduction', 'Main Findings', 'Conclusion'];
+  if (starLine) {
+    const custom = starLine.replace(/^\*/, '').split(',').map(s => s.trim()).filter(Boolean);
+    if (custom.length) titles = custom;
+  }
+
+  showPreviewPPTX(topic.split('\n')[0], titles);
+}
+
+function showPreview(blob, type, topic) {
+  if (blobURL) URL.revokeObjectURL(blobURL);
+  blobURL = URL.createObjectURL(blob);
+
+  const area  = document.getElementById('preview-area');
+  const body  = document.getElementById('preview-body');
+  const dlBtn = document.getElementById('dl-btn');
+  const fname = document.getElementById('file-name');
+  const fsize = document.getElementById('file-size');
+  const ficon = document.getElementById('file-icon');
+  const safe  = topic.replace(/[^\w\s-]/g,'').trim().replace(/\s+/g,'_').substring(0,50);
+
+  ficon.textContent = '📄';
+  fname.textContent = `research_${safe}.pdf`;
+  fsize.textContent = (blob.size / 1024).toFixed(1) + ' KB · PDF';
+
+  dlBtn.href = blobURL;
+  dlBtn.download = fname.textContent;
+
+  body.innerHTML = `<iframe id="pdf-embed" src="${blobURL}#toolbar=1"></iframe>`;
+  area.classList.add('visible');
+  area.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function showPreviewPPTX(topic, titles) {
+  const area  = document.getElementById('preview-area');
+  const body  = document.getElementById('preview-body');
+  const fname = document.getElementById('file-name');
+  const fsize = document.getElementById('file-size');
+  const ficon = document.getElementById('file-icon');
+  const dlBtn = document.getElementById('dl-btn');
+  const safe  = topic.replace(/[^\w\s-]/g,'').trim().replace(/\s+/g,'_').substring(0,50);
+
+  ficon.textContent = '📊';
+  fname.textContent = `research_${safe}.pptx`;
+  fsize.textContent = `${titles.length} slides · PPTX`;
+
+  // For PPTX, no native browser preview — show slide strip
+  dlBtn.href = '#';
+  dlBtn.download = fname.textContent;
+  dlBtn.onclick = (e) => {
+    e.preventDefault();
+    alert('In production: the backend returns the real .pptx blob here. Wire /run → blob → URL.createObjectURL → download.');
+  };
+
+  const colors16 = ['0f172a','1e1b4b','0c1445','0a1628','111827'];
+
+  const thumbs = titles.map((t, i) => `
+    <div class="slide-thumb">
+      <div class="slide-thumb-num">SLIDE ${String(i+1).padStart(2,'0')}</div>
+      <div class="slide-thumb-title">${t}</div>
+    </div>
+  `).join('');
+
+  body.innerHTML = `
+    <div id="pptx-preview">
+      <p class="pptx-note">
+        PPTX files can't be previewed natively in the browser.
+        In production, wire the backend response blob to a download link.<br>
+        Below is the slide outline scraped and built by the agent:
+      </p>
+      <div class="slide-strip">${thumbs}</div>
+    </div>`;
+
+  area.classList.add('visible');
+  area.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function clearPreview(scroll = true) {
+  if (blobURL) { URL.revokeObjectURL(blobURL); blobURL = null; }
+  const area = document.getElementById('preview-area');
+  area.classList.remove('visible');
+  document.getElementById('preview-body').innerHTML = '';
+  if (scroll) document.getElementById('run-btn').scrollIntoView({ behavior: 'smooth' });
+}
+
+// Revoke on unload
+window.addEventListener('beforeunload', () => {
+  if (blobURL) URL.revokeObjectURL(blobURL);
+});
+</script>
+</body>
+</html>
