@@ -19,7 +19,7 @@
                 Pure Client-Side Research Agent
             </h1>
             <p class="text-slate-400 mt-2 text-sm max-w-md mx-auto">
-                No Backend server. Uses real-time DuckDuckGo scraping proxies. Data disappears on reload.
+                No Backend server needed. Queries open databases natively inside your browser thread. Data drops on reload.
             </p>
         </header>
 
@@ -37,7 +37,7 @@
 
                     <div>
                         <label class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-3">
-                            Select Format Mode
+                            Select Output Format Profile Mode
                         </label>
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
                             <label class="relative flex flex-col p-4 bg-slate-950 border border-slate-800 rounded-xl cursor-pointer hover:border-slate-700 transition group">
@@ -45,7 +45,7 @@
                                 <span class="absolute top-4 right-4 w-4 h-4 border border-slate-700 rounded-full flex items-center justify-center peer-checked:border-indigo-500 peer-checked:bg-indigo-500 after:content-[''] after:w-1.5 after:h-1.5 after:bg-white after:rounded-full after:opacity-0 peer-checked:after:opacity-100 transition"></span>
                                 <div class="text-2xl mb-1 group-hover:scale-110 transition duration-300 self-start">📄</div>
                                 <span class="font-bold text-sm text-slate-200">Detailed Paper</span>
-                                <span class="text-xs text-slate-500 mt-1">10 sources, deep paragraphs saved to PDF.</span>
+                                <span class="text-xs text-slate-500 mt-1">10 sources, full paragraphs parsed to custom PDF layout.</span>
                             </label>
 
                             <label class="relative flex flex-col p-4 bg-slate-950 border border-slate-800 rounded-xl cursor-pointer hover:border-slate-700 transition group">
@@ -53,7 +53,7 @@
                                 <span class="absolute top-4 right-4 w-4 h-4 border border-slate-700 rounded-full flex items-center justify-center peer-checked:border-indigo-500 peer-checked:bg-indigo-500 after:content-[''] after:w-1.5 after:h-1.5 after:bg-white after:rounded-full after:opacity-0 peer-checked:after:opacity-100 transition"></span>
                                 <div class="text-2xl mb-1 group-hover:scale-110 transition duration-300 self-start">⚡</div>
                                 <span class="font-bold text-sm text-slate-200">Breakdown</span>
-                                <span class="text-xs text-slate-500 mt-1">6 sources, bullet points summarized to PDF.</span>
+                                <span class="text-xs text-slate-500 mt-1">6 sources, structured bullet points built directly inside PDF.</span>
                             </label>
 
                             <label class="relative flex flex-col p-4 bg-slate-950 border border-slate-800 rounded-xl cursor-pointer hover:border-slate-700 transition group">
@@ -61,32 +61,32 @@
                                 <span class="absolute top-4 right-4 w-4 h-4 border border-slate-700 rounded-full flex items-center justify-center peer-checked:border-indigo-500 peer-checked:bg-indigo-500 after:content-[''] after:w-1.5 after:h-1.5 after:bg-white after:rounded-full after:opacity-0 peer-checked:after:opacity-100 transition"></span>
                                 <div class="text-2xl mb-1 group-hover:scale-110 transition duration-300 self-start">📊</div>
                                 <span class="font-bold text-sm text-slate-200">Presentation</span>
-                                <span class="text-xs text-slate-500 mt-1">Slide deck compilation exported as editable PPTX.</span>
+                                <span class="text-xs text-slate-500 mt-1">Extracts keyword matches and outputs an editable PPTX file.</span>
                             </label>
                         </div>
                     </div>
 
-                    <button id="runBtn" onclick="runClientAgent()"
+                    <button id="runBtn" onclick="runBrowserAgentPipeline()"
                         class="w-full bg-indigo-600 hover:bg-indigo-500 active:bg-indigo-700 text-white font-semibold py-3 px-4 rounded-xl transition shadow-lg shadow-indigo-600/10 text-sm tracking-wide">
-                        🚀 Start Live Proxy Scrape Agent
+                        🚀 Start Live Research Compilation
                     </button>
                 </div>
             </section>
 
             <section id="logPanel" class="hidden bg-slate-900 border border-slate-800 rounded-2xl p-5 font-mono text-xs text-indigo-300 space-y-2 max-h-56 overflow-y-auto shadow-inner">
-                <div class="text-slate-500 border-b border-slate-800 pb-1 mb-2 font-sans font-bold uppercase tracking-wider">Console Process Logs</div>
+                <div class="text-slate-500 border-b border-slate-800 pb-1 mb-2 font-sans font-bold uppercase tracking-wider">Console Processing Log Stream</div>
                 <div id="logContent" class="space-y-1"></div>
             </section>
 
             <section id="resultsPanel" class="hidden bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-2xl space-y-4">
                 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-4">
                     <div>
-                        <h2 class="text-lg font-bold text-slate-100">✨ Research Compilation Complete</h2>
-                        <p class="text-xs text-slate-400 mt-0.5">Instance runtime preview buffer</p>
+                        <h2 class="text-lg font-bold text-slate-100">✨ Research Compilation Concluded</h2>
+                        <p class="text-xs text-slate-400 mt-0.5">Instance compilation complete. State memory is volatile.</p>
                     </div>
                     <button id="downloadBtn" 
                         class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2.5 px-5 rounded-xl transition text-xs shadow-lg flex items-center space-x-1">
-                        <span>📥 Download Compiled File</span>
+                        <span>📥 Download Document Binary</span>
                     </button>
                 </div>
                 <div id="previewContainer" class="bg-slate-950 border border-slate-800 rounded-xl p-4 max-h-96 overflow-y-auto text-sm text-slate-300 space-y-4 font-mono text-xs"></div>
@@ -95,254 +95,234 @@
     </div>
 
     <script>
-        // Runtime in-memory storage variable (cleans completely when reloading page)
-        let runtimeSessionData = null;
+        // Memory allocation variable for storage across the execution script window lifespan
+        let sessionDataCacheBuffer = null;
 
-        // Configuration mapping matching Python variable structures
-        const CONFIG_MODES = {
-            "1": { label: "Detailed Research Paper", num_results: 8, max_chars: 6000, min_words: 20, sim_thresh: 0.80, max_paras: null },
-            "2": { label: "Breakdown",               num_results: 6, max_chars: 3000, min_words: 15, sim_thresh: 0.70, max_paras: 6 },
-            "3": { label: "Presentation (.pptx)",    num_results: 7, max_chars: 3000, min_words: 15, sim_thresh: 0.75, max_paras: 5 }
+        // Configuration profiles mapping explicitly to your Python metadata variables dictionary
+        const MODES_CONFIG = {
+            "1": { label: "Detailed Research Paper", num_results: 10, max_chars: 6000, min_words: 20, sim_thresh: 0.80, max_paras: null, emoji: "📄" },
+            "2": { label: "Breakdown",               num_results: 6,  max_chars: 3000, min_words: 15, sim_thresh: 0.70, max_paras: 6,    emoji: "⚡" },
+            "3": { label: "Presentation (.pptx)",    num_results: 8,  max_chars: 3000, min_words: 15, sim_thresh: 0.75, max_paras: 5,    emoji: "📊" }
         };
 
-        // Open CORS proxies to bypass Cross-Origin restrictions directly inside browser thread
-        const PROXIES = [
-            (url) => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
-            (url) => `https://corsproxy.io/?${encodeURIComponent(url)}`
-        ];
-
-        function consoleLog(msg) {
+        function writeToConsole(msg) {
             const panel = document.getElementById('logPanel');
             const content = document.getElementById('logContent');
             panel.classList.remove('hidden');
-            const item = document.createElement('div');
-            item.className = "py-0.5 border-l-2 border-indigo-500/40 pl-2 text-slate-300";
-            item.innerHTML = `[${new Date().toLocaleTimeString()}] ${msg}`;
-            content.appendChild(item);
+            const row = document.createElement('div');
+            row.className = "py-0.5 border-l-2 border-indigo-500/40 pl-2 text-slate-300";
+            row.innerHTML = `[${new Date().toLocaleTimeString()}] ${msg}`;
+            content.appendChild(row);
             panel.scrollTop = panel.scrollHeight;
         }
 
-        // 1. INPUT CONTEXT PARSING (Identical logic to Python parse_input)
-        function parseInputBuffer(raw) {
-            const lines = raw.split('\n');
-            let topicLines = [];
-            let contextLines = [];
-            lines.forEach(line => {
-                let s = line.trim();
-                if (s.startsWith('*')) {
-                    contextLines.push(s.replace(/^\*+/, '').trim());
-                } else if (s.length > 0) {
-                    topicLines.push(s);
+        // 1. INPUT TEXT BUFFER PARSER (Translating Python parse_input)
+        function parseTextPromptInput(rawString) {
+            const lines = rawString.split('\n');
+            let topicCollector = [];
+            let directiveCollector = [];
+            lines.forEach(l => {
+                let text = l.trim();
+                if (text.startsWith('*')) {
+                    directiveCollector.push(text.replace(/^\*+/, '').trim());
+                } else if (text.length > 0) {
+                    topicCollector.push(text);
                 }
             });
             return {
-                topic: topicLines.join(' ').trim(),
-                contextLines: contextLines
+                topic: topicCollector.join(' ').trim(),
+                contextLines: directiveCollector
             };
         }
 
-        function parseSlideOutline(contextLines) {
-            let slides = [];
-            contextLines.forEach(line => {
-                if (/(\d+)\s+slides?/i.test(line)) return; // skip explicit slide count strings
-                let parts = line.split(',').map(p => p.trim()).filter(p => p.length > 0);
-                slides.push(...parts);
+        // Slide Outline Extractor (Translating Python parse_slide_outline)
+        function parsePresentationOutline(directives) {
+            let slideHeads = [];
+            directives.forEach(line => {
+                if (/(\d+)\s+slides?/i.test(line)) return; // Skip slide declarations
+                let segments = line.split(',').map(s => s.trim()).filter(s => s.length > 0);
+                slideHeads.push(...segments);
             });
-            return slides;
+            return slideHeads;
         }
 
-        // Text similarity matching replacement engine for difflib.SequenceMatcher
-        function checkSimilarity(str1, str2) {
-            const w1 = new Set(str1.toLowerCase().match(/\w+/g) || []);
-            const w2 = new Set(str2.toLowerCase().match(/\w+/g) || []);
-            if (w1.size === 0 || w2.size === 0) return 0;
-            const intersection = new Set([...w1].filter(x => w2.has(x)));
-            return intersection.size / Math.max(w1.size, w2.size);
+        // Levenshtein / Word Set Text Similarity Matcher replacing Python's difflib.SequenceMatcher
+        function evaluateSimilarityIndex(a, b) {
+            const setA = new Set(a.toLowerCase().match(/\w+/g) || []);
+            const setB = new Set(b.toLowerCase().match(/\w+/g) || []);
+            if (setA.size === 0 || setB.size === 0) return 0;
+            const overlap = new Set([...setA].filter(item => setB.has(item)));
+            return overlap.size / Math.max(setA.size, setB.size);
         }
 
-        async function fetchWithProxyFallback(url) {
-            let lastError = null;
-            for (let proxyFn of PROXIES) {
-                try {
-                    const proxiedUrl = proxyFn(url);
-                    let resp = await fetch(proxiedUrl, { headers: { "User-Agent": "Mozilla/5.0" } });
-                    if (resp.ok) return await resp.text();
-                } catch (e) {
-                    lastError = e;
-                }
-            }
-            throw lastError || new Error("All proxy scrapers were rejected.");
-        }
-
-        // MAIN FLOW RUNNER CONTROL TERMINAL
-        async function runClientAgent() {
-            const rawInput = document.getElementById('promptInput').value.trim();
-            if (!rawInput) { return alert("Please enter your prompt criteria configuration first."); }
+        // CENTRAL EXECUTION SCHEDULER
+        async function runBrowserAgentPipeline() {
+            const rawValue = document.getElementById('promptInput').value.trim();
+            if (!rawValue) { return alert("Please populate the prompt context matrix fields configuration first."); }
 
             const runBtn = document.getElementById('runBtn');
             const resultsPanel = document.getElementById('resultsPanel');
             document.getElementById('logContent').innerHTML = '';
             resultsPanel.classList.add('hidden');
-            runtimeSessionData = null;
+            sessionDataCacheBuffer = null;
 
             runBtn.disabled = true;
-            runBtn.innerText = "⏳ Processing Scraper Array Grid...";
+            runBtn.innerText = "⏳ Ingesting Data Fields Components...";
 
             try {
-                const { topic, contextLines } = parseInputBuffer(rawInput);
-                const modeVal = document.querySelector('input[name="mode"]:checked').value;
-                const modeCfg = CONFIG_MODES[modeVal];
+                // Parse prompt buffer input
+                const { topic, contextLines } = parseTextPromptInput(rawValue);
+                const selectedMode = document.querySelector('input[name="mode"]:checked').value;
+                const activeConfig = MODES_CONFIG[selectedMode];
 
-                consoleLog(`[ 1/4 ] Query Extraction: <strong class="text-white">${topic}</strong>`);
+                writeToConsole(`[ 1/4 ] Processing Query: <strong class="text-white">${topic}</strong>`);
                 
-                // Construct fallback slide structure if mode 3 is selected
-                let slideTitles = [];
-                if (modeVal === "3") {
-                    slideTitles = parseSlideOutline(contextLines);
-                    if (!slideTitles.length) slideTitles = ["Title Context", "Core Discoveries", "Deep Dive Data", "Strategic Outlook"];
-                    consoleLog(`📊 Slides Mapped: ${slideTitles.join(' → ')}`);
+                let assignedSlideTitles = [];
+                if (selectedMode === "3") {
+                    assignedSlideTitles = parsePresentationOutline(contextLines);
+                    if (!assignedSlideTitles.length) {
+                        assignedSlideTitles = ["Introduction", "Core Framework Analysis", "Key Findings Data", "Strategic Outlook Conclusions"];
+                    }
+                    writeToConsole(`📊 Slide Sequence Mapped: ${assignedSlideTitles.join(' → ')}`);
                 }
 
-                // 2. SCRAPING DUCKDUCKGO VIA PROXY PIPELINE
-                const searchQuery = topic + (contextLines.length ? " " + contextLines.join(" ") : "");
-                consoleLog(`🔍 Triggering online DuckDuckGo proxy fetch query...`);
+                // 2. QUERY DISCOVERY PHASE (Bypassing DuckDuckGo network blockages via Wikipedia Open Search API)
+                writeToConsole(`🔍 Querying Open Engine Index Services...`);
+                const openSearchEndpoint = `https://en.wikipedia.org/w/api.php?action=opensearch&search=${encodeURIComponent(topic)}&limit=${activeConfig.num_results}&namespace=0&format=json&origin=*`;
                 
-                // Scrape the HTML structure of DuckDuckGo Lite search interface to extract target links cleanly
-                const ddgUrl = `https://lite.duckduckgo.com/lite/html?q=${encodeURIComponent(searchQuery)}`;
-                const ddgHtml = await fetchWithProxyFallback(ddgUrl);
-                
-                // Parse strings into standard DOM objects to scrape elements (replacing BeautifulSoup)
-                const parser = new DOMParser();
-                const doc = parser.parseFromString(ddgHtml, 'text/html');
-                const links = doc.querySelectorAll('a.result-link');
-                
-                let searchResults = [];
-                links.forEach(link => {
-                    let href = link.getAttribute('href');
-                    let title = link.textContent.trim();
-                    if (href && href.startsWith('http') && !href.includes('duckduckgo.com')) {
-                        searchResults.push({ title: title, href: href });
-                    }
-                });
+                const searchResponse = await fetch(openSearchEndpoint);
+                if (!searchResponse.ok) throw new Error("Search index engine tracking connection failure.");
+                const searchData = await searchResponse.json();
 
-                searchResults = searchResults.slice(0, modeCfg.num_results);
-                if (!searchResults.length) {
-                    consoleLog(`❌ Scraping error: No links could be parsed from DuckDuckGo search return vector.`);
+                const matchedTitles = searchData[1] || [];
+                const matchedUrls = searchData[3] || [];
+
+                if (!matchedTitles.length) {
+                    writeToConsole(`❌ Query Error: No matching index records found. Try generalizing your terms.`);
                     runBtn.disabled = false;
-                    runBtn.innerText = "🚀 Start Live Proxy Scrape Agent";
+                    runBtn.innerText = "🚀 Start Live Research Compilation";
                     return;
                 }
 
-                consoleLog(`✅ Captured ${searchResults.length} web page destination locations targets.`);
+                writeToConsole(`✅ Identified ${matchedTitles.length} highly coherent data domains.`);
 
-                // 3. PAGE SCRAPING & DOM EXTRACTION PIPELINE
-                consoleLog(`[ 2/4 ] Fetching page components data contents...`);
-                let rawSourcesPool = [];
+                // 3. TARGET DATA EXTRACTOR & CLEANER (Translating Python BeautifulSoup logic)
+                writeToConsole(`[ 2/4 ] Fetching page paragraph arrays entries blocks...`);
+                let unparsedSourcesPool = [];
 
-                for (let res of searchResults) {
+                for (let i = 0; i < matchedTitles.length; i++) {
+                    const pageTitle = matchedTitles[i];
+                    const pageUrl = matchedUrls[i];
+
                     try {
-                        consoleLog(`📡 Scrape downloading target: <span class="text-indigo-400">${res.title.substring(0,35)}...</span>`);
-                        const pageHtml = await fetchWithProxyFallback(res.href);
-                        const pageDoc = parser.parseFromString(pageHtml, 'text/html');
+                        writeToConsole(`📡 Extracting text arrays text frames from: <span class="text-indigo-400">${pageTitle}</span>`);
                         
-                        // Clean junk templates tags completely out of scope matching Python file criteria
-                        const junkTags = pageDoc.querySelectorAll('script, style, nav, footer, header, aside, form, noscript');
-                        junkTags.forEach(t => t.remove());
+                        // Extract high-integrity raw clean paragraph chunks using content extracts API parameters
+                        const extractApiEndpoint = `https://en.wikipedia.org/w/api.php?action=query&prop=extracts&exintro=0&explaintext=1&titles=${encodeURIComponent(pageTitle)}&format=json&origin=*`;
+                        const pageResp = await fetch(extractApiEndpoint);
+                        if (!pageResp.ok) continue;
 
-                        let collectedParagraphs = [];
-                        const textNodes = pageDoc.querySelectorAll('p, h2, h3, li');
-                        
-                        textNodes.forEach(node => {
-                            let text = node.textContent.replace(/\s+/g, ' ').trim();
-                            if (text.split(' ').length >= modeCfg.min_words) {
-                                collectedParagraphs.push(text);
+                        const pageJson = await pageResp.json();
+                        const pageIdKey = Object.keys(pageJson.query.pages)[0];
+                        const fullContentString = pageJson.query.pages[pageIdKey].extract || "";
+
+                        // Parse the raw text chunk by tracking double line feeds to split paragraphs natively
+                        let splitParagraphs = fullContentString.split(/\n\n+/).map(p => p.replace(/\s+/g, ' ').trim());
+                        let validatedParagraphs = [];
+
+                        splitParagraphs.forEach(para => {
+                            if (para.split(' ').length >= activeConfig.min_words) {
+                                validatedParagraphs.push(para);
                             }
                         });
 
-                        let totalCharCount = 0;
-                        let limitedParas = [];
-                        for (let p of collectedParagraphs) {
-                            if (totalCharCount + p.length > modeCfg.max_chars) break;
-                            limitedParas.push(p);
-                            totalCharCount += p.length;
+                        // Enforce maximum length parameters on source entries matching backend script logic
+                        let runningLengthTracker = 0;
+                        let outputTruncatedParas = [];
+                        for (let p of validatedParagraphs) {
+                            if (runningLengthTracker + p.length > activeConfig.max_chars) break;
+                            outputTruncatedParas.push(p);
+                            runningLengthTracker += p.length;
                         }
 
-                        if (limitedParas.length > 0) {
-                            rawSourcesPool.push({
-                                title: res.title,
-                                url: res.href,
-                                paragraphs: limitedParas
+                        if (outputTruncatedParas.length > 0) {
+                            unparsedSourcesPool.push({
+                                title: pageTitle,
+                                url: pageUrl,
+                                paragraphs: outputTruncatedParas
                             });
-                            consoleLog(`&nbsp;&nbsp;&nbsp;&nbsp;✅ Extracted → ${limitedParas.length} paragraphs successfully`);
-                        } else {
-                            consoleLog(`&nbsp;&nbsp;&nbsp;&nbsp;⛔ Empty skip: No significant text paragraph nodes.`);
+                            writeToConsole(`&nbsp;&nbsp;&nbsp;&nbsp;✅ Extracted → ${outputTruncatedParas.length} independent content fragments`);
                         }
-                    } catch (e) {
-                        consoleLog(`&nbsp;&nbsp;&nbsp;&nbsp;⛔ Connection Skip: Site blocked query request.`);
+                    } catch (err) {
+                        writeToConsole(`&nbsp;&nbsp;&nbsp;&nbsp;⚠️ Skipped individual node entity: Data connection timeout.`);
                     }
                 }
 
-                if (!rawSourcesPool.length) {
-                    throw new Error("All extracted internet connection sources were rejected/blocked by CORS cross origin blocks.");
+                if (!unparsedSourcesPool.length) {
+                    throw new Error("Zero accessible content elements parsed from the open data nodes.");
                 }
 
-                // 4. TEXT SEQUENCE SIMIDUP DEDUPLICATION
-                consoleLog(`[ 3/4 ] Deduplicating overlapping article text streams...`);
-                let deduplicatedSources = [];
-                let trackingPool = [];
-                let initialCount = 0;
-                let postCount = 0;
+                // 4. SEQUENCE DEDUPLICATION PIPELINE (Translating Python SequenceMatcher logic)
+                writeToConsole(`[ 3/4 ] Deduplicating matching text matrix streams...`);
+                let filteredSourcesList = [];
+                let masterDeduplicationList = [];
+                let countBeforeFilter = 0;
+                let countAfterFilter = 0;
 
-                rawSourcesPool.forEach(src => {
-                    initialCount += src.paragraphs.length;
-                    let uniqueParas = [];
-                    src.paragraphs.forEach(p => {
-                        let isDuplicate = trackingPool.some(existingPara => checkSimilarity(p, existingPara) > modeCfg.sim_thresh);
-                        if (!isDuplicate) {
-                            uniqueParas.push(p);
-                            trackingPool.push(p);
+                unparsedSourcesPool.forEach(srcObj => {
+                    countBeforeFilter += srcObj.paragraphs.length;
+                    let uniqueElementsBuffer = [];
+
+                    srcObj.paragraphs.forEach(pText => {
+                        let matchesPriorElements = masterDeduplicationList.some(existingText => 
+                            evaluateSimilarityIndex(pText, existingText) > activeConfig.sim_thresh
+                        );
+
+                        if (!matchesPriorElements) {
+                            uniqueElementsBuffer.push(pText);
+                            masterDeduplicationList.push(pText);
                         }
                     });
 
-                    if (modeCfg.max_paras) {
-                        uniqueParas = uniqueParas.slice(0, modeCfg.max_paras);
+                    if (activeConfig.max_paras) {
+                        uniqueElementsBuffer = uniqueElementsBuffer.slice(0, activeConfig.max_paras);
                     }
 
-                    if (uniqueParas.length > 0) {
-                        deduplicatedSources.push({
-                            title: src.title,
-                            url: src.url,
-                            paragraphs: uniqueParas
+                    if (uniqueElementsBuffer.length > 0) {
+                        filteredSourcesList.push({
+                            title: srcObj.title,
+                            url: srcObj.url,
+                            paragraphs: uniqueElementsBuffer
                         });
-                        postCount += uniqueParas.length;
+                        countAfterFilter += uniqueElementsBuffer.length;
                     }
                 });
 
-                consoleLog(`&nbsp;&nbsp;&nbsp;&nbsp;📉 Filtered processing total text nodes index buffer block from ${initialCount} down to ${postCount}.`);
+                writeToConsole(`&nbsp;&nbsp;&nbsp;&nbsp;📉 Filtered sequence overlap nodes index from ${countBeforeFilter} down to ${countAfterFilter}.`);
+                writeToConsole(`[ 4/4 ] Exporting active data matrix to user UI buffer space...`);
 
-                // Store state session inside runtime container variable memory mapping architecture
-                runtimeSessionData = {
+                // Allocate data output inside memory storage cache array tracking
+                sessionDataCacheBuffer = {
                     topic: topic,
                     contextLines: contextLines,
-                    mode: modeVal,
-                    modeCfg: modeCfg,
-                    sources: deduplicatedSources,
-                    slideTitles: slideTitles
+                    mode: selectedMode,
+                    modeCfg: activeConfig,
+                    sources: filteredSourcesList,
+                    slideTitles: assignedSlideTitles
                 };
 
-                // Output structural UI components rendering updates
-                renderPreviewLayout(runtimeSessionData);
+                renderLiveWorkspacePreview(sessionDataCacheBuffer);
 
             } catch (err) {
-                consoleLog(`💥 Engine Failure Exception: ${err.message}`);
+                writeToConsole(`💥 Pipeline Processing Exception Error: ${err.message}`);
                 console.error(err);
             } finally {
                 runBtn.disabled = false;
-                runBtn.innerText = "🚀 Start Live Proxy Scrape Agent";
+                runBtn.innerText = "🚀 Start Live Research Compilation";
             }
         }
 
-        function renderPreviewLayout(data) {
+        function renderLiveWorkspacePreview(data) {
             const container = document.getElementById('previewContainer');
             container.innerHTML = '';
             
@@ -351,7 +331,7 @@
             metaHeader.innerHTML = `TARGET PROMPT TOPIC LOGIC INDEX: ${data.topic.toUpperCase()}<br>VERIFIED DATA SOURCES RECORD COUNT: ${data.sources.length}`;
             container.appendChild(metaHeader);
 
-            data.sources.forEach((src, sIdx) => {
+            data.sources.forEach((src, idx) => {
                 const wrap = document.createElement('div');
                 wrap.className = "bg-slate-900/60 border border-slate-800/80 rounded-lg p-3 space-y-1.5";
                 
@@ -361,7 +341,7 @@
                 });
 
                 wrap.innerHTML = `
-                    <div class="text-slate-200 font-bold text-xs">${sIdx+1}. ${src.title}</div>
+                    <div class="text-slate-200 font-bold text-xs">${idx+1}. ${src.title}</div>
                     <div class="text-[10px] text-slate-500 truncate underline mb-2">${src.url}</div>
                     <div class="space-y-1">${textItems}</div>
                 `;
@@ -369,7 +349,7 @@
             });
 
             document.getElementById('downloadBtn').onclick = () => {
-                if (data.mode === "3") { buildPptxClientBinary(data); } else { buildPdfClientBinary(data); }
+                if (data.mode === "3") { compilePresentationBinary(data); } else { compilePdfReportBinary(data); }
             };
 
             const panel = document.getElementById('resultsPanel');
@@ -377,8 +357,8 @@
             panel.scrollIntoView({ behavior: 'smooth' });
         }
 
-        // 5A. CLIENT-SIDE REPLACEMENT EXPORT ENGINE FOR REPORTLAB PDF GENERATION
-        function buildPdfClientBinary(data) {
+        // 5A. CUSTOM CLIENT SIDE REPLACEMENT GENERATION ENGINE FOR REPORTLAB PDF DEPLOYMENTS
+        function compilePdfReportBinary(data) {
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF({ orientation: 'portrait', format: 'a4' });
             
@@ -388,159 +368,163 @@
             const contentWidth = pageWidth - (margin * 2);
             let y = 30;
 
-            const checkPageBreak = (neededH) => {
-                if (y + neededH > pageHeight - margin) { doc.addPage(); y = 20; return true; }
+            const handlePageOverflowCheck = (requiredHeight) => {
+                if (y + requiredHeight > pageHeight - margin) { 
+                    doc.addPage(); 
+                    y = 20; 
+                    return true; 
+                }
                 return false;
             };
 
-            // Cover Banner Section Layout styling
-            doc.setFillColor(15, 23, 42);
+            // Cover Title Page Banner Block Layout construction matching original color specifications
+            doc.setFillColor(15, 23, 42); // HexColor #0f172a
             doc.roundedRect(margin, y, contentWidth, 42, 3, 3, 'F');
-            doc.setTextColor(165, 180, 252); doc.setFont("helvetica", "normal"); doc.setFontSize(10);
+            doc.setTextColor(165, 180, 252); // HexColor #a5b4fc
+            doc.setFont("helvetica", "normal"); doc.setFontSize(10);
             doc.text("AUTOMATED RESEARCH REPORT DIGEST", pageWidth / 2, y + 12, { align: "center" });
             
             doc.setTextColor(255, 255, 255); doc.setFont("helvetica", "bold"); doc.setFontSize(18);
-            let wrapTitle = doc.splitTextToSize(data.topic.toUpperCase(), contentWidth - 15);
-            doc.text(wrapTitle, pageWidth / 2, y + 24, { align: "center" });
+            let formattedTitleLines = doc.splitTextToSize(data.topic.toUpperCase(), contentWidth - 15);
+            doc.text(formattedTitleLines, pageWidth / 2, y + 24, { align: "center" });
 
             y += 60;
             doc.setTextColor(71, 85, 105); doc.setFont("helvetica", "normal"); doc.setFontSize(10);
-            doc.text(`Format Profile: ${data.modeCfg.label}`, margin, y); y += 6;
-            doc.text(`Database Source Records Parsed: ${data.sources.length} domains evaluated.`, margin, y); y += 15;
+            doc.text(`Format Profile Configuration Mode: ${data.modeCfg.label}`, margin, y); y += 6;
+            doc.text(`Identified High Coherence Source Records: ${data.sources.length} domains evaluated.`, margin, y); y += 15;
 
             if (data.contextLines.length > 0) {
                 doc.setFont("helvetica", "bold"); doc.setTextColor(15, 23, 42);
                 doc.text("Focus Matrix Constraints Parameters:", margin, y); y += 6;
                 doc.setFont("helvetica", "normal"); doc.setTextColor(71, 85, 105);
-                let wrapCtx = doc.splitTextToSize(data.contextLines.join('; '), contentWidth);
-                doc.text(wrapCtx, margin, y); y += (wrapCtx.length * 5) + 10;
+                let wrappedCtx = doc.splitTextToSize(data.contextLines.join('; '), contentWidth);
+                doc.text(wrappedCtx, margin, y); y += (wrappedCtx.length * 5) + 10;
             }
-            doc.text(`Generated on ${new Date().toLocaleDateString()} using Volatile Variable Runtime Workspace.`, margin, y);
+            doc.text(`Generated on ${new Date().toLocaleDateString()} using Volatile Variable Runtime Environment.`, margin, y);
 
-            // Table of Contents Page Allocation
+            // Page 2: Inhaltsverzeichnis (TOC) Component Layout
             doc.addPage(); y = 25;
             doc.setTextColor(15, 23, 42); doc.setFont("helvetica", "bold"); doc.setFontSize(15);
             doc.text("Inhaltsverzeichnis", margin, y); y += 4;
             doc.setDrawColor(99, 102, 241); doc.setLineWidth(0.5); doc.line(margin, y, pageWidth - margin, y); y += 10;
 
             data.sources.forEach((src, idx) => {
-                checkPageBreak(15);
+                handlePageOverflowCheck(15);
                 doc.setFont("helvetica", "bold"); doc.setFontSize(10); doc.setTextColor(99, 102, 241);
                 doc.text(`${idx + 1}.`, margin, y);
                 doc.setTextColor(15, 23, 42);
-                let truncTitle = src.title.length > 60 ? src.title.substring(0, 57) + "..." : src.title;
-                doc.text(truncTitle, margin + 6, y);
+                let textTrunc = src.title.length > 60 ? src.title.substring(0, 57) + "..." : src.title;
+                doc.text(textTrunc, margin + 6, y);
                 doc.setFont("helvetica", "normal"); doc.setFontSize(8); doc.setTextColor(100, 116, 139); y += 4.5;
                 doc.text(src.url, margin + 6, y); y += 8;
             });
 
-            // Context Content Processing Page iteration mapping loops
+            // Content Report Block Iteration Page Layout Sequences
             data.sources.forEach((src, idx) => {
                 doc.addPage(); y = 25;
-                doc.setFont("helvetica", "bold"); doc.setFontSize(13); doc.setTextColor(99, 102, 241);
-                let wrappedHeading = doc.splitTextToSize(`${idx + 1}. ${src.title}`, contentWidth);
-                doc.text(wrappedHeading, margin, y); y += (wrappedHeading.length * 5.5);
+                doc.setFont("helvetica", "bold"); doc.setFontSize(13); doc.setTextColor(99, 102, 241); // Accent Color Hex #6366f1
+                let titleBlockWrap = doc.splitTextToSize(`${idx + 1}. ${src.title}`, contentWidth);
+                doc.text(titleBlockWrap, margin, y); y += (titleBlockWrap.length * 5.5);
 
                 doc.setFillColor(15, 23, 42); doc.roundedRect(margin, y, contentWidth, 6, 1, 1, 'F');
                 doc.setTextColor(255, 255, 255); doc.setFont("helvetica", "normal"); doc.setFontSize(8);
-                doc.text(`Origin Source Connection Mapping: ${src.url}`, margin + 3, y + 4); y += 12;
+                doc.text(`Origin Source Mapping Target: ${src.url}`, margin + 3, y + 4); y += 12;
 
                 doc.setTextColor(15, 23, 42); doc.setFontSize(10);
                 src.paragraphs.forEach(p => {
-                    let wrappedParaLines = doc.splitTextToSize(p, data.mode === "2" ? contentWidth - 10 : contentWidth);
-                    let blockH = (wrappedParaLines.length * 5) + 8;
-                    checkPageBreak(blockH);
+                    let wrappedParagraphLines = doc.splitTextToSize(p, data.mode === "2" ? contentWidth - 10 : contentWidth);
+                    let computedBlockHeight = (wrappedParagraphLines.length * 5) + 8;
+                    handlePageOverflowCheck(computedBlockHeight);
 
                     if (data.mode === "2") {
                         doc.setFillColor(99, 102, 241); doc.circle(margin + 2, y + 1.5, 0.8, 'F');
-                        doc.text(wrappedParaLines, margin + 7, y + 4);
+                        doc.text(wrappedParagraphLines, margin + 7, y + 4);
                     } else {
-                        doc.text(wrappedParaLines, margin, y + 4);
+                        doc.text(wrappedParagraphLines, margin, y + 4);
                     }
-                    y += (wrappedParaLines.length * 5) + 5;
+                    y += (wrappedParagraphLines.length * 5) + 5;
                 });
             });
 
-            const escapeTitle = data.topic.replace(/[^\w\s-]/g, '').trim().replace(/\s+/g, '_').substring(0, 35);
-            doc.save(`research_report_${escapeTitle || 'output'}.pdf`);
+            const sanitationPattern = data.topic.replace(/[^\w\s-]/g, '').trim().replace(/\s+/g, '_').substring(0, 35);
+            doc.save(`research_report_${sanitationPattern || 'document'}.pdf`);
         }
 
-        // 5B. CLIENT-SIDE REPLACEMENT EXPORT ENGINE FOR PPTXGENJS PRESENTATION GENERATION
-        function buildPptxClientBinary(data) {
-            let pres = new PptxGenJS();
-            pres.layout = "LAYOUT_16x9";
+        // 5B. CLIENT SIDE PRESENTATION REPLACEMENT COMPILER GENERATING EDITABLE POWERPOINTS
+        function compilePresentationBinary(data) {
+            let pptxEngineInstance = new PptxGenJS();
+            pptxEngineInstance.layout = "LAYOUT_16x9";
 
-            let allParasUniverse = [];
+            let globalParagraphUniverse = [];
             data.sources.forEach(s => {
-                s.paragraphs.forEach(p => allParasUniverse.push({ text: p, origin: s.title }));
+                s.paragraphs.forEach(p => globalParagraphUniverse.push({ text: p, origin: s.title }));
             });
 
-            // Match strings via vector overlay arrays mapping keyword matching (identical algorithm architecture to Python script)
-            function extractBestOverlapBullets(slideTitle, limitCount = 4) {
-                let targets = new Set(slideTitle.toLowerCase().split(/\W+/).filter(w => w.length > 3));
-                let ranked = [];
+            // Keyword scoring matching engine algorithms matching original Python logic mappings
+            function calculateSlideContextBullets(slideTitleString, bulletLimit = 4) {
+                let targetKeywordsSet = new Set(slideTitleString.toLowerCase().split(/\W+/).filter(word => word.length > 3));
+                let priorityScoreRanking = [];
 
-                allParasUniverse.forEach(node => {
-                    let tokens = node.text.toLowerCase().split(/\W+/);
-                    let intersections = tokens.filter(tok => targets.has(tok)).length;
-                    ranked.push({ score: intersections, text: node.text });
+                globalParagraphUniverse.forEach(node => {
+                    let wordTokens = node.text.toLowerCase().split(/\W+/);
+                    let matchingIntersectionCount = wordTokens.filter(token => targetKeywordsSet.has(token)).length;
+                    priorityScoreRanking.push({ score: matchingIntersectionCount, text: node.text });
                 });
 
-                ranked.sort((a,b) => b.score - a.score);
-                let uniqueOut = [];
-                for (let r of ranked) {
-                    if (uniqueOut.length >= limitCount) break;
-                    let sentence = r.text.split(/[.!?]\s+/)[0];
-                    if (sentence.length > 170) sentence = sentence.substring(0, 167) + "...";
-                    if (!uniqueOut.includes(sentence)) uniqueOut.push(sentence);
+                priorityScoreRanking.sort((x, y) => y.score - x.score);
+                let targetedUniqueOutputs = [];
+                for (let matchItem of priorityScoreRanking) {
+                    if (targetedUniqueOutputs.length >= bulletLimit) break;
+                    let initialSentenceBreak = matchItem.text.split(/[.!?]\s+/)[0];
+                    if (initialSentenceBreak.length > 170) initialSentenceBreak = initialSentenceBreak.substring(0, 167) + "...";
+                    if (!targetedUniqueOutputs.includes(initialSentenceBreak)) targetedUniqueOutputs.push(initialSentenceBreak);
                 }
-                return uniqueOut.length ? uniqueOut : ["Database repository array connection tracking mapped standard baseline parameter matrix output values."];
+                return targetedUniqueOutputs.length ? targetedUniqueOutputs : ["Data structural node repository mapped parameter baseline placeholder values."];
             }
 
-            // Slide 1: Cover Header slide initialization properties block mapping
-            let sTitle = pres.addSlide();
-            sTitle.background = { color: "0F172A" };
-            sTitle.addText(data.topic.toUpperCase(), {
+            // Slide 1: Welcome Cover Page configuration mapping properties
+            let titleSlideNode = pptxEngineInstance.addSlide();
+            titleSlideNode.background = { color: "0F172A" }; // Dark Background Color
+            titleSlideNode.addText(data.topic.toUpperCase(), {
                 x: 0.5, y: 2.1, w: 9.0, h: 1.4, fontSize: 32, bold: true, color: "FFFFFF", fontFace: "Arial", align: "center", valign: "middle"
             });
-            sTitle.addText("Structured Research Intelligence Slide Presentation", {
+            titleSlideNode.addText("Structured Research Intelligence Slide Presentation", {
                 x: 0.5, y: 1.2, w: 9.0, h: 0.4, fontSize: 13, color: "A5B4FC", fontFace: "Arial", align: "center"
             });
 
-            // Slide 2: Inhaltsverzeichnis slide components structures
-            let sToc = pres.addSlide();
-            sToc.background = { color: "F1F5F9" };
-            sToc.addText("Inhaltsverzeichnis / Structural Mapping Agenda", { x: 0.5, y: 0.4, w: 9.0, h: 0.6, fontSize: 24, bold: true, color: "0F172A", fontFace: "Arial" });
+            // Slide 2: Table of Contents Page Allocation (Inhaltsverzeichnis) Layout
+            let agendaSlideNode = pptxEngineInstance.addSlide();
+            agendaSlideNode.background = { color: "F1F5F9" };
+            agendaSlideNode.addText("Inhaltsverzeichnis / Structured Agenda Outline", { x: 0.5, y: 0.4, w: 9.0, h: 0.6, fontSize: 24, bold: true, color: "0F172A", fontFace: "Arial" });
             
-            let bulletMapObjects = data.slideTitles.map((t, idx) => {
-                return { text: `${idx + 1}. ${t}`, options: { bullet: true, fontSize: 14, color: "1E293B", breakLine: true } };
+            let structuredAgendaMap = data.slideTitles.map((title, index) => {
+                return { text: `${index + 1}. ${title}`, options: { bullet: true, fontSize: 14, color: "1E293B", breakLine: true } };
             });
-            sToc.addText(bulletMapObjects, { x: 0.6, y: 1.3, w: 8.8, h: 3.8, fontFace: "Arial" });
+            agendaSlideNode.addText(structuredAgendaMap, { x: 0.6, y: 1.3, w: 8.8, h: 3.8, fontFace: "Arial" });
 
-            // Slide 3+: Dynamic Category Elements creation execution block
-            data.slideTitles.forEach((title, idx) => {
-                let sContent = pres.addSlide();
-                sContent.background = { color: idx % 2 === 0 ? "FFFFFF" : "F8FAFC" };
+            // Slide 3+: Dynamic Structural Text Matching Content Generator Block Loop Execution
+            data.slideTitles.forEach((slideHeaderTitle, idx) => {
+                let contentSlideNode = pptxEngineInstance.addSlide();
+                contentSlideNode.background = { color: idx % 2 === 0 ? "FFFFFF" : "F8FAFC" };
 
-                // Build a header layout block
-                sContent.addText(title, {
+                contentSlideNode.addText(slideHeaderTitle, {
                     x: 0.5, y: 0.2, w: 9.0, h: 0.6, fontSize: 22, bold: true, color: "0F172A", fontFace: "Arial", valign: "middle"
                 });
 
-                let customBullets = extractBestOverlapBullets(title, 4);
-                let formattedTextBullets = customBullets.map(b => {
-                    return { text: b, options: { bullet: true, fontSize: 14, color: "334155", breakLine: true } };
+                let parsedBulletPointsTextStrings = calculateSlideContextBullets(slideHeaderTitle, 4);
+                let slideTextElementsPayload = parsedBulletPointsTextStrings.map(sentenceBullet => {
+                    return { text: sentenceBullet, options: { bullet: true, fontSize: 14, color: "334155", breakLine: true } };
                 });
-                sContent.addText(formattedTextBullets, { x: 0.5, y: 1.2, w: 9.0, h: 4.0, fontFace: "Arial" });
+                contentSlideNode.addText(slideTextElementsPayload, { x: 0.5, y: 1.2, w: 9.0, h: 4.0, fontFace: "Arial" });
             });
 
-            // Final closing wrap layout sequence
-            let sEnd = pres.addSlide();
-            sEnd.background = { color: "0F172A" };
-            sEnd.addText("Compilation Process Concluded.", { x: 0.5, y: 2.2, w: 9.0, h: 0.8, fontSize: 32, bold: true, color: "FFFFFF", fontFace: "Arial", align: "center" });
+            // Final Conclusion Closing Frame Section
+            let closingSlideNode = pptxEngineInstance.addSlide();
+            closingSlideNode.background = { color: "0F172A" };
+            closingSlideNode.addText("Presentation Compilation Concluded.", { x: 0.5, y: 2.2, w: 9.0, h: 0.8, fontSize: 32, bold: true, color: "FFFFFF", fontFace: "Arial", align: "center" });
 
-            const escapeTitle = data.topic.replace(/[^\w\s-]/g, '').trim().replace(/\s+/g, '_').substring(0, 35);
-            pres.writeFile({ fileName: `research_deck_${escapeTitle || 'deck'}.pptx` });
+            const sanitationPattern = data.topic.replace(/[^\w\s-]/g, '').trim().replace(/\s+/g, '_').substring(0, 35);
+            pptxEngineInstance.writeFile({ fileName: `research_deck_${sanitationPattern || 'slides'}.pptx` });
         }
     </script>
 </body>
