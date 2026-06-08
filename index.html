@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="de">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,7 +8,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/pptxgenjs@3.12.0/dist/pptxgen.bundle.js"></script>
 </head>
-<body class="bg-slate-950 text-slate-100 min-h-screen font-sans antialiased selection:bg-indigo-500 selection:text-white">
+<body class="bg-slate-950 text-slate-100 min-h-screen font-sans antialiased">
 
     <div class="max-w-4xl mx-auto px-4 py-12">
         <header class="text-center mb-10">
@@ -16,10 +16,10 @@
                 <span class="text-3xl">🔬</span>
             </div>
             <h1 class="text-4xl font-extrabold tracking-tight bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
-                Research Agent
+                Pure Client-Side Research Agent
             </h1>
             <p class="text-slate-400 mt-2 text-sm max-w-md mx-auto">
-                Pure client-side research tool. No AI, no backend tracker. Refreshes clean on reload.
+                No Backend server. Uses real-time DuckDuckGo scraping proxies. Data disappears on reload.
             </p>
         </header>
 
@@ -28,16 +28,16 @@
                 <div class="space-y-5">
                     <div>
                         <label for="promptInput" class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">
-                            Research Topic & Focus Lines
+                            Topic Input & Focus Matrix Directives
                         </label>
                         <textarea id="promptInput" rows="5" 
-                            class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-slate-100 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition text-sm placeholder-slate-600 font-mono"
-                            placeholder="quantum computing&#10;* focus on 2024 breakthroughs&#10;* ignore basic explanations"></textarea>
+                            class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-slate-100 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition text-sm font-mono"
+                            placeholder="quantum computing&#10;* focus on 2024 breakthroughs&#10;* title, intro, qubits, breakthroughs, conclusion"></textarea>
                     </div>
 
                     <div>
                         <label class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-3">
-                            Select Research Mode
+                            Select Format Mode
                         </label>
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
                             <label class="relative flex flex-col p-4 bg-slate-950 border border-slate-800 rounded-xl cursor-pointer hover:border-slate-700 transition group">
@@ -45,7 +45,7 @@
                                 <span class="absolute top-4 right-4 w-4 h-4 border border-slate-700 rounded-full flex items-center justify-center peer-checked:border-indigo-500 peer-checked:bg-indigo-500 after:content-[''] after:w-1.5 after:h-1.5 after:bg-white after:rounded-full after:opacity-0 peer-checked:after:opacity-100 transition"></span>
                                 <div class="text-2xl mb-1 group-hover:scale-110 transition duration-300 self-start">📄</div>
                                 <span class="font-bold text-sm text-slate-200">Detailed Paper</span>
-                                <span class="text-xs text-slate-500 mt-1">Full detailed report compiled into a structured PDF document.</span>
+                                <span class="text-xs text-slate-500 mt-1">10 sources, deep paragraphs saved to PDF.</span>
                             </label>
 
                             <label class="relative flex flex-col p-4 bg-slate-950 border border-slate-800 rounded-xl cursor-pointer hover:border-slate-700 transition group">
@@ -53,7 +53,7 @@
                                 <span class="absolute top-4 right-4 w-4 h-4 border border-slate-700 rounded-full flex items-center justify-center peer-checked:border-indigo-500 peer-checked:bg-indigo-500 after:content-[''] after:w-1.5 after:h-1.5 after:bg-white after:rounded-full after:opacity-0 peer-checked:after:opacity-100 transition"></span>
                                 <div class="text-2xl mb-1 group-hover:scale-110 transition duration-300 self-start">⚡</div>
                                 <span class="font-bold text-sm text-slate-200">Breakdown</span>
-                                <span class="text-xs text-slate-500 mt-1">Concise bullet-point digest focused tightly on key information.</span>
+                                <span class="text-xs text-slate-500 mt-1">6 sources, bullet points summarized to PDF.</span>
                             </label>
 
                             <label class="relative flex flex-col p-4 bg-slate-950 border border-slate-800 rounded-xl cursor-pointer hover:border-slate-700 transition group">
@@ -61,70 +61,80 @@
                                 <span class="absolute top-4 right-4 w-4 h-4 border border-slate-700 rounded-full flex items-center justify-center peer-checked:border-indigo-500 peer-checked:bg-indigo-500 after:content-[''] after:w-1.5 after:h-1.5 after:bg-white after:rounded-full after:opacity-0 peer-checked:after:opacity-100 transition"></span>
                                 <div class="text-2xl mb-1 group-hover:scale-110 transition duration-300 self-start">📊</div>
                                 <span class="font-bold text-sm text-slate-200">Presentation</span>
-                                <span class="text-xs text-slate-500 mt-1">Custom structured slide deck exported to a fully editable PPTX file.</span>
+                                <span class="text-xs text-slate-500 mt-1">Slide deck compilation exported as editable PPTX.</span>
                             </label>
                         </div>
                     </div>
 
-                    <button id="runBtn" onclick="executeAgent()"
-                        class="w-full bg-indigo-600 hover:bg-indigo-500 active:bg-indigo-700 text-white font-semibold py-3 px-4 rounded-xl transition shadow-lg shadow-indigo-600/10 flex items-center justify-center space-x-2 text-sm tracking-wide">
-                        <span>🚀 Start Live Scrape Agent</span>
+                    <button id="runBtn" onclick="runClientAgent()"
+                        class="w-full bg-indigo-600 hover:bg-indigo-500 active:bg-indigo-700 text-white font-semibold py-3 px-4 rounded-xl transition shadow-lg shadow-indigo-600/10 text-sm tracking-wide">
+                        🚀 Start Live Proxy Scrape Agent
                     </button>
                 </div>
             </section>
 
-            <section id="logPanel" class="hidden bg-slate-900 border border-slate-800 rounded-2xl p-5 font-mono text-xs text-indigo-300 space-y-2 max-h-48 overflow-y-auto shadow-inner">
-                <div class="text-slate-500 border-b border-slate-800 pb-1 mb-2 font-sans font-bold uppercase tracking-wider">Live Execution Activity</div>
+            <section id="logPanel" class="hidden bg-slate-900 border border-slate-800 rounded-2xl p-5 font-mono text-xs text-indigo-300 space-y-2 max-h-56 overflow-y-auto shadow-inner">
+                <div class="text-slate-500 border-b border-slate-800 pb-1 mb-2 font-sans font-bold uppercase tracking-wider">Console Process Logs</div>
                 <div id="logContent" class="space-y-1"></div>
             </section>
 
-            <section id="resultsPanel" class="hidden bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-2xl space-y-6 animate-fadeIn">
+            <section id="resultsPanel" class="hidden bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-2xl space-y-4">
                 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-4">
                     <div>
-                        <h2 class="text-lg font-bold text-slate-100 flex items-center space-x-2">
-                            <span>✨ Research Compilation Complete</span>
-                        </h2>
-                        <p class="text-xs text-slate-400 mt-0.5">Previewing parsed runtime database index</p>
+                        <h2 class="text-lg font-bold text-slate-100">✨ Research Compilation Complete</h2>
+                        <p class="text-xs text-slate-400 mt-0.5">Instance runtime preview buffer</p>
                     </div>
                     <button id="downloadBtn" 
-                        class="bg-emerald-600 hover:bg-emerald-500 active:bg-emerald-700 text-white font-bold py-2.5 px-5 rounded-xl transition text-xs flex items-center justify-center space-x-2 shadow-lg shadow-emerald-600/10">
-                        <span>📥 Download Document</span>
+                        class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2.5 px-5 rounded-xl transition text-xs shadow-lg flex items-center space-x-1">
+                        <span>📥 Download Compiled File</span>
                     </button>
                 </div>
-
-                <div id="previewContainer" class="bg-slate-950 border border-slate-800 rounded-xl p-4 max-h-96 overflow-y-auto text-sm text-slate-300 space-y-4"></div>
+                <div id="previewContainer" class="bg-slate-950 border border-slate-800 rounded-xl p-4 max-h-96 overflow-y-auto text-sm text-slate-300 space-y-4 font-mono text-xs"></div>
             </section>
         </main>
     </div>
 
     <script>
-        // Global runtime agent state cache
-        let currentData = null;
+        // Runtime in-memory storage variable (cleans completely when reloading page)
+        let runtimeSessionData = null;
 
-        function log(message) {
+        // Configuration mapping matching Python variable structures
+        const CONFIG_MODES = {
+            "1": { label: "Detailed Research Paper", num_results: 8, max_chars: 6000, min_words: 20, sim_thresh: 0.80, max_paras: null },
+            "2": { label: "Breakdown",               num_results: 6, max_chars: 3000, min_words: 15, sim_thresh: 0.70, max_paras: 6 },
+            "3": { label: "Presentation (.pptx)",    num_results: 7, max_chars: 3000, min_words: 15, sim_thresh: 0.75, max_paras: 5 }
+        };
+
+        // Open CORS proxies to bypass Cross-Origin restrictions directly inside browser thread
+        const PROXIES = [
+            (url) => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
+            (url) => `https://corsproxy.io/?${encodeURIComponent(url)}`
+        ];
+
+        function consoleLog(msg) {
             const panel = document.getElementById('logPanel');
-            const container = document.getElementById('logContent');
+            const content = document.getElementById('logContent');
             panel.classList.remove('hidden');
-            
             const item = document.createElement('div');
-            item.className = "py-0.5 border-l-2 border-indigo-500/30 pl-2 text-slate-300";
-            item.innerHTML = `[${new Date().toLocaleTimeString()}] ${message}`;
-            container.appendChild(item);
+            item.className = "py-0.5 border-l-2 border-indigo-500/40 pl-2 text-slate-300";
+            item.innerHTML = `[${new Date().toLocaleTimeString()}] ${msg}`;
+            content.appendChild(item);
             panel.scrollTop = panel.scrollHeight;
         }
 
-        function parseInput(rawText) {
-            const lines = rawText.split('\n');
+        // 1. INPUT CONTEXT PARSING (Identical logic to Python parse_input)
+        function parseInputBuffer(raw) {
+            const lines = raw.split('\n');
             let topicLines = [];
             let contextLines = [];
-            for (let line of lines) {
+            lines.forEach(line => {
                 let s = line.trim();
                 if (s.startsWith('*')) {
                     contextLines.push(s.replace(/^\*+/, '').trim());
                 } else if (s.length > 0) {
                     topicLines.push(s);
                 }
-            }
+            });
             return {
                 topic: topicLines.join(' ').trim(),
                 contextLines: contextLines
@@ -133,197 +143,242 @@
 
         function parseSlideOutline(contextLines) {
             let slides = [];
-            for (let line of contextLines) {
-                if (/(\d+)\s+slides?/i.test(line)) continue;
+            contextLines.forEach(line => {
+                if (/(\d+)\s+slides?/i.test(line)) return; // skip explicit slide count strings
                 let parts = line.split(',').map(p => p.trim()).filter(p => p.length > 0);
                 slides.push(...parts);
-            }
+            });
             return slides;
         }
 
-        function calculateSimilarity(str1, str2) {
+        // Text similarity matching replacement engine for difflib.SequenceMatcher
+        function checkSimilarity(str1, str2) {
             const w1 = new Set(str1.toLowerCase().match(/\w+/g) || []);
             const w2 = new Set(str2.toLowerCase().match(/\w+/g) || []);
             if (w1.size === 0 || w2.size === 0) return 0;
-            const intersect = new Set([...w1].filter(x => w2.has(x)));
-            return intersect.size / Math.max(w1.size, w2.size);
+            const intersection = new Set([...w1].filter(x => w2.has(x)));
+            return intersection.size / Math.max(w1.size, w2.size);
         }
 
-        async function executeAgent() {
-            const inputVal = document.getElementById('promptInput').value.trim();
-            if (!inputVal) {
-                alert('Please type a topic prompt first.');
-                return;
+        async function fetchWithProxyFallback(url) {
+            let lastError = null;
+            for (let proxyFn of PROXIES) {
+                try {
+                    const proxiedUrl = proxyFn(url);
+                    let resp = await fetch(proxiedUrl, { headers: { "User-Agent": "Mozilla/5.0" } });
+                    if (resp.ok) return await resp.text();
+                } catch (e) {
+                    lastError = e;
+                }
             }
+            throw lastError || new Error("All proxy scrapers were rejected.");
+        }
+
+        // MAIN FLOW RUNNER CONTROL TERMINAL
+        async function runClientAgent() {
+            const rawInput = document.getElementById('promptInput').value.trim();
+            if (!rawInput) { return alert("Please enter your prompt criteria configuration first."); }
 
             const runBtn = document.getElementById('runBtn');
-            const logContent = document.getElementById('logContent');
             const resultsPanel = document.getElementById('resultsPanel');
-            
-            // Reset state
-            logContent.innerHTML = '';
+            document.getElementById('logContent').innerHTML = '';
             resultsPanel.classList.add('hidden');
-            currentData = null;
+            runtimeSessionData = null;
+
             runBtn.disabled = true;
-            runBtn.innerHTML = `<span>⏳ Processing Knowledge Graph...</span>`;
+            runBtn.innerText = "⏳ Processing Scraper Array Grid...";
 
             try {
-                const { topic, contextLines } = parseInput(inputVal);
-                const selectedMode = document.querySelector('input[name="mode"]:checked').value;
-                
-                log(`🔍 Extracted Topic: <strong class="text-white">${topic}</strong>`);
-                if (contextLines.length > 0) log(`📌 Extracted Directives: ${contextLines.join(' | ')}`);
+                const { topic, contextLines } = parseInputBuffer(rawInput);
+                const modeVal = document.querySelector('input[name="mode"]:checked').value;
+                const modeCfg = CONFIG_MODES[modeVal];
 
-                // 1. Wikipedia API Search Pass
+                consoleLog(`[ 1/4 ] Query Extraction: <strong class="text-white">${topic}</strong>`);
+                
+                // Construct fallback slide structure if mode 3 is selected
+                let slideTitles = [];
+                if (modeVal === "3") {
+                    slideTitles = parseSlideOutline(contextLines);
+                    if (!slideTitles.length) slideTitles = ["Title Context", "Core Discoveries", "Deep Dive Data", "Strategic Outlook"];
+                    consoleLog(`📊 Slides Mapped: ${slideTitles.join(' → ')}`);
+                }
+
+                // 2. SCRAPING DUCKDUCKGO VIA PROXY PIPELINE
                 const searchQuery = topic + (contextLines.length ? " " + contextLines.join(" ") : "");
-                const searchUrl = `https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(searchQuery)}&utf8=&format=json&origin=*`;
+                consoleLog(`🔍 Triggering online DuckDuckGo proxy fetch query...`);
                 
-                log(`🌐 querying search matrix indexes...`);
-                const sResp = await fetch(searchUrl);
-                const sData = await sResp.json();
-                const hits = sData.query?.search || [];
+                // Scrape the HTML structure of DuckDuckGo Lite search interface to extract target links cleanly
+                const ddgUrl = `https://lite.duckduckgo.com/lite/html?q=${encodeURIComponent(searchQuery)}`;
+                const ddgHtml = await fetchWithProxyFallback(ddgUrl);
+                
+                // Parse strings into standard DOM objects to scrape elements (replacing BeautifulSoup)
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(ddgHtml, 'text/html');
+                const links = doc.querySelectorAll('a.result-link');
+                
+                let searchResults = [];
+                links.forEach(link => {
+                    let href = link.getAttribute('href');
+                    let title = link.textContent.trim();
+                    if (href && href.startsWith('http') && !href.includes('duckduckgo.com')) {
+                        searchResults.push({ title: title, href: href });
+                    }
+                });
 
-                if (hits.length === 0) {
-                    log(`❌ Zero document entries matches found.`);
+                searchResults = searchResults.slice(0, modeCfg.num_results);
+                if (!searchResults.length) {
+                    consoleLog(`❌ Scraping error: No links could be parsed from DuckDuckGo search return vector.`);
                     runBtn.disabled = false;
-                    runBtn.innerHTML = `<span>🚀 Start Live Scrape Agent</span>`;
+                    runBtn.innerText = "🚀 Start Live Proxy Scrape Agent";
                     return;
                 }
 
-                // Match allocation depth
-                const maxPages = selectedMode === '1' ? 8 : 5;
-                const pagesToFetch = hits.slice(0, maxPages);
-                const pageIds = pagesToFetch.map(p => p.pageid);
+                consoleLog(`✅ Captured ${searchResults.length} web page destination locations targets.`);
 
-                log(`📡 Harvesting text blobs from top ${pageIds.length} source candidates...`);
-                const contentUrl = `https://en.wikipedia.org/w/api.php?action=query&prop=extracts|info&explaintext=1&inprop=url&pageids=${pageIds.join('|')}&format=json&origin=*`;
-                const cResp = await fetch(contentUrl);
-                const cData = await cResp.json();
-                const pages = cData.query?.pages || {};
+                // 3. PAGE SCRAPING & DOM EXTRACTION PIPELINE
+                consoleLog(`[ 2/4 ] Fetching page components data contents...`);
+                let rawSourcesPool = [];
 
-                let sources = [];
-                for (let id of pageIds) {
-                    const page = pages[id];
-                    if (!page || !page.extract) continue;
+                for (let res of searchResults) {
+                    try {
+                        consoleLog(`📡 Scrape downloading target: <span class="text-indigo-400">${res.title.substring(0,35)}...</span>`);
+                        const pageHtml = await fetchWithProxyFallback(res.href);
+                        const pageDoc = parser.parseFromString(pageHtml, 'text/html');
+                        
+                        // Clean junk templates tags completely out of scope matching Python file criteria
+                        const junkTags = pageDoc.querySelectorAll('script, style, nav, footer, header, aside, form, noscript');
+                        junkTags.forEach(t => t.remove());
 
-                    let rawParagraphs = page.extract.split('\n');
-                    let processedParas = [];
-
-                    for (let p of rawParagraphs) {
-                        p = p.trim();
-                        // Filter out short stubs or Wikipedia navigation structures
-                        if (p.length < 50 || p.startsWith('==')) continue;
-                        if (/see also|references|external links|further reading/i.test(p)) break;
-                        processedParas.push(p);
-                    }
-
-                    if (processedParas.length > 0) {
-                        // Match Mode settings for para counts
-                        const sliceLimit = selectedMode === '1' ? 6 : 4;
-                        sources.push({
-                            title: page.title,
-                            url: page.fullurl,
-                            paragraphs: processedParas.slice(0, sliceLimit)
+                        let collectedParagraphs = [];
+                        const textNodes = pageDoc.querySelectorAll('p, h2, h3, li');
+                        
+                        textNodes.forEach(node => {
+                            let text = node.textContent.replace(/\s+/g, ' ').trim();
+                            if (text.split(' ').length >= modeCfg.min_words) {
+                                collectedParagraphs.push(text);
+                            }
                         });
-                        log(`✅ Successfully indexed: <span class="text-indigo-400 font-bold">${page.title}</span>`);
+
+                        let totalCharCount = 0;
+                        let limitedParas = [];
+                        for (let p of collectedParagraphs) {
+                            if (totalCharCount + p.length > modeCfg.max_chars) break;
+                            limitedParas.push(p);
+                            totalCharCount += p.length;
+                        }
+
+                        if (limitedParas.length > 0) {
+                            rawSourcesPool.push({
+                                title: res.title,
+                                url: res.href,
+                                paragraphs: limitedParas
+                            });
+                            consoleLog(`&nbsp;&nbsp;&nbsp;&nbsp;✅ Extracted → ${limitedParas.length} paragraphs successfully`);
+                        } else {
+                            consoleLog(`&nbsp;&nbsp;&nbsp;&nbsp;⛔ Empty skip: No significant text paragraph nodes.`);
+                        }
+                    } catch (e) {
+                        consoleLog(`&nbsp;&nbsp;&nbsp;&nbsp;⛔ Connection Skip: Site blocked query request.`);
                     }
                 }
 
-                // 2. Cross-Source Deduplication
-                log(`✂️ Running cross-record duplication similarity analysis...`);
-                let uniqueSources = [];
-                let trackingPool = [];
-                let duplicatesFound = 0;
+                if (!rawSourcesPool.length) {
+                    throw new Error("All extracted internet connection sources were rejected/blocked by CORS cross origin blocks.");
+                }
 
-                for (let src of sources) {
-                    let filteredParas = [];
-                    for (let p of src.paragraphs) {
-                        let matchesExisting = false;
-                        for (let existing of trackingPool) {
-                            if (calculateSimilarity(p, existing) > 0.65) {
-                                matchesExisting = true;
-                                duplicatesFound++;
-                                break;
-                            }
-                        }
-                        if (!matchesExisting) {
-                            filteredParas.push(p);
+                // 4. TEXT SEQUENCE SIMIDUP DEDUPLICATION
+                consoleLog(`[ 3/4 ] Deduplicating overlapping article text streams...`);
+                let deduplicatedSources = [];
+                let trackingPool = [];
+                let initialCount = 0;
+                let postCount = 0;
+
+                rawSourcesPool.forEach(src => {
+                    initialCount += src.paragraphs.length;
+                    let uniqueParas = [];
+                    src.paragraphs.forEach(p => {
+                        let isDuplicate = trackingPool.some(existingPara => checkSimilarity(p, existingPara) > modeCfg.sim_thresh);
+                        if (!isDuplicate) {
+                            uniqueParas.push(p);
                             trackingPool.push(p);
                         }
+                    });
+
+                    if (modeCfg.max_paras) {
+                        uniqueParas = uniqueParas.slice(0, modeCfg.max_paras);
                     }
-                    if (filteredParas.length > 0) {
-                        uniqueSources.push({
+
+                    if (uniqueParas.length > 0) {
+                        deduplicatedSources.push({
                             title: src.title,
                             url: src.url,
-                            paragraphs: filteredParas
+                            paragraphs: uniqueParas
                         });
+                        postCount += uniqueParas.length;
                     }
-                }
-                log(`📉 Filter pass completed. Dropped ${duplicatesFound} redundant items.`);
+                });
 
-                // Cache to memory runtime instance
-                currentData = {
-                    topic,
-                    contextLines,
-                    mode: selectedMode,
-                    sources: uniqueSources
+                consoleLog(`&nbsp;&nbsp;&nbsp;&nbsp;📉 Filtered processing total text nodes index buffer block from ${initialCount} down to ${postCount}.`);
+
+                // Store state session inside runtime container variable memory mapping architecture
+                runtimeSessionData = {
+                    topic: topic,
+                    contextLines: contextLines,
+                    mode: modeVal,
+                    modeCfg: modeCfg,
+                    sources: deduplicatedSources,
+                    slideTitles: slideTitles
                 };
 
-                // Render Frontend Visual Preview Box
-                renderPreview(currentData);
-                
-                // Wire actions
-                document.getElementById('downloadBtn').onclick = () => {
-                    if (selectedMode === '3') {
-                        exportPPTX(currentData);
-                    } else {
-                        exportPDF(currentData);
-                    }
-                };
+                // Output structural UI components rendering updates
+                renderPreviewLayout(runtimeSessionData);
 
             } catch (err) {
-                log(`💥 Fatal execution failure: ${err.message}`);
+                consoleLog(`💥 Engine Failure Exception: ${err.message}`);
                 console.error(err);
             } finally {
                 runBtn.disabled = false;
-                runBtn.innerHTML = `<span>🚀 Start Live Scrape Agent</span>`;
+                runBtn.innerText = "🚀 Start Live Proxy Scrape Agent";
             }
         }
 
-        function renderPreview(data) {
+        function renderPreviewLayout(data) {
             const container = document.getElementById('previewContainer');
             container.innerHTML = '';
             
-            const headerInfo = document.createElement('div');
-            headerInfo.className = "border-b border-slate-800 pb-3 mb-4 text-xs text-slate-400 font-mono";
-            headerInfo.innerHTML = `TOPIC: ${data.topic}<br>INDEXED SOURCES: ${data.sources.length}`;
-            container.appendChild(headerInfo);
+            const metaHeader = document.createElement('div');
+            metaHeader.className = "border-b border-slate-800 pb-2 mb-3 text-indigo-400 text-xs font-bold";
+            metaHeader.innerHTML = `TARGET PROMPT TOPIC LOGIC INDEX: ${data.topic.toUpperCase()}<br>VERIFIED DATA SOURCES RECORD COUNT: ${data.sources.length}`;
+            container.appendChild(metaHeader);
 
-            data.sources.forEach((src, idx) => {
-                const sec = document.createElement('div');
-                sec.className = "bg-slate-900/50 rounded-lg p-3.5 border border-slate-800/60";
+            data.sources.forEach((src, sIdx) => {
+                const wrap = document.createElement('div');
+                wrap.className = "bg-slate-900/60 border border-slate-800/80 rounded-lg p-3 space-y-1.5";
                 
-                let pDOM = '';
+                let textItems = '';
                 src.paragraphs.forEach(p => {
-                    pDOM += data.mode === '2' 
-                        ? `<li class="list-disc ml-4 text-slate-300 py-0.5">${p}</li>` 
-                        : `<p class="text-slate-300 text-xs leading-relaxed mb-2 last:mb-0">${p}</p>`;
+                    textItems += data.mode === "2" ? `<li class="list-disc ml-4 text-slate-300">${p}</li>` : `<p class="text-slate-300 leading-relaxed mb-1">${p}</p>`;
                 });
 
-                sec.innerHTML = `
-                    <div class="text-xs font-bold text-indigo-400 mb-1">${idx + 1}. ${src.title}</div>
-                    <div class="text-[10px] text-slate-500 font-mono truncate mb-3">${src.url}</div>
-                    <div class="${data.mode === '2' ? 'space-y-1' : ''}">${pDOM}</div>
+                wrap.innerHTML = `
+                    <div class="text-slate-200 font-bold text-xs">${sIdx+1}. ${src.title}</div>
+                    <div class="text-[10px] text-slate-500 truncate underline mb-2">${src.url}</div>
+                    <div class="space-y-1">${textItems}</div>
                 `;
-                container.appendChild(sec);
+                container.appendChild(wrap);
             });
 
-            document.getElementById('resultsPanel').classList.remove('hidden');
-            document.getElementById('resultsPanel').scrollIntoView({ behavior: 'smooth' });
+            document.getElementById('downloadBtn').onclick = () => {
+                if (data.mode === "3") { buildPptxClientBinary(data); } else { buildPdfClientBinary(data); }
+            };
+
+            const panel = document.getElementById('resultsPanel');
+            panel.classList.remove('hidden');
+            panel.scrollIntoView({ behavior: 'smooth' });
         }
 
-        // --- CLIENT SIDE PDF EXPORT ENGINE ---
-        function exportPDF(data) {
+        // 5A. CLIENT-SIDE REPLACEMENT EXPORT ENGINE FOR REPORTLAB PDF GENERATION
+        function buildPdfClientBinary(data) {
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF({ orientation: 'portrait', format: 'a4' });
             
@@ -333,217 +388,159 @@
             const contentWidth = pageWidth - (margin * 2);
             let y = 30;
 
-            const checkPageBreak = (neededHeight) => {
-                if (y + neededHeight > pageHeight - margin) {
-                    doc.addPage();
-                    y = 20;
-                    return true;
-                }
+            const checkPageBreak = (neededH) => {
+                if (y + neededH > pageHeight - margin) { doc.addPage(); y = 20; return true; }
                 return false;
             };
 
-            // Page 1 Cover Graphic Box
+            // Cover Banner Section Layout styling
             doc.setFillColor(15, 23, 42);
-            doc.roundedRect(margin, y, contentWidth, 45, 3, 3, 'F');
+            doc.roundedRect(margin, y, contentWidth, 42, 3, 3, 'F');
+            doc.setTextColor(165, 180, 252); doc.setFont("helvetica", "normal"); doc.setFontSize(10);
+            doc.text("AUTOMATED RESEARCH REPORT DIGEST", pageWidth / 2, y + 12, { align: "center" });
+            
+            doc.setTextColor(255, 255, 255); doc.setFont("helvetica", "bold"); doc.setFontSize(18);
+            let wrapTitle = doc.splitTextToSize(data.topic.toUpperCase(), contentWidth - 15);
+            doc.text(wrapTitle, pageWidth / 2, y + 24, { align: "center" });
 
-            doc.setTextColor(165, 180, 252);
-            doc.setFont("helvetica", "normal");
-            doc.setFontSize(10);
-            doc.text("RESEARCH REPORT DIGEST", pageWidth / 2, y + 12, { align: "center" });
-
-            doc.setTextColor(255, 255, 255);
-            doc.setFont("helvetica", "bold");
-            doc.setFontSize(20);
-            let titleWrapped = doc.splitTextToSize(data.topic.toUpperCase(), contentWidth - 20);
-            doc.text(titleWrapped, pageWidth / 2, y + 25, { align: "center" });
-
-            y += 65;
-
-            doc.setTextColor(100, 116, 139);
-            doc.setFont("helvetica", "normal");
-            doc.setFontSize(10);
-            doc.text(`Format Profile: ${data.mode === '1' ? 'Detailed Paper' : 'Strategic Breakdown'}`, margin, y);
-            y += 6;
-            doc.text(`Database Entries Scraped: ${data.sources.length} items parsed`, margin, y);
-            y += 12;
+            y += 60;
+            doc.setTextColor(71, 85, 105); doc.setFont("helvetica", "normal"); doc.setFontSize(10);
+            doc.text(`Format Profile: ${data.modeCfg.label}`, margin, y); y += 6;
+            doc.text(`Database Source Records Parsed: ${data.sources.length} domains evaluated.`, margin, y); y += 15;
 
             if (data.contextLines.length > 0) {
-                doc.setFont("helvetica", "bold");
-                doc.setTextColor(15, 23, 42);
-                doc.text("Directives Matrix Constraints:", margin, y);
-                y += 6;
-                doc.setFont("helvetica", "normal");
-                doc.setTextColor(100, 116, 139);
-                let ctxText = doc.splitTextToSize(data.contextLines.join('; '), contentWidth);
-                doc.text(ctxText, margin, y);
-                y += (ctxText.length * 5) + 10;
+                doc.setFont("helvetica", "bold"); doc.setTextColor(15, 23, 42);
+                doc.text("Focus Matrix Constraints Parameters:", margin, y); y += 6;
+                doc.setFont("helvetica", "normal"); doc.setTextColor(71, 85, 105);
+                let wrapCtx = doc.splitTextToSize(data.contextLines.join('; '), contentWidth);
+                doc.text(wrapCtx, margin, y); y += (wrapCtx.length * 5) + 10;
             }
+            doc.text(`Generated on ${new Date().toLocaleDateString()} using Volatile Variable Runtime Workspace.`, margin, y);
 
-            doc.text(`Generated on ${new Date().toLocaleDateString()} via Automated Sandbox Agent.`, margin, y);
+            // Table of Contents Page Allocation
+            doc.addPage(); y = 25;
+            doc.setTextColor(15, 23, 42); doc.setFont("helvetica", "bold"); doc.setFontSize(15);
+            doc.text("Inhaltsverzeichnis", margin, y); y += 4;
+            doc.setDrawColor(99, 102, 241); doc.setLineWidth(0.5); doc.line(margin, y, pageWidth - margin, y); y += 10;
 
-            // Page 2 Table of Contents
-            doc.addPage();
-            y = 25;
-            doc.setTextColor(15, 23, 42);
-            doc.setFont("helvetica", "bold");
-            doc.setFontSize(16);
-            doc.text("Inhaltsverzeichnis", margin, y);
-            y += 4;
-            doc.setDrawColor(99, 102, 241);
-            doc.setLineWidth(0.5);
-            doc.line(margin, y, pageWidth - margin, y);
-            y += 12;
-
-            data.sources.forEach((src, index) => {
-                checkPageBreak(16);
-                doc.setFont("helvetica", "bold");
-                doc.setFontSize(11);
-                doc.setTextColor(99, 102, 241);
-                doc.text(`${index + 1}.`, margin, y);
-                
+            data.sources.forEach((src, idx) => {
+                checkPageBreak(15);
+                doc.setFont("helvetica", "bold"); doc.setFontSize(10); doc.setTextColor(99, 102, 241);
+                doc.text(`${idx + 1}.`, margin, y);
                 doc.setTextColor(15, 23, 42);
-                let textTrunc = src.title.length > 65 ? src.title.substring(0, 62) + "..." : src.title;
-                doc.text(textTrunc, margin + 8, y);
-                
-                doc.setFont("helvetica", "normal");
-                doc.setFontSize(9);
-                doc.setTextColor(100, 116, 139);
-                y += 5;
-                doc.text(src.url, margin + 8, y);
-                y += 10;
+                let truncTitle = src.title.length > 60 ? src.title.substring(0, 57) + "..." : src.title;
+                doc.text(truncTitle, margin + 6, y);
+                doc.setFont("helvetica", "normal"); doc.setFontSize(8); doc.setTextColor(100, 116, 139); y += 4.5;
+                doc.text(src.url, margin + 6, y); y += 8;
             });
 
-            // Core Content Pages
-            data.sources.forEach((src, index) => {
-                doc.addPage();
-                y = 25;
+            // Context Content Processing Page iteration mapping loops
+            data.sources.forEach((src, idx) => {
+                doc.addPage(); y = 25;
+                doc.setFont("helvetica", "bold"); doc.setFontSize(13); doc.setTextColor(99, 102, 241);
+                let wrappedHeading = doc.splitTextToSize(`${idx + 1}. ${src.title}`, contentWidth);
+                doc.text(wrappedHeading, margin, y); y += (wrappedHeading.length * 5.5);
 
-                doc.setFont("helvetica", "bold");
-                doc.setFontSize(14);
-                doc.setTextColor(99, 102, 241);
-                let wrappedSecTitle = doc.splitTextToSize(`${index + 1}. ${src.title}`, contentWidth);
-                doc.text(wrappedSecTitle, margin, y);
-                y += (wrappedSecTitle.length * 6);
+                doc.setFillColor(15, 23, 42); doc.roundedRect(margin, y, contentWidth, 6, 1, 1, 'F');
+                doc.setTextColor(255, 255, 255); doc.setFont("helvetica", "normal"); doc.setFontSize(8);
+                doc.text(`Origin Source Connection Mapping: ${src.url}`, margin + 3, y + 4); y += 12;
 
-                doc.setFillColor(15, 23, 42);
-                doc.roundedRect(margin, y, contentWidth, 7, 1, 1, 'F');
-                doc.setTextColor(255, 255, 255);
-                doc.setFont("helvetica", "normal");
-                doc.setFontSize(8);
-                doc.text(`Source Reference Node: ${src.url}`, margin + 3, y + 4.5);
-                y += 14;
-
-                doc.setTextColor(15, 23, 42);
-                doc.setFontSize(10);
-
+                doc.setTextColor(15, 23, 42); doc.setFontSize(10);
                 src.paragraphs.forEach(p => {
-                    let lines = doc.splitTextToSize(p, data.mode === '2' ? contentWidth - 10 : contentWidth);
-                    let requiredH = (lines.length * 5) + 10;
-                    checkPageBreak(requiredH);
+                    let wrappedParaLines = doc.splitTextToSize(p, data.mode === "2" ? contentWidth - 10 : contentWidth);
+                    let blockH = (wrappedParaLines.length * 5) + 8;
+                    checkPageBreak(blockH);
 
-                    if (data.mode === '2') {
-                        doc.setFillColor(99, 102, 241);
-                        doc.circle(margin + 2, y + 1.5, 1, 'F');
-                        doc.text(lines, margin + 8, y + 4);
+                    if (data.mode === "2") {
+                        doc.setFillColor(99, 102, 241); doc.circle(margin + 2, y + 1.5, 0.8, 'F');
+                        doc.text(wrappedParaLines, margin + 7, y + 4);
                     } else {
-                        doc.text(lines, margin, y + 4);
+                        doc.text(wrappedParaLines, margin, y + 4);
                     }
-                    y += (lines.length * 5) + 6;
+                    y += (wrappedParaLines.length * 5) + 5;
                 });
             });
 
-            const safeTitle = data.topic.replace(/[^\w\s-]/g, '').trim().replace(/\s+/g, '_').substring(0, 40);
-            doc.save(`research_${safeTitle || 'report'}.pdf`);
+            const escapeTitle = data.topic.replace(/[^\w\s-]/g, '').trim().replace(/\s+/g, '_').substring(0, 35);
+            doc.save(`research_report_${escapeTitle || 'output'}.pdf`);
         }
 
-        // --- CLIENT SIDE PPTX EXPORT ENGINE ---
-        function exportPPTX(data) {
+        // 5B. CLIENT-SIDE REPLACEMENT EXPORT ENGINE FOR PPTXGENJS PRESENTATION GENERATION
+        function buildPptxClientBinary(data) {
             let pres = new PptxGenJS();
             pres.layout = "LAYOUT_16x9";
 
-            // Fallback outline structure setup
-            let slideTitles = parseSlideOutline(data.contextLines);
-            if (slideTitles.length === 0) {
-                slideTitles = ["Introduction Focus", "Primary Core Findings", "Deep-Dive Context", "Analytical Outlook"];
-            }
-
-            // Pool all runtime paragraphs globally for topic vector matching
-            let universe = [];
+            let allParasUniverse = [];
             data.sources.forEach(s => {
-                s.paragraphs.forEach(p => universe.push({ text: p, origin: s.title }));
+                s.paragraphs.forEach(p => allParasUniverse.push({ text: p, origin: s.title }));
             });
 
-            function pullMatchingBullets(title, limit = 4) {
-                let targets = new Set(title.toLowerCase().split(/\W+/).filter(x => x.length > 3));
-                let records = [];
+            // Match strings via vector overlay arrays mapping keyword matching (identical algorithm architecture to Python script)
+            function extractBestOverlapBullets(slideTitle, limitCount = 4) {
+                let targets = new Set(slideTitle.toLowerCase().split(/\W+/).filter(w => w.length > 3));
+                let ranked = [];
 
-                universe.forEach(item => {
-                    let matches = item.text.toLowerCase().split(/\W+/).filter(w => targets.has(w)).length;
-                    records.push({ score: matches, text: item.text });
+                allParasUniverse.forEach(node => {
+                    let tokens = node.text.toLowerCase().split(/\W+/);
+                    let intersections = tokens.filter(tok => targets.has(tok)).length;
+                    ranked.push({ score: intersections, text: node.text });
                 });
 
-                records.sort((a, b) => b.score - a.score);
-                let output = [];
-                for (let r of records) {
-                    if (output.length >= limit) break;
+                ranked.sort((a,b) => b.score - a.score);
+                let uniqueOut = [];
+                for (let r of ranked) {
+                    if (uniqueOut.length >= limitCount) break;
                     let sentence = r.text.split(/[.!?]\s+/)[0];
-                    if (sentence.length > 175) sentence = sentence.substring(0, 172) + "...";
-                    if (!output.includes(sentence)) output.push(sentence);
+                    if (sentence.length > 170) sentence = sentence.substring(0, 167) + "...";
+                    if (!uniqueOut.includes(sentence)) uniqueOut.push(sentence);
                 }
-                return output.length ? output : ["Data matrix index node search yielded neutral background defaults."];
+                return uniqueOut.length ? uniqueOut : ["Database repository array connection tracking mapped standard baseline parameter matrix output values."];
             }
 
-            // Slide 1: Title
-            let slide0 = pres.addSlide();
-            slide0.background = { color: "0F172A" };
-            if (pres.shapes && pres.shapes.RECTANGLE) {
-                slide0.addShape(pres.shapes.RECTANGLE, { x: 0, y: 2.2, w: 10, h: 1.4, fill: { color: "6366F1" } });
-            }
-            slide0.addText(data.topic, {
-                x: 0.5, y: 2.25, w: 9, h: 1.3, fontSize: 34, bold: true, color: "FFFFFF", fontFace: "Calibri", align: "center", valign: "middle"
+            // Slide 1: Cover Header slide initialization properties block mapping
+            let sTitle = pres.addSlide();
+            sTitle.background = { color: "0F172A" };
+            sTitle.addText(data.topic.toUpperCase(), {
+                x: 0.5, y: 2.1, w: 9.0, h: 1.4, fontSize: 32, bold: true, color: "FFFFFF", fontFace: "Arial", align: "center", valign: "middle"
             });
-            slide0.addText("Strategic Presentation Deck", {
-                x: 0.5, y: 1.2, w: 9, h: 0.5, fontSize: 14, color: "A5B4FC", fontFace: "Calibri", align: "center"
+            sTitle.addText("Structured Research Intelligence Slide Presentation", {
+                x: 0.5, y: 1.2, w: 9.0, h: 0.4, fontSize: 13, color: "A5B4FC", fontFace: "Arial", align: "center"
             });
 
-            // Slide 2: Agenda
-            let slide1 = pres.addSlide();
-            slide1.background = { color: "F1F5F9" };
-            slide1.addText("Inhaltsverzeichnis", { x: 0.5, y: 0.4, w: 9, h: 0.6, fontSize: 26, bold: true, color: "0F172A", fontFace: "Calibri" });
+            // Slide 2: Inhaltsverzeichnis slide components structures
+            let sToc = pres.addSlide();
+            sToc.background = { color: "F1F5F9" };
+            sToc.addText("Inhaltsverzeichnis / Structural Mapping Agenda", { x: 0.5, y: 0.4, w: 9.0, h: 0.6, fontSize: 24, bold: true, color: "0F172A", fontFace: "Arial" });
             
-            let agendaArr = slideTitles.map((t, i) => {
-                return { text: `${i + 1}. ${t}`, options: { bullet: true, fontSize: 15, color: "1E293B", breakLine: true } };
+            let bulletMapObjects = data.slideTitles.map((t, idx) => {
+                return { text: `${idx + 1}. ${t}`, options: { bullet: true, fontSize: 14, color: "1E293B", breakLine: true } };
             });
-            slide1.addText(agendaArr, { x: 0.6, y: 1.4, w: 8.8, h: 3.8, fontFace: "Calibri" });
+            sToc.addText(bulletMapObjects, { x: 0.6, y: 1.3, w: 8.8, h: 3.8, fontFace: "Arial" });
 
-            // Slide 3+: Dynamic Context Sections
-            slideTitles.forEach((title, idx) => {
-                let s = pres.addSlide();
-                s.background = { color: idx % 2 === 0 ? "FFFFFF" : "F8FAFC" };
-                
-                if (pres.shapes && pres.shapes.RECTANGLE) {
-                    s.addShape(pres.shapes.RECTANGLE, { x: 0, y: 0, w: 0.12, h: 5.625, fill: { color: "6366F1" } });
-                    s.addShape(pres.shapes.RECTANGLE, { x: 0.12, y: 0, w: 9.88, h: 0.9, fill: { color: "0F172A" } });
-                }
+            // Slide 3+: Dynamic Category Elements creation execution block
+            data.slideTitles.forEach((title, idx) => {
+                let sContent = pres.addSlide();
+                sContent.background = { color: idx % 2 === 0 ? "FFFFFF" : "F8FAFC" };
 
-                s.addText(title, {
-                    x: 0.4, y: 0.05, w: 9.2, h: 0.8, fontSize: 22, bold: true, color: "FFFFFF", fontFace: "Calibri", valign: "middle"
+                // Build a header layout block
+                sContent.addText(title, {
+                    x: 0.5, y: 0.2, w: 9.0, h: 0.6, fontSize: 22, bold: true, color: "0F172A", fontFace: "Arial", valign: "middle"
                 });
 
-                let customBullets = pullMatchingBullets(title, 4);
-                let slideTextObjects = customBullets.map(b => {
-                    return { text: b, options: { bullet: true, fontSize: 14, color: "1E293B", breakLine: true } };
+                let customBullets = extractBestOverlapBullets(title, 4);
+                let formattedTextBullets = customBullets.map(b => {
+                    return { text: b, options: { bullet: true, fontSize: 14, color: "334155", breakLine: true } };
                 });
-                s.addText(slideTextObjects, { x: 0.5, y: 1.3, w: 9.0, h: 3.9, fontFace: "Calibri" });
+                sContent.addText(formattedTextBullets, { x: 0.5, y: 1.2, w: 9.0, h: 4.0, fontFace: "Arial" });
             });
 
-            // Conclusion slide
-            let slideEnd = pres.addSlide();
-            slideEnd.background = { color: "0F172A" };
-            slideEnd.addText("Thank You", { x: 0.5, y: 2.0, w: 9, h: 1.0, fontSize: 38, bold: true, color: "FFFFFF", fontFace: "Calibri", align: "center" });
+            // Final closing wrap layout sequence
+            let sEnd = pres.addSlide();
+            sEnd.background = { color: "0F172A" };
+            sEnd.addText("Compilation Process Concluded.", { x: 0.5, y: 2.2, w: 9.0, h: 0.8, fontSize: 32, bold: true, color: "FFFFFF", fontFace: "Arial", align: "center" });
 
-            const safeTitle = data.topic.replace(/[^\w\s-]/g, '').trim().replace(/\s+/g, '_').substring(0, 40);
-            pres.writeFile({ fileName: `research_${safeTitle || 'presentation'}.pptx` });
+            const escapeTitle = data.topic.replace(/[^\w\s-]/g, '').trim().replace(/\s+/g, '_').substring(0, 35);
+            pres.writeFile({ fileName: `research_deck_${escapeTitle || 'deck'}.pptx` });
         }
     </script>
 </body>
